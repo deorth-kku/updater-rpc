@@ -1,0 +1,7 @@
+{
+	"api_type": "github",
+	"account_name": "citra-emu",
+	"image_name": "citra_qt.exe",
+	"project_name": "citra-nightly",
+	"keyword": "mingw"
+}

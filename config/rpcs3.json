@@ -1,0 +1,7 @@
+{
+	"api_type": "appveyor",
+	"account_name": "rpcs3",
+	"project_name": "rpcs3",
+	"keyword": "rpcs3",
+	"no_pull": true
+}

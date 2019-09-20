@@ -1,0 +1,9 @@
+{
+	"api_type": "github",
+	"account_name": "Ryochan7",
+	"project_name": "DS4Windows",
+    "keyword": "x64",
+    "filetype": "zip",
+    "image_name": "DS4Windows.exe",
+    "allow_restart":true
+}

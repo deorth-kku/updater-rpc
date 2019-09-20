@@ -1,0 +1,8 @@
+{
+	"api_type": "appveyor",
+	"account_name": "nastys",
+    "project_name": "pd-loader",
+    "image_name": "Diva.exe",
+    "filetype":"zip",
+    "exclude_file_type":["ini","dat"]
+}
