@@ -130,7 +130,6 @@ class Py7z:
             return self.filelist
 
     def getPrefixDir(self):
-        cache=[]
         dir=os.path.commonprefix(self.filelist)
         return dir
     
@@ -173,8 +172,7 @@ class ProcessCtrl:
 
     def startProc(self):
         for cmd in self.cmds:
-
-            subprocess.Popen(cmd[0],cwd=cmd[1],shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            subprocess.Popen(cmd[0],cwd=cmd[1])
     
     def restartProc(self):
         self.stopProc()
@@ -190,7 +188,7 @@ class ProcessCtrl:
 if __name__ == "__main__":
     f=Py7z("/root/citra/downloads/citra-windows-mingw-20190903-8c2a335.7z")
     f.getFileList()
-    f.ifSingleDir()
+
     #f.extractFiles(f.filelist,"/root/rpcs3")
     #p=ProcessCtrl("chromium")
     #p.restartProc()

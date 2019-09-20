@@ -97,7 +97,7 @@ class Updater:
                 new=os.path.join(self.path,prefix,file)
                 try:
                     shutil.copy(new,self.path)
-                except IsADirectoryError:
+                except (IsADirectoryError,PermissionError):
                     old=os.path.join(self.path,file)
                     dir_util.copy_tree(new,old)
             shutil.rmtree(os.path.join(self.path,prefix))
@@ -142,16 +142,21 @@ if __name__=="__main__":
     #update=Updater("pd_loader","/root/pdaft")
     #update=Updater(sys.argv[1],sys.argv[2])
     #update.run()
-    
     if sys.platform=="win32":
-        citra_path="D:\\citra"
-        rpcs3_path="D:\\rpcs3"
+        citra_path=r"D:\citra"
+        rpcs3_path=r"D:\rpcs3"
+        pd_loader_path=r"F:\GAMES\Hatsune Miku Project DIVA Arcade Future Tone"
+        ds4_path=r"D:\Program Files\DS4Windows"
     else:
         citra_path="/root/citra"
         rpcs3_path="/root/rpcs3"
+        pd_loader_path="/root/pdaft"
+        ds4_path="/root/ds4"
 
-    ds4=Updater("ds4windows","/root/ds4")
+
+    ds4=Updater("ds4windows",ds4_path)
     ds4.run()
+
     citra=Updater("citra",citra_path)
     citra.run()
     rpcs3=Updater("rpcs3",rpcs3_path)
