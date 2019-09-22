@@ -14,7 +14,8 @@ CONF={
     "allow_restart":False,
     "include_file_type":[],
     "exclude_file_type":[],
-    "single_dir":True
+    "single_dir":True,
+    "keep_download_file": True
 
 }
 
@@ -101,6 +102,8 @@ class Updater:
                     old=os.path.join(self.path,file)
                     dir_util.copy_tree(new,old)
             shutil.rmtree(os.path.join(self.path,prefix))
+        if not self.conf["keep_download_file"]:
+            os.remove(self.fullfilename)
 
         
 
@@ -153,7 +156,7 @@ if __name__=="__main__":
         pd_loader_path="/root/pdaft"
         ds4_path="/root/ds4"
 
-
+    '''
     ds4=Updater("ds4windows",ds4_path)
     ds4.run()
 
@@ -161,7 +164,8 @@ if __name__=="__main__":
     citra.run()
     rpcs3=Updater("rpcs3",rpcs3_path)
     rpcs3.run()
-    pdl=Updater("pd_loader","/root/pdaft")
-    pdl.run()
+    '''
+    pdl=Updater("pd_loader",pd_loader_path)
+    pdl.run(True)
     
         

@@ -4,5 +4,6 @@
     "project_name": "pd-loader",
     "image_name": "Diva.exe",
     "filetype":"zip",
-    "exclude_file_type":["ini","dat"]
+    "exclude_file_type":["ini","dat"],
+    "keep_download_file": false
 }
