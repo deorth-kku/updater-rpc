@@ -131,7 +131,7 @@ class Updater:
                 self.extract()
             self.updateVersionfile()
         else:
-            print("当前%s已是最新，无需更新！"%(self.name))
+            print("当前%s已是最新，无需更新！"%(self.name)) #TODO:Use log instead of print
 
 
 
@@ -156,7 +156,7 @@ if __name__=="__main__":
         pd_loader_path="/root/pdaft"
         ds4_path="/root/ds4"
 
-    '''
+    
     ds4=Updater("ds4windows",ds4_path)
     ds4.run()
 
@@ -164,7 +164,6 @@ if __name__=="__main__":
     citra.run()
     rpcs3=Updater("rpcs3",rpcs3_path)
     rpcs3.run()
-    '''
     pdl=Updater("pd_loader",pd_loader_path)
     pdl.run(True)
     

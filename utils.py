@@ -62,7 +62,7 @@ def searchFile(filename, version):
     else:
         return False
 
-def wget(url, pwd):
+def wget(url, pwd): #TODO: Make a aria2 rpc class, with download exception
     secret='token:pandownload' 
     opts = dict(dir=pwd)
     s = xmlrpc.client.ServerProxy('http://127.0.0.1:6800/rpc')
@@ -104,7 +104,7 @@ def progressBar(current, total, speed):
 
 
 
-class Py7z:
+class Py7z: #TODO: Throw exception when decompress error
     def __init__(self,filename):
         if subprocess.call("7z",stdout=subprocess.PIPE,stderr=subprocess.PIPE):
             print("PLease check if 7z is installed")
