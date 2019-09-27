@@ -107,9 +107,10 @@ if __name__ == "__main__":
     # pd_loader=AppveyorApi("nastys","pd-loader")
     # print(pd_loader.getDlUrl(filetype="zip"))
 
+
     kod = GithubApi("kalcaddle", "KodExplorer")
-    print(kod.getDlUrl(filetype="tar.gz"))
-    print(kod.getVersion())
+    #print(kod.getDlUrl(filetype="tar.gz"))
+    #print(kod.getVersion())
 
     # rpcs3=AppveyorApi("rpcs3","rpcs3")
     # print(rpcs3.getDlUrl(keyword="rpcs3",no_keyword="sha256",no_pull=True))

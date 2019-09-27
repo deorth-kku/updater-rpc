@@ -5,7 +5,11 @@ import json
 import shutil
 from distutils import dir_util
 
-CONF = {
+
+
+
+class Updater:
+    CONF = {
     "branch": None,
     "keyword": "",
     "no_keyword": "/",
@@ -16,16 +20,14 @@ CONF = {
     "exclude_file_type": [],
     "single_dir": True,
     "keep_download_file": True
+    }
+    aria2=Aria2Rpc("127.0.0.1",passwd="pandownload")
 
-}
-
-
-class Updater:
     def __init__(self, name, path):
         self.path = path
         self.name = name
 
-        self.conf = dict(CONF)
+        self.conf = dict(self.CONF)
         try:
             self.newconf = loadconfig(name)
         except IOError:
@@ -66,7 +68,7 @@ class Updater:
         self.dldir = os.path.join(self.path, "downloads")
         if not os.path.exists(self.dldir):
             os.makedirs(self.dldir)
-        wget(self.dlurl, self.dldir)
+        self.aria2.wget(self.dlurl, self.dldir)
 
     def extract(self):
         self.fullfilename = os.path.join(self.dldir, self.filename)
@@ -145,13 +147,16 @@ if __name__ == "__main__":
         rpcs3_path = "/root/rpcs3"
         pd_loader_path = "/root/pdaft"
         ds4_path = "/root/ds4"
-
+    '''
     ds4 = Updater("ds4windows", ds4_path)
     ds4.run()
 
     citra = Updater("citra", citra_path)
     citra.run()
-    rpcs3 = Updater("rpcs3", rpcs3_path)
+    '''
+    rpcs3 = Updater("rpcs3_win", rpcs3_path)
     rpcs3.run()
+    '''
     pdl = Updater("pd_loader", pd_loader_path)
     pdl.run(True)
+    '''

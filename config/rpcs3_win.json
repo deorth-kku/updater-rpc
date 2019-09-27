@@ -1,0 +1,7 @@
+{
+	"api_type": "github",
+	"account_name": "RPCS3",
+    "project_name": "rpcs3-binaries-win",
+    "image_name": "rpcs3.exe",
+	"no_pull": true
+}

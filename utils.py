@@ -65,24 +65,27 @@ def searchFile(filename, version):
     else:
         return False
 
+class Aria2Rpc:
+    def __init__(self,ip,port="6800",passwd=""):
+        self.connection = xmlrpc.client.ServerProxy("http://%s:%s/rpc"%(ip,port))
+        self.secret = "token:"+passwd
+        
 
-def wget(url, pwd):  # TODO: Make a aria2 rpc class, with download exception
-    secret = 'token:pandownload'
-    opts = dict(dir=pwd)
-    s = xmlrpc.client.ServerProxy('http://127.0.0.1:6800/rpc')
-    req = s.aria2.addUri(secret, [url], opts)
-    r = s.aria2.tellStatus(secret, req)
-    status = r['status']
-    try:
-        while status == 'active':
-            time.sleep(0.1)
-            r = s.aria2.tellStatus(secret, req)
-            status = r['status']
-            progressBar(int(r['completedLength']), int(
-                r['totalLength']), int(r['downloadSpeed']))
-    except KeyboardInterrupt:
-        print(' will shutdown the display, but the download is still running in aria2    ')
-        sys.exit(1)
+    def wget(self, url, pwd):  # TODO: Make a aria2 rpc class, with download exception
+        opts = dict(dir=pwd)
+        req = self.connection.aria2.addUri(self.secret, [url], opts)
+        r = self.connection.aria2.tellStatus(self.secret, req)
+        status = r['status']
+        try:
+            while status == 'active':
+                time.sleep(0.1)
+                r = self.connection.aria2.tellStatus(self.secret, req)
+                status = r['status']
+                progressBar(int(r['completedLength']), int(
+                    r['totalLength']), int(r['downloadSpeed']))
+        except KeyboardInterrupt:
+            print(' will shutdown the display, but the download is still running in aria2    ')
+            sys.exit(1)
     # print('\n')
 
 
