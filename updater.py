@@ -155,7 +155,7 @@ if __name__ == "__main__":
     citra.run()
     '''
     rpcs3 = Updater("rpcs3_win", rpcs3_path)
-    rpcs3.run()
+    rpcs3.run(True)
     '''
     pdl = Updater("pd_loader", pd_loader_path)
     pdl.run(True)

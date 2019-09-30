@@ -69,24 +69,35 @@ class Aria2Rpc:
     def __init__(self,ip,port="6800",passwd=""):
         self.connection = xmlrpc.client.ServerProxy("http://%s:%s/rpc"%(ip,port))
         self.secret = "token:"+passwd
+        self.tasks = []
         
 
-    def wget(self, url, pwd):  # TODO: Make a aria2 rpc class, with download exception
+    def download(self, url, pwd): 
         opts = dict(dir=pwd)
         req = self.connection.aria2.addUri(self.secret, [url], opts)
-        r = self.connection.aria2.tellStatus(self.secret, req)
-        status = r['status']
-        try:
-            while status == 'active':
-                time.sleep(0.1)
-                r = self.connection.aria2.tellStatus(self.secret, req)
-                status = r['status']
-                progressBar(int(r['completedLength']), int(
-                    r['totalLength']), int(r['downloadSpeed']))
-        except KeyboardInterrupt:
-            print(' will shutdown the display, but the download is still running in aria2    ')
-            sys.exit(1)
-    # print('\n')
+        self.tasks.append(req)
+        return req
+
+    def getProgress(self,req):
+        return self.connection.aria2.tellStatus(self.secret, req)
+
+    def wget(self,url,pwd):
+        req = self.download(url, pwd)
+        status=self.getProgress(req)['status']
+        while status == 'active' or status == 'paused':
+            time.sleep(0.1)
+            r = self.getProgress(req)
+            status = r['status']
+            progressBar(int(r['completedLength']), int(r['totalLength']), int(r['downloadSpeed']))
+        if status != 'complete':
+            raise DownloadError(status)
+
+class DownloadError(Exception):
+    def __init__(self,status):
+        Exception.__init__(self)
+        self.message="Download is not complete, Download task is %s"%status
+    def __str__(self):
+        return repr(self.message)
 
 
 def progressBar(current, total, speed):
@@ -117,8 +128,13 @@ class Py7z:  # TODO: Throw exception when decompress error
         if subprocess.call("7z", stdout=subprocess.PIPE, stderr=subprocess.PIPE):
             print("PLease check if 7z is installed")
             sys.exit(2)
-
+    
         self.filename = filename
+
+        cmd = ["7z","t",self.filename]
+        code = subprocess.call(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if code != 0:
+            raise FileBrokenError(self.filename)
 
     def getFileList(self):
         try:
@@ -147,6 +163,14 @@ class Py7z:  # TODO: Throw exception when decompress error
     def extractAll(self, outdir):
         cmd = ["7z", "x", "-y", "-o"+outdir, self.filename]
         subprocess.call(cmd)
+
+
+class FileBrokenError(Exception):
+    def __init__(self,filename):
+        Exception.__init__(self)
+        self.message="%s is not a correct compress file"%filename
+    def __str__(self):
+        return repr(self.message)
 
 
 class ProcessCtrl:
@@ -184,28 +208,13 @@ class ProcessCtrl:
 
 
 if __name__ == "__main__":
-    f = Py7z("/root/citra/downloads/citra-windows-mingw-20190903-8c2a335.7z")
-    f.getFileList()
+    #f = Py7z("/root/citra/downloads/citra-windows-mingw-20190903-8c2a335.7z")
+    #f.getFileList()
+    f = Py7z("foo")
 
     # f.extractFiles(f.filelist,"/root/rpcs3")
     # p=ProcessCtrl("chromium")
     # p.restartProc()
-    '''
-    if len(sys.argv)>1:
-        if sys.argv[1][0:4]!="http":
-            print(sys.argv[1][0:3])
-            url="http://"+sys.argv[1]
-        else:
-            url=sys.argv[1]
-        if len(sys.argv)>2:
-            if sys.argv[2][0]!="/":
-                pwd=os.path.abspath(sys.argv[2])
-            else:
-                pwd=sys.argv[2]
-        else:
-            pwd = os.getcwd()
-    else:
-        print("no url")
-        sys.exit(1)
-    wget(url,pwd)
-    '''
+
+    #d=Aria2Rpc("127.0.0.1",passwd="pandownload")
+    #d.wget("https://test123.com","./")
