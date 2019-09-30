@@ -12,7 +12,7 @@ class Updater:
     CONF = {
     "branch": None,
     "keyword": "",
-    "no_keyword": "/",
+    "exclude_keyword": "/",
     "filetype": "7z",
     "no_pull": False,
     "allow_restart": False,
@@ -49,7 +49,7 @@ class Updater:
                 self.conf["account_name"], self.conf["project_name"], self.conf["branch"])
 
         self.dlurl = self.api.getDlUrl(
-            self.conf["keyword"], self.conf["no_keyword"], self.conf["filetype"], self.conf["no_pull"])
+            self.conf["keyword"], self.conf["exclude_keyword"], self.conf["filetype"], self.conf["no_pull"])
         self.filename = os.path.basename(self.dlurl)
 
     def checkIfUpdateIsNeed(self):
