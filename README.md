@@ -1,4 +1,5 @@
-# Updater for opensource projects which don't have buildin update.
+# English
+Updater for opensource projects which don't have buildin update.
 ## How does it work?
 We use RESTful apis to get the lastest release of the project.
 Currently using github api and appveyor api. If you want any other api added, feel free to open an issue.

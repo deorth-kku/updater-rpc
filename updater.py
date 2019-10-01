@@ -140,7 +140,7 @@ if __name__ == "__main__":
     if sys.platform == "win32":
         citra_path = r"D:\citra"
         rpcs3_path = r"D:\rpcs3"
-        pd_loader_path = r"F:\GAMES\Hatsune Miku Project DIVA Arcade Future Tone"
+        pd_loader_path = r"E:\Hatsune Miku Project DIVA Arcade Future Tone"
         ds4_path = r"D:\Program Files\DS4Windows"
     else:
         citra_path = "/root/citra"
@@ -153,10 +153,10 @@ if __name__ == "__main__":
 
     citra = Updater("citra", citra_path)
     citra.run()
-    '''
+  
     rpcs3 = Updater("rpcs3_win", rpcs3_path)
-    rpcs3.run(True)
+    rpcs3.run()
     '''
     pdl = Updater("pd_loader", pd_loader_path)
-    pdl.run(True)
-    '''
+    pdl.run()
+ 
