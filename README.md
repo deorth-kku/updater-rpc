@@ -14,8 +14,8 @@ You must include these options in your config file, otherwise it won't work at a
 * "account_name": the owner account name of the project.
 * "project_name": the project name of the project. For github, it is the repository name. Please notice some project use a different repository to release binary like rpcs3.
 ### Selective options
-There is a default value of these options. If you don't previde these, the default value will be used.
-#### Build options
+There is a default value for these options. If you don't previde any, the default value will be used.
+#### Build/release options
 These are option to select the build/release to download. 
 * "branch": For appveyor api, select build from specific branch. If "None" was given, it will download the lastest build from any branch. The default is "None". This option has no effect to github api.
 * "no_pull": For appveyor api. If you specific a branch, and other branch merged a pull request to this branch, it will trigger a build on appveyor. You might not want to use this build. The default is "None". This option has no effect to github api.
@@ -26,14 +26,14 @@ These are option that control which file to download when there are more than on
 * "filetype": Only download file which its filename use specific suffix. Default is "7z".
 #### Process options
 These are option that control how this program behave when the program you want to update is running.
-* "image_name": The process name to search for. Default is "project_name" option + ".exe"
+* "image_name": The process name to search for. Default is the name of config file + ".exe"
 * "allow_restart": Control whether you want to auto restart the process to continue update progress. If it set to false, It will wait you manully end the process.
 #### Decompress options
 These are option that control how to decompress the downloaded file.
 * "include_file_type": Only decompress files with specific suffix. Needs to be a list. Default is a empty list [].
 * "exclude_file_type": Don't decompress files with specific suffix. Needs to be a list. Default is a empty list [].
 * "single_dir": If download file contain only one directory and this is set to true, move files from the directory to upper level directory (which is the program directory). Default is true.
-* "keep_download_file": Keep compress file after decompression. If it set to false, compress file will be deleted.
+* "keep_download_file": Keep compress file after decompression. If it set to false, compress file will be deleted. Default is true.
 
 ## Usage
 Currently you have to modifiy my code to update your program in you disk. That is not user-friendly. So until I change this, no user guide will be written. 

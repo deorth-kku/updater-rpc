@@ -1,7 +1,13 @@
 {
-	"api_type": "github",
-	"account_name": "RPCS3",
-    "project_name": "rpcs3-binaries-win",
-    "image_name": "rpcs3.exe",
-	"no_pull": true
+	"basic": {
+		"api_type": "github",
+		"account_name": "RPCS3",
+		"project_name": "rpcs3-binaries-win"
+	},
+	"process": {
+		"image_name": "rpcs3.exe"
+	},
+	"build": {
+		"no_pull": true
+	}
 }

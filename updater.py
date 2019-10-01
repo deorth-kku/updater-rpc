@@ -10,16 +10,29 @@ from distutils import dir_util
 
 class Updater:
     CONF = {
-    "branch": None,
-    "keyword": "",
-    "exclude_keyword": "/",
-    "filetype": "7z",
-    "no_pull": False,
-    "allow_restart": False,
+    "basic":{},
+    "build":
+    {    
+        "branch": None,
+        "no_pull": False
+    },
+    "download":
+    {
+        "keyword": "",
+        "exclude_keyword": "/",
+        "filetype": "7z"
+    },
+    "process":
+    {
+        "allow_restart": False
+    },
+    "decompress":
+    {
     "include_file_type": [],
     "exclude_file_type": [],
     "single_dir": True,
     "keep_download_file": True
+    }
     }
     aria2=Aria2Rpc("127.0.0.1",passwd="pandownload")
 
@@ -27,29 +40,32 @@ class Updater:
         self.path = path
         self.name = name
 
-        self.conf = dict(self.CONF)
+        self.conf = self.CONF.copy()
         try:
             self.newconf = loadconfig(name)
         except IOError:
             print(self.name+".json配置文件不存在，请检查")
             sys.exit(1)
+        
+        for group in self.newconf:
+            self.conf[group].update(self.newconf[group])
 
-        for key in loadconfig(name):
-            self.conf.update({key: self.newconf[key]})
+
+
         try:
-            self.conf["image_name"]
+            self.conf["process"]["image_name"]
         except KeyError:
-            self.conf.update({"image_name": self.name+".exe"})
+            self.conf["process"].update({"image_name": self.name+".exe"})
 
-        if self.conf["api_type"] == "github":
+        if self.conf["basic"]["api_type"] == "github":
             self.api = GithubApi(
-                self.conf["account_name"], self.conf["project_name"])
-        elif self.conf["api_type"] == "appveyor":
+                self.conf["basic"]["account_name"], self.conf["basic"]["project_name"])
+        elif self.conf["basic"]["api_type"] == "appveyor":
             self.api = AppveyorApi(
-                self.conf["account_name"], self.conf["project_name"], self.conf["branch"])
+                self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
 
         self.dlurl = self.api.getDlUrl(
-            self.conf["keyword"], self.conf["exclude_keyword"], self.conf["filetype"], self.conf["no_pull"])
+            self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"], self.conf["download"]["filetype"], self.conf["build"]["no_pull"])
         self.filename = os.path.basename(self.dlurl)
 
     def checkIfUpdateIsNeed(self):
@@ -74,13 +90,13 @@ class Updater:
         self.fullfilename = os.path.join(self.dldir, self.filename)
         f = Py7z(self.fullfilename)
         filelist0 = f.getFileList()
-        if self.conf["include_file_type"] == [] and self.conf["exclude_file_type"] == []:
+        if self.conf["decompress"]["include_file_type"] == [] and self.conf["decompress"]["exclude_file_type"] == []:
             f.extractAll(self.path)
         else:
-            if self.conf["include_file_type"] != []:
+            if self.conf["decompress"]["include_file_type"] != []:
                 filelist1 = []
                 for file in filelist0:
-                    for include in self.conf["include_file_type"]:
+                    for include in self.conf["decompress"]["include_file_type"]:
                         if file.split(r".")[-1] == include:
                             filelist1.append(file)
             else:
@@ -88,7 +104,7 @@ class Updater:
             filelist0 = []
             for file in filelist1:
                 flag = False
-                for exclude in self.conf["exclude_file_type"]:
+                for exclude in self.conf["decompress"]["exclude_file_type"]:
                     type0 = file.split(r".")[-1]
                     if type0 == exclude:
                         flag = True
@@ -96,7 +112,7 @@ class Updater:
                     filelist0.append(file)
             f.extractFiles(filelist0, self.path)
         prefix = f.getPrefixDir()
-        if self.conf["single_dir"] and prefix != "":
+        if self.conf["decompress"]["single_dir"] and prefix != "":
             for file in os.listdir(os.path.join(self.path, prefix)):
                 new = os.path.join(self.path, prefix, file)
                 try:
@@ -105,7 +121,7 @@ class Updater:
                     old = os.path.join(self.path, file)
                     dir_util.copy_tree(new, old)
             shutil.rmtree(os.path.join(self.path, prefix))
-        if not self.conf["keep_download_file"]:
+        if not self.conf["decompress"]["keep_download_file"]:
             os.remove(self.fullfilename)
 
     def updateVersionfile(self):
@@ -116,8 +132,8 @@ class Updater:
     def run(self, force=False):
         if self.checkIfUpdateIsNeed() or force:
             self.download()
-            self.proc = ProcessCtrl(self.conf["image_name"])
-            if self.conf["allow_restart"]:
+            self.proc = ProcessCtrl(self.conf["process"]["image_name"])
+            if self.conf["process"]["allow_restart"]:
                 self.proc.stopProc()
                 self.extract()
                 self.proc.startProc()

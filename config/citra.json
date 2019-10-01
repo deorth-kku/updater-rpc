@@ -1,7 +1,14 @@
 {
-	"api_type": "github",
-	"account_name": "citra-emu",
-	"image_name": "citra_qt.exe",
-	"project_name": "citra-nightly",
-	"keyword": "mingw"
+	"basic": {
+		"api_type": "github",
+		"account_name": "citra-emu",
+
+		"project_name": "citra-nightly"
+	},
+	"process": {
+		"image_name": "citra_qt.exe"
+	},
+	"download": {
+		"keyword": "mingw"
+	}
 }

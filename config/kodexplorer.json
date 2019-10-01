@@ -1,6 +1,10 @@
 {
-	"api_type": "github",
-	"account_name": "kalcaddle",
-	"project_name": "KodExplorer",
-    "filetype": "zip"
+	"basic":{
+		"api_type": "github",
+		"account_name": "kalcaddle",
+		"project_name": "KodExplorer"
+	},
+	"download":{
+		"filetype": "zip"
+	}
 }
