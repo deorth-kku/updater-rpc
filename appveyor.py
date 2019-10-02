@@ -69,10 +69,13 @@ class GithubApi:
 
     def getDlUrl(self, keyword="", no_keyword="/", filetype="7z", no_pull=False):
         for release in self.getReleases():
-            self.version = release["tag_name"]
+            if release["name"] != None:
+                self.version = release["name"]
+            else:
+                self.version = release["tag_name"]
             if len(release["assets"]) != 0:
                 for file in release["assets"]:
-                    if keyword in file["name"] and no_keyword not in file["name"]:
+                    if keyword in file["name"] and no_keyword not in file["name"] and file["name"][-len(filetype):] == filetype:
                         return file["browser_download_url"]
             elif filetype == "zip":
                 return release["zipball_url"]

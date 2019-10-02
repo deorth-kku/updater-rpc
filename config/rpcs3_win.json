@@ -6,8 +6,5 @@
 	},
 	"process": {
 		"image_name": "rpcs3.exe"
-	},
-	"build": {
-		"no_pull": true
 	}
 }

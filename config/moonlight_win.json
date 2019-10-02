@@ -1,0 +1,14 @@
+{
+	"basic": {
+		"api_type": "github",
+		"account_name": "moonlight-stream",
+		"project_name": "moonlight-qt"
+    },
+    "download":{
+        "keyword":"Portable-x64",
+        "filetype":"zip"
+    },
+	"process": {
+		"image_name": "Moonlight.exe"
+	}
+}

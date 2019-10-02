@@ -4,6 +4,7 @@ from appveyor import *
 import json
 import shutil
 from distutils import dir_util
+from copy import deepcopy
 
 
 
@@ -34,23 +35,26 @@ class Updater:
     "keep_download_file": True
     }
     }
-    aria2=Aria2Rpc("127.0.0.1",passwd="pandownload")
+    aria2=Aria2Rpc("127.0.0.1",passwd="")
+
+    @classmethod
+    def setAria2Rpc(cls, ip="127.0.0.1", passwd=""):
+        cls.passwd=passwd
+        cls.aria2=Aria2Rpc(ip,passwd)
 
     def __init__(self, name, path):
         self.path = path
         self.name = name
 
-        self.conf = self.CONF.copy()
+        self.conf = deepcopy(self.CONF)
         try:
-            self.newconf = loadconfig(name)
+            self.newconf = LoadConfig("config/%s.json"%name).config
         except IOError:
             print(self.name+".json配置文件不存在，请检查")
             sys.exit(1)
         
         for group in self.newconf:
             self.conf[group].update(self.newconf[group])
-
-
 
         try:
             self.conf["process"]["image_name"]
@@ -66,11 +70,15 @@ class Updater:
 
         self.dlurl = self.api.getDlUrl(
             self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"], self.conf["download"]["filetype"], self.conf["build"]["no_pull"])
-        self.filename = os.path.basename(self.dlurl)
+        try:
+            self.filename = os.path.basename(self.dlurl)
+        except TypeError:
+            raise ValueError("Can't get download url!")
 
     def checkIfUpdateIsNeed(self):
+        versionfile=self.name+".VERSION"
         self.version = self.api.getVersion()
-        self.versionfile_path = os.path.join(self.path, 'VERSION')
+        self.versionfile_path = os.path.join(self.path, versionfile)
         try:
             self.versionfile = open(self.versionfile_path, 'r')
             self.oldversion = self.versionfile.read()
@@ -163,16 +171,19 @@ if __name__ == "__main__":
         rpcs3_path = "/root/rpcs3"
         pd_loader_path = "/root/pdaft"
         ds4_path = "/root/ds4"
-    '''
+
+    moon=Updater("moonlight_win", "foo")
+    
     ds4 = Updater("ds4windows", ds4_path)
     ds4.run()
+    
 
     citra = Updater("citra", citra_path)
     citra.run()
-  
+    
     rpcs3 = Updater("rpcs3_win", rpcs3_path)
     rpcs3.run()
-    '''
+    
     pdl = Updater("pd_loader", pd_loader_path)
     pdl.run()
  

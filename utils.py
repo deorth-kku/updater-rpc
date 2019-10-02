@@ -38,10 +38,16 @@ def urljoin(*args):
     return "/".join(map(lambda x: str(x).rstrip('/'), args))
 
 
-def loadconfig(name):
-    with open('config/%s.json' % (name), 'r') as f:
-        config = json.load(f)
-    return config
+class LoadConfig:
+    def __init__(self,file):
+        self.file = file
+        with open(file, 'r') as f:
+            self.config = json.load(f)
+
+
+    def dumpconfig(self,json):
+        with open(self.file,"w") as f:
+            json.dump(json,f)
 
 
 def getJson(url):
