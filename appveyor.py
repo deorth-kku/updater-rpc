@@ -86,26 +86,6 @@ class GithubApi:
         return self.version
 
 
-class GithubSpider:
-    def __init__(self, account_name, project_name):
-        self.account_name = account_name
-        self.project_name = project_name
-        self.domain = "https://github.com"
-        self.releasesurl = self.domain+"/" + \
-            self.account_name+"/"+self.project_name+"/releases"
-        self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
-
-    def getDlUrl(self, keyword="", no_keyword="/", filetype="7z", no_pull=False):
-        self.request = requests.get(url=self.releasesurl, headers=self.headers)
-        self.reg = '<a href="(/.+?\.%s)" rel="nofollow"' % (filetype)
-        self.imglist = re.findall(self.reg, self.request.text)
-        for url in self.imglist:
-            filename = os.path.basename(url)
-            if keyword in filename and no_keyword not in filename:
-                return self.domain+url
-
-
 if __name__ == "__main__":
     # pd_loader=AppveyorApi("nastys","pd-loader")
     # print(pd_loader.getDlUrl(filetype="zip"))

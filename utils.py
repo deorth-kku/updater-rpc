@@ -10,26 +10,6 @@ import json
 import psutil
 import subprocess
 
-
-if sys.platform == "win32":
-    import win32com.client
-
-    def CheckProcExistByPN(process_name):
-        try:
-            WMI = win32com.client.GetObject('winmgmts:')
-            processCodeCov = WMI.ExecQuery(
-                'select * from Win32_Process where Name="%s"' % process_name)
-        except Exception as e:
-            print(process_name + "error : ", e)
-        if len(processCodeCov) > 0:
-            return True
-        else:
-            return False
-else:
-    def CheckProcExistByPN(process_name):
-        return False
-
-
 def urljoin(*args):
     """
     Joins given arguments into an url. Trailing but not leading slashes are
@@ -41,35 +21,22 @@ def urljoin(*args):
 class LoadConfig:
     def __init__(self,file):
         self.file = file
-        with open(file, 'r') as f:
-            self.config = json.load(f)
+        try:
+            with open(file, 'r') as f:
+                self.config = json.load(f)
+        except (IOError,json.decoder.JSONDecodeError):
+            self.config = {}
 
 
-    def dumpconfig(self,json):
+
+    def dumpconfig(self,config):
         with open(self.file,"w") as f:
-            json.dump(json,f)
+            json.dump(config,f,sort_keys=True, indent=4, separators=(',', ': '))
 
 
 def getJson(url):
     request = requests.get(url=url)
     return request.json()
-
-
-def searchFile(filename, version):
-    version = version.encode()
-    try:
-        fo = open(filename, "rb")
-    except IOError:
-        print(filename+"文件不存在，请检查")
-        sys.exit(1)
-    data = fo.read()
-    fo.close()
-    key = re.findall(version, data)
-    del data
-    if key:
-        return True
-    else:
-        return False
 
 class Aria2Rpc:
     def __init__(self,ip,port="6800",passwd=""):

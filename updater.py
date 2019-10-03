@@ -35,23 +35,21 @@ class Updater:
     "keep_download_file": True
     }
     }
-    aria2=Aria2Rpc("127.0.0.1",passwd="")
-
+    
+    aria2=Aria2Rpc(ip="127.0.0.1", port="6800", passwd="")
     @classmethod
-    def setAria2Rpc(cls, ip="127.0.0.1", passwd=""):
-        cls.passwd=passwd
-        cls.aria2=Aria2Rpc(ip,passwd)
+    def setAria2Rpc(cls, ip="127.0.0.1", port="6800", passwd=""):
+        cls.aria2=Aria2Rpc(ip,port,passwd)
+
+
+
 
     def __init__(self, name, path):
         self.path = path
         self.name = name
 
         self.conf = deepcopy(self.CONF)
-        try:
-            self.newconf = LoadConfig("config/%s.json"%name).config
-        except IOError:
-            print(self.name+".json配置文件不存在，请检查")
-            sys.exit(1)
+        self.newconf = LoadConfig("config/%s.json"%name).config
         
         for group in self.newconf:
             self.conf[group].update(self.newconf[group])
