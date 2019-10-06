@@ -43,6 +43,7 @@ class Main:
 
         for pro in updaters:
             pro.run(force)
+        Updater.quitAriaRpc()
 
 
 @click.command()

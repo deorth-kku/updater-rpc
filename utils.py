@@ -59,20 +59,38 @@ def getJson(url):
 
 
 class Aria2Rpc:
-    def __init__(self, ip, port="6800", passwd=""):
-        self.connection = xmlrpc.client.ServerProxy(
+    def __init__(self, ip, port="6800", passwd="",args=[]):
+        connection = xmlrpc.client.ServerProxy(
             "http://%s:%s/rpc" % (ip, port))
+        self.aria2 = connection.aria2
         self.secret = "token:"+passwd
         self.tasks = []
+        try:
+            self.aria2.getVersion(self.secret)
+        except ConnectionRefusedError:
+            if ip == "127.0.0.1" or ip == "localhost" or ip == "127.1":
+                cmd = [
+                    "aria2c",
+                    "--enable-rpc=true",
+                    "--rpc-allow-origin-all=true",
+                    "--rpc-listen-port=%s" % port
+                ]
+                cmd+=args
+                if passwd != "":
+                    cmd.append("--rpc-secret=%s" % passwd)
+                self.process = subprocess.Popen(cmd,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            else:
+                raise
+        
 
     def download(self, url, pwd):
         opts = dict(dir=pwd)
-        req = self.connection.aria2.addUri(self.secret, [url], opts)
+        req = self.aria2.addUri(self.secret, [url], opts)
         self.tasks.append(req)
         return req
 
     def getProgress(self, req):
-        return self.connection.aria2.tellStatus(self.secret, req)
+        return self.aria2.tellStatus(self.secret, req)
 
     def wget(self, url, pwd):
         req = self.download(url, pwd)
@@ -85,6 +103,14 @@ class Aria2Rpc:
                 r['totalLength']), int(r['downloadSpeed']))
         if status != 'complete':
             raise DownloadError(status)
+    
+    def quit(self):
+        try:
+            self.process.terminate()
+            self.process.wait()
+        except AttributeError:
+            pass
+
 
 
 class DownloadError(Exception):
@@ -122,7 +148,7 @@ def progressBar(current, total, speed):
 
 class Py7z:  # TODO: Throw exception when decompress error
     def __init__(self, filename):
-        if subprocess.call("7z", stdout=subprocess.PIPE, stderr=subprocess.PIPE):
+        if subprocess.call("7z", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL):
             print("PLease check if 7z is installed")
             sys.exit(2)
 
@@ -130,7 +156,7 @@ class Py7z:  # TODO: Throw exception when decompress error
 
         cmd = ["7z", "t", self.filename]
         code = subprocess.call(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if code != 0:
             raise FileBrokenError(self.filename)
 
@@ -207,4 +233,5 @@ class ProcessCtrl:
 
 
 if __name__ == "__main__":
-    pass
+    a = Aria2Rpc(ip="localhost", port="6801")
+    a.quit()

@@ -38,16 +38,38 @@ class Updater:
         }
     }
 
+    count = 0
+
     aria2 = Aria2Rpc(ip="127.0.0.1", port="6800", passwd="")
     @classmethod
     def setAria2Rpc(cls, ip="127.0.0.1", port="6800", passwd=""):
-        cls.aria2 = Aria2Rpc(ip, port, passwd)
+        log="log/aria2.log"
+        try:
+            os.remove(log)
+        except IOError:
+            pass
+        args=[
+            "--log=%s"%log,
+            "--log-level=notice",#TODO:Global log level
+            "--max-connection-per-server=16",
+            "--min-split-size=1M",
+            "--split=16",
+            "--continue=true"
+        ]
+        cls.aria2 = Aria2Rpc(ip, port, passwd,args)
+
+    @classmethod
+    def quitAriaRpc(cls):
+        while cls.count!=0:
+            time.sleep(1)
+        cls.aria2.quit()
 
     @classmethod
     def setDefaults(cls, defaults):
         cls.CONF = mergeDict(cls.CONF, defaults)
 
     def __init__(self, name, path):
+        self.count += 1
         self.path = path
         self.name = name
 
@@ -199,6 +221,7 @@ class Updater:
                     time.sleep(1)
                 self.extract()
                 self.updateVersionFile()
+            self.count-=1
         else:
             # TODO:Use log instead of print
             print("当前%s已是最新，无需更新！" % (self.name))
