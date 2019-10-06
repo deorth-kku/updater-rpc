@@ -6,18 +6,15 @@ from utils import getJson, urljoin
 
 
 class AppveyorApi:
+    apiurl = "https://ci.appveyor.com/api"
+
     def __init__(self, account_name, project_name, branch=None):
         if branch == None:
             self.branch = ""
         else:
             self.branch = "&branch="+branch
-        self.apiurl = "https://ci.appveyor.com/api"
         self.account_name = account_name
         self.project_name = project_name
-
-    def getJson(self, url):
-        self.request = requests.get(url=url)
-        return self.request.json()
 
     def getHistory(self):
         self.historyurl = urljoin(self.apiurl, "projects", self.account_name,
@@ -53,18 +50,23 @@ class AppveyorApi:
                     return self.dlurl
 
     def getVersion(self):
-        return self.version
+        try:
+            return self.version
+        except AttributeError:
+            raise AttributeError(
+                "You must run getDlUrl first before tried to getVersion")
 
 
 class GithubApi:
+    apiurl = "https://api.github.com/repos"
+
     def __init__(self, account_name, project_name):
-        self.apiurl = "https://api.github.com/repos"
         self.account_name = account_name
         self.project_name = project_name
-        self.releasesurl = urljoin(
-            self.apiurl, self.account_name, self.project_name, "releases")
 
     def getReleases(self):
+        self.releasesurl = urljoin(
+            self.apiurl, self.account_name, self.project_name, "releases")
         return getJson(self.releasesurl)
 
     def getDlUrl(self, keyword="", no_keyword="/", filetype="7z", no_pull=False):
@@ -83,32 +85,12 @@ class GithubApi:
                 return release["tarball_url"]
 
     def getVersion(self):
-        return self.version
+        try:
+            return self.version
+        except AttributeError:
+            raise AttributeError(
+                "You must run getDlUrl first before tried to getVersion")
 
 
 if __name__ == "__main__":
-    # pd_loader=AppveyorApi("nastys","pd-loader")
-    # print(pd_loader.getDlUrl(filetype="zip"))
-
-
-    kod = GithubApi("kalcaddle", "KodExplorer")
-    #print(kod.getDlUrl(filetype="tar.gz"))
-    #print(kod.getVersion())
-
-    # rpcs3=AppveyorApi("rpcs3","rpcs3")
-    # print(rpcs3.getDlUrl(keyword="rpcs3",no_keyword="sha256",no_pull=True))
-    # print(rpcs3.getVersion())
-
-    # citra=AppveyorApi("bunnei","citra")
-    # print(citra.getDlUrl(keyword="mingw"))
-    # print(citra.getVersion())
-
-    # citra=GithubApi("citra-emu","citra-nightly")
-    # print(citra.getDlUrl(keyword="mingw"))
-    # print(citra.getVersion())
-
-    # citra=GithubSpider("citra-emu","citra-nightly")
-    # print(citra.getDlUrl(keyword="mingw"))
-
-    # DS=GithubSpider("somewhatlurker","DivaSound")
-    # print(DS.getDlUrl(filetype="zip"))
+    pass

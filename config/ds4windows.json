@@ -11,5 +11,8 @@
 	"process": {
 		"image_name": "DS4Windows.exe",
 		"allow_restart": true
-	}
+	},
+	"version":{
+            "use_exe_version": true
+    }
 }

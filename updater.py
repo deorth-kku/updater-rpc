@@ -3,62 +3,61 @@ from utils import *
 from appveyor import *
 import json
 import shutil
+from pefile import PE
 from distutils import dir_util
-from copy import deepcopy
-
-
 
 
 class Updater:
     CONF = {
-    "basic":{},
-    "build":
-    {    
-        "branch": None,
-        "no_pull": False
-    },
-    "download":
-    {
-        "keyword": "",
-        "exclude_keyword": "/",
-        "filetype": "7z"
-    },
-    "process":
-    {
-        "allow_restart": False
-    },
-    "decompress":
-    {
-    "include_file_type": [],
-    "exclude_file_type": [],
-    "single_dir": True,
-    "keep_download_file": True
+        "basic": {},
+        "build":
+        {
+            "branch": None,
+            "no_pull": False
+        },
+        "download":
+        {
+            "keyword": "",
+            "exclude_keyword": "/",
+            "filetype": "7z"
+        },
+        "process":
+        {
+            "allow_restart": False
+        },
+        "decompress":
+        {
+            "include_file_type": [],
+            "exclude_file_type": [],
+            "single_dir": True,
+            "keep_download_file": True
+        },
+        "version":
+        {
+            "use_exe_version": False
+        }
     }
-    }
-    
-    aria2=Aria2Rpc(ip="127.0.0.1", port="6800", passwd="")
+
+    aria2 = Aria2Rpc(ip="127.0.0.1", port="6800", passwd="")
     @classmethod
     def setAria2Rpc(cls, ip="127.0.0.1", port="6800", passwd=""):
-        cls.aria2=Aria2Rpc(ip,port,passwd)
+        cls.aria2 = Aria2Rpc(ip, port, passwd)
 
-
-
+    @classmethod
+    def setDefaults(cls, defaults):
+        cls.CONF = mergeDict(cls.CONF, defaults)
 
     def __init__(self, name, path):
         self.path = path
         self.name = name
 
-        self.conf = deepcopy(self.CONF)
-        self.newconf = LoadConfig("config/%s.json"%name).config
-        
-        for group in self.newconf:
-            self.conf[group].update(self.newconf[group])
+        self.newconf = LoadConfig("config/%s.json" % name).config
+        self.conf = mergeDict(self.CONF, self.newconf)
 
         try:
             self.conf["process"]["image_name"]
         except KeyError:
             self.conf["process"].update({"image_name": self.name+".exe"})
-
         if self.conf["basic"]["api_type"] == "github":
             self.api = GithubApi(
                 self.conf["basic"]["account_name"], self.conf["basic"]["project_name"])
@@ -66,6 +65,7 @@ class Updater:
             self.api = AppveyorApi(
                 self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
 
+    def getDlUrl(self):
         self.dlurl = self.api.getDlUrl(
             self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"], self.conf["download"]["filetype"], self.conf["build"]["no_pull"])
         try:
@@ -74,17 +74,52 @@ class Updater:
             raise ValueError("Can't get download url!")
 
     def checkIfUpdateIsNeed(self):
-        versionfile=self.name+".VERSION"
         self.version = self.api.getVersion()
-        self.versionfile_path = os.path.join(self.path, versionfile)
-        try:
-            self.versionfile = open(self.versionfile_path, 'r')
-            self.oldversion = self.versionfile.read()
-            self.versionfile.close()
-        except:
-            self.oldversion = ""
+        if self.conf["version"]["use_exe_version"]:
+            self.addversioninfo = False
+            version = re.sub('[^0-9\.\-]', '', self.version)
+            version = version.replace(r"-", r".")
+            version = version.split(r".")
+            self.versiontuple = []
+            for num in version:
+                try:
+                    self.versiontuple.append(int(num))
+                except ValueError:
+                    self.versiontuple.append(0)
+            while len(self.versiontuple) < 4:
+                self.versiontuple.append(0)
+            self.versiontuple = tuple(self.versiontuple)
 
-        return not self.version == self.oldversion
+            self.exepath = os.path.join(
+                self.path, self.conf["process"]["image_name"])
+            pe = PE(self.exepath)
+            if not 'VS_FIXEDFILEINFO' in pe.__dict__:
+                #raise NameError("ERROR: Oops, %s has no version info. Can't continue."%self.exepath)
+                self.addversioninfo = True
+                pe.close()
+                return True
+            if not pe.VS_FIXEDFILEINFO:
+                #raise NameError("ERROR: VS_FIXEDFILEINFO field not set for %s. Can't continue."%self.exepath)
+                pe.close()
+                return True
+
+            verinfo = pe.VS_FIXEDFILEINFO[0]
+            filever = (verinfo.FileVersionMS >> 16, verinfo.FileVersionMS & 0xFFFF,
+                       verinfo.FileVersionLS >> 16, verinfo.FileVersionLS & 0xFFFF)
+            prodver = (verinfo.ProductVersionMS >> 16, verinfo.ProductVersionMS & 0xFFFF,
+                       verinfo.ProductVersionLS >> 16, verinfo.ProductVersionLS & 0xFFFF)
+            pe.close()
+            return not (self.versiontuple == filever or self.versiontuple == prodver)
+        else:
+            versionfile = self.name+".VERSION"
+            self.versionfile_path = os.path.join(self.path, versionfile)
+            try:
+                self.versionfile = open(self.versionfile_path, 'r')
+                oldversion = self.versionfile.read()
+                self.versionfile.close()
+            except:
+                oldversion = ""
+            return not self.version == oldversion
 
     def download(self):
         self.dldir = os.path.join(self.path, "downloads")
@@ -130,18 +165,32 @@ class Updater:
         if not self.conf["decompress"]["keep_download_file"]:
             os.remove(self.fullfilename)
 
-    def updateVersionfile(self):
-        with open(self.versionfile_path, 'w') as self.versionfile:
-            self.versionfile.write(self.version)
-        self.versionfile.close()
+    def updateVersionFile(self):
+        if self.conf["version"]["use_exe_version"]:
+            if self.addversioninfo:
+                pass
+            '''
+            FileVersionMS=self.versiontuple[0]*0xFFFF+self.versiontuple[1]
+            FileVersionLS=self.versiontuple[2]*0xFFFF+self.versiontuple[3]
+            pe = PE(self.exepath)
+            pe.VS_FIXEDFILEINFO[0].FileVersionMS=FileVersionMS
+            pe.VS_FIXEDFILEINFO[0].FileVersionLS=FileVersionLS
+            pe.write(self.exepath)
+            '''
+        else:
+            with open(self.versionfile_path, 'w') as self.versionfile:
+                self.versionfile.write(self.version)
+            self.versionfile.close()
 
     def run(self, force=False):
+        self.getDlUrl()
         if self.checkIfUpdateIsNeed() or force:
             self.download()
             self.proc = ProcessCtrl(self.conf["process"]["image_name"])
             if self.conf["process"]["allow_restart"]:
                 self.proc.stopProc()
                 self.extract()
+                self.updateVersionFile()
                 self.proc.startProc()
 
             else:
@@ -149,16 +198,14 @@ class Updater:
                     print("请先关闭正在运行的"+self.name, end="\r")
                     time.sleep(1)
                 self.extract()
-            self.updateVersionfile()
+                self.updateVersionFile()
         else:
             # TODO:Use log instead of print
             print("当前%s已是最新，无需更新！" % (self.name))
 
 
 if __name__ == "__main__":
-    # update=Updater("pd_loader","/root/pdaft")
-    # update=Updater(sys.argv[1],sys.argv[2])
-    # update.run()
+
     if sys.platform == "win32":
         citra_path = r"D:\citra"
         rpcs3_path = r"D:\rpcs3"
@@ -170,18 +217,16 @@ if __name__ == "__main__":
         pd_loader_path = "/root/pdaft"
         ds4_path = "/root/ds4"
 
-    moon=Updater("moonlight_win", "foo")
-    
+    moon = Updater("moonlight_win", "foo")
+
     ds4 = Updater("ds4windows", ds4_path)
     ds4.run()
-    
 
     citra = Updater("citra", citra_path)
     citra.run()
-    
+
     rpcs3 = Updater("rpcs3_win", rpcs3_path)
     rpcs3.run()
-    
+
     pdl = Updater("pd_loader", pd_loader_path)
     pdl.run()
- 

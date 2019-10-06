@@ -9,6 +9,8 @@ import requests
 import json
 import psutil
 import subprocess
+from copy import deepcopy
+
 
 def urljoin(*args):
     """
@@ -18,57 +20,78 @@ def urljoin(*args):
     return "/".join(map(lambda x: str(x).rstrip('/'), args))
 
 
+def mergeDict(a, b):
+    newdict = deepcopy(a)
+    for key in b:
+        typeflag = type(b[key])
+        if typeflag == dict:
+            newvalue = mergeDict(a[key], b[key])
+        elif typeflag == set:
+            newvalue = deepcopy(a[key])
+            for bb in b[key]:
+                newvalue.add(bb)
+        elif typeflag == list or typeflag == tuple:
+            newvalue = a[key]+b[key]
+        else:
+            newvalue = b[key]
+        newdict.update({key: newvalue})
+    return newdict
+
+
 class LoadConfig:
-    def __init__(self,file):
+    def __init__(self, file):
         self.file = file
         try:
             with open(file, 'r') as f:
                 self.config = json.load(f)
-        except (IOError,json.decoder.JSONDecodeError):
+        except (IOError, json.decoder.JSONDecodeError):
             self.config = {}
 
-
-
-    def dumpconfig(self,config):
-        with open(self.file,"w") as f:
-            json.dump(config,f,sort_keys=True, indent=4, separators=(',', ': '))
+    def dumpconfig(self, config):
+        with open(self.file, "w") as f:
+            json.dump(config, f, sort_keys=True,
+                      indent=4, separators=(',', ': '))
 
 
 def getJson(url):
     request = requests.get(url=url)
     return request.json()
 
+
 class Aria2Rpc:
-    def __init__(self,ip,port="6800",passwd=""):
-        self.connection = xmlrpc.client.ServerProxy("http://%s:%s/rpc"%(ip,port))
+    def __init__(self, ip, port="6800", passwd=""):
+        self.connection = xmlrpc.client.ServerProxy(
+            "http://%s:%s/rpc" % (ip, port))
         self.secret = "token:"+passwd
         self.tasks = []
-        
 
-    def download(self, url, pwd): 
+    def download(self, url, pwd):
         opts = dict(dir=pwd)
         req = self.connection.aria2.addUri(self.secret, [url], opts)
         self.tasks.append(req)
         return req
 
-    def getProgress(self,req):
+    def getProgress(self, req):
         return self.connection.aria2.tellStatus(self.secret, req)
 
-    def wget(self,url,pwd):
+    def wget(self, url, pwd):
         req = self.download(url, pwd)
-        status=self.getProgress(req)['status']
+        status = self.getProgress(req)['status']
         while status == 'active' or status == 'paused':
             time.sleep(0.1)
             r = self.getProgress(req)
             status = r['status']
-            progressBar(int(r['completedLength']), int(r['totalLength']), int(r['downloadSpeed']))
+            progressBar(int(r['completedLength']), int(
+                r['totalLength']), int(r['downloadSpeed']))
         if status != 'complete':
             raise DownloadError(status)
 
+
 class DownloadError(Exception):
-    def __init__(self,status):
+    def __init__(self, status):
         Exception.__init__(self)
-        self.message="Download is not complete, Download task is %s"%status
+        self.message = "Download is not complete, Download task is %s" % status
+
     def __str__(self):
         return repr(self.message)
 
@@ -93,7 +116,8 @@ def progressBar(current, total, speed):
         bar = " |"+"██"*n+"| "
     else:
         bar = " |"+"██"*n+list[i]+"  "*(19-n)+"| "
-    print(bar+percent+"  "+str(round(current/1048756, 1))+"MB/"+str(round(total/1048756, 1))+"MB "+speed+"      ", end="\r")
+    print(bar+percent+"  "+str(round(current/1048756, 1))+"MB/" +
+          str(round(total/1048756, 1))+"MB "+speed+"      ", end="\r")
 
 
 class Py7z:  # TODO: Throw exception when decompress error
@@ -101,11 +125,12 @@ class Py7z:  # TODO: Throw exception when decompress error
         if subprocess.call("7z", stdout=subprocess.PIPE, stderr=subprocess.PIPE):
             print("PLease check if 7z is installed")
             sys.exit(2)
-    
+
         self.filename = filename
 
-        cmd = ["7z","t",self.filename]
-        code = subprocess.call(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = ["7z", "t", self.filename]
+        code = subprocess.call(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if code != 0:
             raise FileBrokenError(self.filename)
 
@@ -139,9 +164,10 @@ class Py7z:  # TODO: Throw exception when decompress error
 
 
 class FileBrokenError(Exception):
-    def __init__(self,filename):
+    def __init__(self, filename):
         Exception.__init__(self)
-        self.message="%s is not a correct compress file"%filename
+        self.message = "%s is not a correct compress file" % filename
+
     def __str__(self):
         return repr(self.message)
 
@@ -181,13 +207,4 @@ class ProcessCtrl:
 
 
 if __name__ == "__main__":
-    #f = Py7z("/root/citra/downloads/citra-windows-mingw-20190903-8c2a335.7z")
-    #f.getFileList()
-    f = Py7z("foo")
-
-    # f.extractFiles(f.filelist,"/root/rpcs3")
-    # p=ProcessCtrl("chromium")
-    # p.restartProc()
-
-    #d=Aria2Rpc("127.0.0.1",passwd="pandownload")
-    #d.wget("https://test123.com","./")
+    pass
