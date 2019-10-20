@@ -6,7 +6,7 @@ Currently using github api and appveyor api. If you want any other api added, fe
 Download is using aria2 via rpc interface, decompress using 7z binary. Current both binary file is not included, but I'm planning to add auto download for both if either of them wasn't found in PATH.
 ## Dependency
 Python 3(I'm using python 3 but any 3.x should be fine.) with "shutil", "request", "psutil" and "click" installed. To use "use_exe_version", you'll also need "pefile".
-aria2 and 7z binary in your PATH.
+aria2 and 7z binary in your $PATH.
 ## Config file
 As you might noticed, we use json as config file. Though making a config file, you can provide the infromaion that is needed to update your local program.
 There are already a few config file I wrote for projects that I use. If you make some others, feel free to make a PR.
@@ -38,7 +38,7 @@ These are option that control how to decompress the downloaded file.
 * "single_dir": If download file contain only one directory and this is set to true, move files from the directory to upper level directory (which is the program directory). Default is true.
 * "keep_download_file": Keep compress file after decompression. If it set to false, compress file will be deleted. Default is true.
 #### "version": Version contorl options
-* "use_exe_version": Use win32 PE(Portable Executable) version info instead of version file. Won't work on projects unless its exe contain win32 PE(Portable Executable) version info. I made this for DS4windows
+* "use_exe_version": Use win32 PE(Portable Executable) version info instead of version file. Won't work on projects unless its exe contain win32 PE(Portable Executable) version info. I made this for DS4windows. Default is false.
 ## Command-line interface
 We use main.py as a command-line interface. For Windows, use "python main.py". For other OS, just use "./main.py".
 ## Add a local folder and project to project list:
