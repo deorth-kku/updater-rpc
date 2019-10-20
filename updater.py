@@ -3,7 +3,10 @@ from utils import *
 from appveyor import *
 import json
 import shutil
-from pefile import PE
+try:
+    from pefile import PE
+except ImportError:
+    pass
 from distutils import dir_util
 
 
@@ -40,7 +43,6 @@ class Updater:
 
     count = 0
 
-    aria2 = Aria2Rpc(ip="127.0.0.1", port="6800", passwd="")
     @classmethod
     def setAria2Rpc(cls, ip="127.0.0.1", port="6800", passwd=""):
         log="log/aria2.log"
