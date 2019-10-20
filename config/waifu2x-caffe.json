@@ -1,0 +1,11 @@
+{
+	"basic": {
+		"api_type": "github",
+		"account_name": "lltcggie",
+		"project_name": "waifu2x-caffe"
+	},
+	"download":{
+        "keyword":"Difference_From",
+        "filetype":"zip"
+    }
+}
