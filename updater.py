@@ -82,11 +82,9 @@ class Updater:
             self.conf["process"]["image_name"]
         except KeyError:
             self.conf["process"].update({"image_name": self.name+".exe"})
-        if self.conf["basic"]["api_type"] == "github":
-            self.api = GithubApi(
-                self.conf["basic"]["account_name"], self.conf["basic"]["project_name"])
-        elif self.conf["basic"]["api_type"] == "appveyor":
-            self.api = AppveyorApi(
+        
+        apistr=self.conf["basic"]["api_type"].capitalize()+"Api"
+        self.api = eval(apistr)(
                 self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
 
     def getDlUrl(self):

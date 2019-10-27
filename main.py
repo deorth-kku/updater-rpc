@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import sys
+import sys,os
 import click
 from updater import Updater
 from utils import LoadConfig
@@ -53,7 +53,11 @@ class Main:
     '--force', '-f', default=False,
     type=click.BOOL, is_flag=True,
     help='force update')
-def main(projects, path, force):
+@click.option(
+    '--wait', '-w', default=False,
+    type=click.BOOL, is_flag=True,
+    help='wait to exit')
+def main(projects, path, force, wait):
 
     start = Main()
     if len(projects) == 0:
@@ -66,7 +70,9 @@ def main(projects, path, force):
             start.runUpdate(projects=projects, force=force)
         else:
             print("error")
-
+    
+    if wait:
+        os.system("pause")
 
 if __name__ == '__main__':
     main()

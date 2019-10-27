@@ -65,6 +65,7 @@ class Aria2Rpc:
         self.aria2 = connection.aria2
         self.secret = "token:"+passwd
         self.tasks = []
+        self.methodname = None
         try:
             self.aria2.getVersion(self.secret)
         except ConnectionRefusedError:
@@ -81,23 +82,32 @@ class Aria2Rpc:
                 self.process = subprocess.Popen(cmd,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             else:
                 raise
-        
+    
+    def __getattr__(self, name):
+        self.methodname = name
+        return self.__defaultMethod
 
+
+    def __defaultMethod(self,*args):
+        if self.methodname != None:
+            newargs = (self.secret,) + args
+            method = getattr(self.aria2, self.methodname)
+            self.methodname = None
+            return method(*newargs)
+
+    
     def download(self, url, pwd):
         opts = dict(dir=pwd)
-        req = self.aria2.addUri(self.secret, [url], opts)
+        req = self.addUri([url], opts)
         self.tasks.append(req)
         return req
 
-    def getProgress(self, req):
-        return self.aria2.tellStatus(self.secret, req)
-
     def wget(self, url, pwd):
         req = self.download(url, pwd)
-        status = self.getProgress(req)['status']
+        status = self.tellStatus(req)['status']
         while status == 'active' or status == 'paused':
             time.sleep(0.1)
-            r = self.getProgress(req)
+            r = self.tellStatus(req)
             status = r['status']
             progressBar(int(r['completedLength']), int(
                 r['totalLength']), int(r['downloadSpeed']))
@@ -233,5 +243,5 @@ class ProcessCtrl:
 
 
 if __name__ == "__main__":
-    a = Aria2Rpc(ip="localhost", port="6801")
-    a.quit()
+    a = Aria2Rpc(ip="localhost", port="6800")
+    a.wget("https://baidu.com",r"D:\temp")

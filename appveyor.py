@@ -60,7 +60,7 @@ class AppveyorApi:
 class GithubApi:
     apiurl = "https://api.github.com/repos"
 
-    def __init__(self, account_name, project_name):
+    def __init__(self, account_name, project_name, branch=None):
         self.account_name = account_name
         self.project_name = project_name
 
