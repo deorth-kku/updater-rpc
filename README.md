@@ -5,7 +5,9 @@ We use RESTful apis to get the lastest release of the project.
 Currently using github api and appveyor api. If you want any other api added, feel free to open an issue.
 Download is using aria2 via rpc interface, decompress using 7z binary. Current both binary file is not included, but I'm planning to add auto download for both if either of them wasn't found in PATH.
 ## Dependency
-Python 3(I'm using python 3 but any 3.x should be fine.) with "shutil", "request", "psutil" and "click" installed. To use "use_exe_version", you'll also need "pefile".
+### Python
+Python 3(I'm using python 3 but any 3.x should be fine.) with "shutil", "requests", "psutil" and "click" installed. To use "use_exe_version", you'll also need "pefile".
+### Binary program
 aria2 and 7z binary in your $PATH.
 ## Config file
 As you might noticed, we use json as config file. Though making a config file, you can provide the infromaion that is needed to update your local program.

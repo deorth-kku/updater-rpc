@@ -88,8 +88,11 @@ class Updater:
                 self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
 
     def getDlUrl(self):
-        self.dlurl = self.api.getDlUrl(
-            self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"], self.conf["download"]["filetype"], self.conf["build"]["no_pull"])
+        try:
+            self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"], self.conf["download"]["filetype"], self.conf["build"]["no_pull"])
+        except requests.exceptions.ConnectionError:
+            print("连接失败")
+            raise
         try:
             self.filename = os.path.basename(self.dlurl)
         except TypeError:
@@ -151,7 +154,16 @@ class Updater:
 
     def extract(self):
         self.fullfilename = os.path.join(self.dldir, self.filename)
-        f = Py7z(self.fullfilename)
+        times = 5
+        sucuss = False
+        while times>0 and not sucuss:
+            try:
+                f = Py7z(self.fullfilename)
+                sucuss = True
+            except FileBrokenError:
+                os.remove(self.fullfilename)
+                self.download()
+                times -= 1
         filelist0 = f.getFileList()
         if self.conf["decompress"]["include_file_type"] == [] and self.conf["decompress"]["exclude_file_type"] == []:
             f.extractAll(self.path)
