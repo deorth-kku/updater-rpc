@@ -1,0 +1,14 @@
+{
+	"basic": {
+		"api_type": "github",
+		"account_name": "git-for-windows",
+		"project_name": "git"
+	},
+	"download": {
+		"keyword": "PortableGit",
+		"filetype": "64-bit.7z.exe"
+	},
+	"process": {
+		"image_name": "git.exe"
+    }
+}

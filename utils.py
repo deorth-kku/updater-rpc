@@ -54,7 +54,10 @@ class LoadConfig:
 
 
 def getJson(url):
-    request = requests.get(url=url)
+    try:
+        request = requests.get(url=url,timeout=30)
+    except (requests.exceptions.ConnectTimeout,requests.exceptions.ConnectTimeout):
+        raise
     return request.json()
 
 
