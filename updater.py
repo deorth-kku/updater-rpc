@@ -117,7 +117,10 @@ class Updater:
 
             self.exepath = os.path.join(
                 self.path, self.conf["process"]["image_name"])
-            pe = PE(self.exepath)
+            try:
+                pe = PE(self.exepath)
+            except FileNotFoundError:
+                return True
             if not 'VS_FIXEDFILEINFO' in pe.__dict__:
                 #raise NameError("ERROR: Oops, %s has no version info. Can't continue."%self.exepath)
                 self.addversioninfo = True
