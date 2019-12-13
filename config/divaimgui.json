@@ -12,6 +12,7 @@
         "image_name":"diva.exe"
     },
     "decompress":{
-        "exclude_file_type":["ini","dat"]
+        "exclude_file_type":["ini","dat"],
+        "keep_download_file": false
     }
 }

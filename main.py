@@ -58,7 +58,7 @@ class Main:
     type=click.BOOL, is_flag=True,
     help='wait to exit')
 def main(projects, path, force, wait):
-
+    os.chdir(sys.path[0])
     start = Main()
     if len(projects) == 0:
         start.runUpdate(force=force)

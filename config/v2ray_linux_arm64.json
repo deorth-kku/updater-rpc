@@ -1,0 +1,14 @@
+{
+	"basic":{
+		"api_type": "github",
+		"account_name": "v2ray",
+		"project_name": "v2ray-core"
+	},
+	"download":{
+		"keyword": "linux-arm64",
+		"filetype":"zip"
+    },
+    "decompress":{
+        "keep_download_file": false
+    }
+}
