@@ -12,6 +12,6 @@
         "add_version_to_filename": true
     },
     "decompress":{
-        "exclude_file_type":["ini","dat"]
+        "exclude_file_type":["ini","dat","url"]
     }
 }
