@@ -99,14 +99,17 @@ class Aria2Rpc:
             return method(*newargs)
 
     
-    def download(self, url, pwd):
-        opts = dict(dir=pwd)
+    def download(self, url, pwd, filename=None):
+        if filename==None:
+            opts = dict(dir=pwd)
+        else:
+            opts = dict(dir=pwd,out=filename)
         req = self.addUri([url], opts)
         self.tasks.append(req)
         return req
 
-    def wget(self, url, pwd):
-        req = self.download(url, pwd)
+    def wget(self, url, pwd, filename=None):
+        req = self.download(url, pwd, filename)
         status = self.tellStatus(req)['status']
         while status == 'active' or status == 'paused':
             time.sleep(0.1)

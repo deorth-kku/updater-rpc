@@ -22,7 +22,8 @@ class Updater:
         {
             "keyword": "",
             "exclude_keyword": "/",
-            "filetype": "7z"
+            "filetype": "7z",
+            "add_version_to_filename": False
         },
         "process":
         {
@@ -157,7 +158,12 @@ class Updater:
         self.dldir = os.path.join(self.path, "downloads")
         if not os.path.exists(self.dldir):
             os.makedirs(self.dldir)
-        self.aria2.wget(self.dlurl, self.dldir)
+
+        if self.conf["download"]["add_version_to_filename"]:
+            temp_num=-len(self.conf["download"]["filetype"])-1
+            self.filename=self.filename[0:temp_num]+"_"+self.version+self.filename[temp_num:]
+
+        self.aria2.wget(self.dlurl, self.dldir, self.filename)
 
     def extract(self):
         self.fullfilename = os.path.join(self.dldir, self.filename)
@@ -206,7 +212,7 @@ class Updater:
         if not self.conf["decompress"]["keep_download_file"]:
             os.remove(self.fullfilename)
 
-    def updateVersionFile(self):
+    def updateVersionFile(self): #not working for now
         if self.conf["version"]["use_exe_version"]:
             if self.addversioninfo:
                 pass

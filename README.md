@@ -17,12 +17,12 @@ As you might noticed, we use json as config file. Though making a config file, y
 There are already a few config file I wrote for projects that I use. If you make some others, feel free to make a PR.
 ## Options
 ### "basic": Must-include options 
-You must include these options in your config file, otherwise it won't work at all.
+You must include these options in your config file, otherwise it won't work at all.  
 * "api_type": Currently you can only use "github" or "appveyor".
-* "account_name": the owner account name of the project.
+* "account_name": the owner account name of the project.  
 * "project_name": the project name of the project. For github, it is the repository name. Please notice some project use a different repository to release binary like rpcs3.
 ### Selective options
-There is a default value for these options. If you don't previde any, the default value will be used.
+There is a default value for these options. If you don't previde any, the default value will be used.  
 #### "build": Build/release options
 These are option to select the build/release to download. 
 * "branch": For appveyor api, select build from specific branch. If "None" was given, it will download the lastest build from any branch. The default is "None". This option has no effect to github api.
@@ -32,6 +32,7 @@ These are option that control which file to download when there are more than on
 * "keyword": Only download file which its filename includes such keyword. Default is empty.
 * "exclude_keyword": Don't download file which its filename includes such keyword. Default is "/" (which is not possible to use in filename).
 * "filetype": Only download file which its filename use specific suffix. Default is "7z".
+* "add_version_to_filename": Add version to download filename. for some project doesn't contain version in there release file. Default is False.    
 #### "process": Process options
 These are option that control how this program behave when the program you want to update is running.
 * "image_name": The process name to search for. Default is the name of config file + ".exe"

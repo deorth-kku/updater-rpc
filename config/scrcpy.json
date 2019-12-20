@@ -6,13 +6,11 @@
     },
     "download":{
 	    "keyword": "win64",
-        "filetype": "zip"
+        "filetype": "zip",
+        "add_version_to_filename": true
     },
     "process":{
         "image_name":"adb.exe",
         "allow_restart": true
-    },
-    "decompress":{
-        "keep_download_file": false
     }
 }

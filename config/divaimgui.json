@@ -6,13 +6,13 @@
     },
     "download":{
 	    "keyword": "release.zip",
-        "filetype": "zip"
+        "filetype": "zip",
+        "add_version_to_filename": true
     },
     "process":{
         "image_name":"diva.exe"
     },
     "decompress":{
-        "exclude_file_type":["ini","dat"],
-        "keep_download_file": false
+        "exclude_file_type":["ini","dat"]
     }
 }
