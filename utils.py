@@ -249,5 +249,4 @@ class ProcessCtrl:
 
 
 if __name__ == "__main__":
-    a = Aria2Rpc(ip="localhost", port="6800")
-    a.wget("https://baidu.com",r"D:\temp")
+    pass

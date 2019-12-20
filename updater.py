@@ -253,28 +253,4 @@ class Updater:
 
 
 if __name__ == "__main__":
-
-    if sys.platform == "win32":
-        citra_path = r"D:\citra"
-        rpcs3_path = r"D:\rpcs3"
-        pd_loader_path = r"E:\Hatsune Miku Project DIVA Arcade Future Tone"
-        ds4_path = r"D:\Program Files\DS4Windows"
-    else:
-        citra_path = "/root/citra"
-        rpcs3_path = "/root/rpcs3"
-        pd_loader_path = "/root/pdaft"
-        ds4_path = "/root/ds4"
-
-    moon = Updater("moonlight_win", "foo")
-
-    ds4 = Updater("ds4windows", ds4_path)
-    ds4.run()
-
-    citra = Updater("citra", citra_path)
-    citra.run()
-
-    rpcs3 = Updater("rpcs3_win", rpcs3_path)
-    rpcs3.run()
-
-    pdl = Updater("pd_loader", pd_loader_path)
-    pdl.run()
+    pass
