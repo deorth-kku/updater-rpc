@@ -74,6 +74,14 @@ class Updater:
     @classmethod
     def setDefaults(cls, defaults):
         cls.CONF = mergeDict(cls.CONF, defaults)
+    
+    @staticmethod
+    def version_compare(newversion,oldversion):
+        count=min(len(newversion),len(oldversion))
+        for i in range(count):
+            if newversion[i]<oldversion[i]:
+                return False
+        return True
 
     def __init__(self, name, path):
         self.count += 1
@@ -116,9 +124,6 @@ class Updater:
                     self.versiontuple.append(int(num))
                 except ValueError:
                     self.versiontuple.append(0)
-            while len(self.versiontuple) < 4:
-                self.versiontuple.append(0)
-            self.versiontuple = tuple(self.versiontuple)
 
             self.exepath = os.path.join(
                 self.path, self.conf["process"]["image_name"])
@@ -142,7 +147,8 @@ class Updater:
             prodver = (verinfo.ProductVersionMS >> 16, verinfo.ProductVersionMS & 0xFFFF,
                        verinfo.ProductVersionLS >> 16, verinfo.ProductVersionLS & 0xFFFF)
             pe.close()
-            return not (self.versiontuple == filever or self.versiontuple == prodver)
+            return not (self.version_compare(self.versiontuple,filever) or self.version_compare(self.versiontuple,prodver))
+            
         else:
             versionfile = self.name+".VERSION"
             self.versionfile_path = os.path.join(self.path, versionfile)
@@ -212,9 +218,9 @@ class Updater:
         if not self.conf["decompress"]["keep_download_file"]:
             os.remove(self.fullfilename)
 
-    def updateVersionFile(self): #not working for now
+    def updateVersionFile(self): 
         if self.conf["version"]["use_exe_version"]:
-            if self.addversioninfo:
+            if self.addversioninfo: #not working for now
                 pass
             '''
             FileVersionMS=self.versiontuple[0]*0xFFFF+self.versiontuple[1]
@@ -231,7 +237,7 @@ class Updater:
 
     def run(self, force=False):
         self.getDlUrl()
-        if self.checkIfUpdateIsNeed() or force:
+        if  force or self.checkIfUpdateIsNeed():
             self.download()
             self.proc = ProcessCtrl(self.conf["process"]["image_name"])
             if self.conf["process"]["allow_restart"]:

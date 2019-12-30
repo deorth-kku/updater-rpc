@@ -1,0 +1,22 @@
+{
+	"basic": {
+		"api_type": "github",
+		"account_name": "cmderdev",
+		"project_name": "cmder"
+	},
+	"download": {
+		"keyword": "mini",
+        "filetype": "zip",
+        "add_version_to_filename": true
+	},
+	"process": {
+		"image_name": "cmder.exe",
+		"allow_restart": true
+	},
+	"version":{
+            "use_exe_version": true
+    },
+    "decompress":{
+        "exclude_file_type":["xml"]
+    }
+}
