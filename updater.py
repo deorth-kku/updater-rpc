@@ -79,7 +79,7 @@ class Updater:
     def version_compare(newversion,oldversion):
         count=min(len(newversion),len(oldversion))
         for i in range(count):
-            if newversion[i]<oldversion[i]:
+            if newversion[i]>oldversion[i]:
                 return False
         return True
 
