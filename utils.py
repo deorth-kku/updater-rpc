@@ -39,6 +39,26 @@ def mergeDict(a, b):
 
 
 class LoadConfig:
+    @staticmethod
+    def replace(config,var_key,var_value):
+        typeflag = type(config)
+        if typeflag==str:
+            return config.replace(var_key,var_value)
+        elif typeflag==int or typeflag==float or typeflag==bool:
+            return config
+        elif typeflag==dict:
+            for key in config:
+                newvalue = LoadConfig.replace(config[key],var_key, var_value)
+                config.update({key:newvalue})
+            return config
+        else:
+            new=[]
+            for key in config:
+                new_key = LoadConfig.replace(key,var_key,var_value)
+                new.append(new_key)
+            return typeflag(new)
+
+    
     def __init__(self, file):
         self.file = file
         try:
@@ -46,6 +66,11 @@ class LoadConfig:
                 self.config = json.load(f)
         except (IOError, json.decoder.JSONDecodeError):
             self.config = {}
+
+
+    def var_replace(self,key,value):
+        self.config=self.replace(self.config,key,value)
+
 
     def dumpconfig(self, config):
         with open(self.file, "w") as f:

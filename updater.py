@@ -3,6 +3,7 @@ from utils import *
 from appveyor import *
 import json
 import shutil
+import platform
 try:
     from pefile import PE
 except ImportError:
@@ -40,6 +41,27 @@ class Updater:
         {
             "use_exe_version": False
         }
+    }
+
+    platform_info=platform.platform().split("-")
+    OS=platform_info[0].lower()
+    if OS=="windows":
+        if platform.architecture()[0]=="64bit":
+            arch="x64"
+        else:
+            arch="x86"
+    elif OS=="linux":
+        if platform_info[2]=="aarch64":
+            arch="arm64"
+        else:
+            arch=platform_info[2]
+    else:
+        arch=""
+        print("Not supported OS %s, vars will not working.")
+    
+    config_vars={
+        r"%arch":arch,
+        r"%OS": OS
     }
 
     count = 0
@@ -84,7 +106,6 @@ class Updater:
         return True
 
     def __init__(self, name, path):
-        print("开始更新%s"%name)
         self.count += 1
         self.path = path
         self.name = name
@@ -92,8 +113,13 @@ class Updater:
 
         self.addversioninfo = False
 
-        self.newconf = LoadConfig("config/%s.json" % name).config
+        config=LoadConfig("config/%s.json" % name)
+
+        for key in self.config_vars:
+            config.var_replace(key,self.config_vars[key])
+        self.newconf = config.config
         self.conf = mergeDict(self.CONF, self.newconf)
+
 
         try:
             self.conf["process"]["image_name"]
@@ -155,10 +181,10 @@ class Updater:
         else:
             try:
                 versionfile = open(self.versionfile_path, 'r')
-                oldversion = self.versionfile.read()
+                oldversion = versionfile.read()
                 versionfile.close()
-            except:
-                oldversion = ""
+            except FileNotFoundError:
+                return True
             return not self.version == oldversion
 
     def download(self):
@@ -167,8 +193,8 @@ class Updater:
             os.makedirs(self.dldir)
 
         if self.conf["download"]["add_version_to_filename"]:
-            temp_num=-len(self.conf["download"]["filetype"])-1
-            self.filename=self.filename[0:temp_num]+"_"+self.version+self.filename[temp_num:]
+            temp_name=os.path.splitext(self.filename)
+            self.filename=temp_name[0]+"_"+self.version+temp_name[-1]
 
         self.aria2.wget(self.dlurl, self.dldir, self.filename)
 
@@ -238,7 +264,8 @@ class Updater:
 
     def run(self, force=False):
         self.getDlUrl()
-        if  force or self.checkIfUpdateIsNeed():
+        if  self.checkIfUpdateIsNeed() or force:
+            print("开始更新%s"%self.name)
             self.download()
             self.proc = ProcessCtrl(self.conf["process"]["image_name"])
             if self.conf["process"]["allow_restart"]:
