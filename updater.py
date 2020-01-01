@@ -84,9 +84,13 @@ class Updater:
         return True
 
     def __init__(self, name, path):
+        print("开始更新%s"%name)
         self.count += 1
         self.path = path
         self.name = name
+        self.versionfile_path = os.path.join(self.path, self.name+".VERSION")
+
+        self.addversioninfo = False
 
         self.newconf = LoadConfig("config/%s.json" % name).config
         self.conf = mergeDict(self.CONF, self.newconf)
@@ -114,7 +118,6 @@ class Updater:
     def checkIfUpdateIsNeed(self):
         self.version = self.api.getVersion()
         if self.conf["version"]["use_exe_version"]:
-            self.addversioninfo = False
             version = re.sub('[^0-9\.\-]', '', self.version)
             version = version.replace(r"-", r".")
             version = version.split(r".")
@@ -150,12 +153,10 @@ class Updater:
             return not (self.version_compare(self.versiontuple,filever) or self.version_compare(self.versiontuple,prodver))
             
         else:
-            versionfile = self.name+".VERSION"
-            self.versionfile_path = os.path.join(self.path, versionfile)
             try:
-                self.versionfile = open(self.versionfile_path, 'r')
+                versionfile = open(self.versionfile_path, 'r')
                 oldversion = self.versionfile.read()
-                self.versionfile.close()
+                versionfile.close()
             except:
                 oldversion = ""
             return not self.version == oldversion
@@ -231,9 +232,9 @@ class Updater:
             pe.write(self.exepath)
             '''
         else:
-            with open(self.versionfile_path, 'w') as self.versionfile:
-                self.versionfile.write(self.version)
-            self.versionfile.close()
+            with open(self.versionfile_path, 'w') as versionfile:
+                versionfile.write(self.version)
+            versionfile.close()
 
     def run(self, force=False):
         self.getDlUrl()
