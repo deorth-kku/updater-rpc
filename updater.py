@@ -21,8 +21,9 @@ class Updater:
         },
         "download":
         {
-            "keyword": "",
-            "exclude_keyword": "/",
+            "keyword": [],
+            "update_keyword":[],
+            "exclude_keyword": [],
             "filetype": "7z",
             "add_version_to_filename": False
         },
@@ -120,6 +121,9 @@ class Updater:
         self.newconf = config.config
         self.conf = mergeDict(self.CONF, self.newconf)
 
+        for key in ("keyword","update_keyword","exclude_keyword"):
+            if type(self.conf["download"][key])==str:
+                self.conf["download"][key]=[self.conf["download"][key]]
 
         try:
             self.conf["process"]["image_name"]
@@ -130,9 +134,12 @@ class Updater:
         self.api = eval(apistr)(
                 self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
 
-    def getDlUrl(self):
+    def getDlUrl(self):  
         try:
-            self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"], self.conf["download"]["filetype"], self.conf["build"]["no_pull"])
+            if self.install or self.conf["download"]["update_keyword"]==[]:
+                self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"]+self.conf["download"]["update_keyword"], self.conf["download"]["filetype"])
+            else:
+                self.dlurl = self.api.getDlUrl(self.conf["download"]["update_keyword"], self.conf["download"]["exclude_keyword"], self.conf["download"]["filetype"])
         except requests.exceptions.ConnectionError:
             print("连接失败")
             raise
@@ -142,7 +149,8 @@ class Updater:
             raise ValueError("Can't get download url!")
 
     def checkIfUpdateIsNeed(self):
-        self.version = self.api.getVersion()
+        self.install=False
+        self.version = self.api.getVersion(self.conf["build"]["no_pull"])
         if self.conf["version"]["use_exe_version"]:
             version = re.sub('[^0-9\.\-]', '', self.version)
             version = version.replace(r"-", r".")
@@ -159,6 +167,7 @@ class Updater:
             try:
                 pe = PE(self.exepath)
             except FileNotFoundError:
+                self.install=True
                 return True
             if not 'VS_FIXEDFILEINFO' in pe.__dict__:
                 #raise NameError("ERROR: Oops, %s has no version info. Can't continue."%self.exepath)
@@ -184,6 +193,7 @@ class Updater:
                 oldversion = versionfile.read()
                 versionfile.close()
             except FileNotFoundError:
+                self.install=True
                 return True
             return not self.version == oldversion
 
@@ -263,9 +273,9 @@ class Updater:
             versionfile.close()
 
     def run(self, force=False):
-        self.getDlUrl()
         if  self.checkIfUpdateIsNeed() or force:
             print("开始更新%s"%self.name)
+            self.getDlUrl()
             self.download()
             self.proc = ProcessCtrl(self.conf["process"]["image_name"])
             if self.conf["process"]["allow_restart"]:

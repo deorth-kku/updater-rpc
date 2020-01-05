@@ -26,8 +26,9 @@ These are option to select the build/release to download.
 * "no_pull": For appveyor api. If you specific a branch, and other branch merged a pull request to this branch, it will trigger a build on appveyor. You might not want to use this build. The default is "None". This option has no effect to github api.
 #### "download": Download options
 These are option that control which file to download when there are more than one file in a build/release. If these are still more than one file after all these options, the first file will be download.
-* "keyword": Only download file which its filename includes such keyword. Default is empty.
-* "exclude_keyword": Don't download file which its filename includes such keyword. Default is "/" (which is not possible to use in filename).
+* "keyword": Only download file which its filename includes such keywords. Default is a empty list.
+* "update_keyword": Some project provide a update-only pack. Use this to download it instead of downloading full pack. If not set, will always download the full pack. 
+* "exclude_keyword": Don't download file which its filename includes such keywords. Default is a empty list.
 * "filetype": Only download file which its filename use specific suffix. Default is "7z".
 * "add_version_to_filename": Add version to download filename. for some project doesn't contain version in there release file. Default is False.    
 #### "process": Process options

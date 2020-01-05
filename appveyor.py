@@ -5,7 +5,20 @@ import os
 from utils import getJson, urljoin
 
 
-class AppveyorApi:
+class FatherApi:
+    @staticmethod
+    def filename_check(filename, keywords, no_keywords, filetype):
+        for keyword in keywords:
+            if keyword not in filename:
+                return False
+        for no_keyword in no_keywords:
+            if no_keyword in filename:
+                return False
+        if not filename.endswith(filetype):
+            return False
+        return True
+
+class AppveyorApi(FatherApi):
     apiurl = "https://ci.appveyor.com/api"
 
     def __init__(self, account_name, project_name, branch=None):
@@ -22,8 +35,9 @@ class AppveyorApi:
         self.json = getJson(self.historyurl)
         for build in self.json["builds"]:
             yield build["version"]
-
-    def getDlUrl(self, keyword="", no_keyword="/", filetype="7z", no_pull=False):
+    
+    
+    def getVersion(self,no_pull=False):
         for version in self.getHistory():
             self.version = version
             self.buildurl = urljoin(
@@ -41,23 +55,22 @@ class AppveyorApi:
             self.artifactsjson = getJson(self.artifactsurl)
             if len(self.artifactsjson) == 0:
                 continue
+            return self.version
+
+    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z"):
+        try:
             for fileinfo in self.artifactsjson:
                 filename = fileinfo["fileName"]
-                if keyword in filename and no_keyword not in filename and filename[-len(filetype):] == filetype:
-                    self.filename = filename
+                if self.filename_check(filename,keyword,no_keyword,filetype):
                     self.dlurl = urljoin(
-                        self.apiurl, "buildjobs", self.jobid, "artifacts", self.filename)
+                        self.apiurl, "buildjobs", self.jobid, "artifacts", filename)
                     return self.dlurl
-
-    def getVersion(self):
-        try:
-            return self.version
         except AttributeError:
-            raise AttributeError(
-                "You must run getDlUrl first before tried to getVersion")
+            raise #AttributeError("you must run getVersion before you run getDlUrl")
 
 
-class GithubApi:
+
+class GithubApi(FatherApi):
     apiurl = "https://api.github.com/repos"
 
     def __init__(self, account_name, project_name, branch=None):
@@ -69,27 +82,28 @@ class GithubApi:
             self.apiurl, self.account_name, self.project_name, "releases")
         return getJson(self.releasesurl)
 
-    def getDlUrl(self, keyword="", no_keyword="/", filetype="7z", no_pull=False):
+    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z"):
+        try:
+            if len(self.release["assets"]) != 0:
+                for file in self.release["assets"]:
+                    if self.filename_check(file["name"],keyword,no_keyword,filetype):
+                        return file["browser_download_url"]
+            elif filetype == "zip":
+                return self.release["zipball_url"]
+            elif filetype == "tar.gz":
+                return self.release["tarball_url"]
+        except AttributeError:
+            raise #AttributeError("you must run getVersion before you run getDlUrl")
+
+
+    def getVersion(self, no_pull=False):
         for release in self.getReleases():
             if release["name"] != None:
                 self.version = release["name"]
             else:
                 self.version = release["tag_name"]
-            if len(release["assets"]) != 0:
-                for file in release["assets"]:
-                    if keyword in file["name"] and no_keyword not in file["name"] and file["name"][-len(filetype):] == filetype:
-                        return file["browser_download_url"]
-            elif filetype == "zip":
-                return release["zipball_url"]
-            elif filetype == "tar.gz":
-                return release["tarball_url"]
-
-    def getVersion(self):
-        try:
+            self.release=release
             return self.version
-        except AttributeError:
-            raise AttributeError(
-                "You must run getDlUrl first before tried to getVersion")
 
 
 if __name__ == "__main__":
