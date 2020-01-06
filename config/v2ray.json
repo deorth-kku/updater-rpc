@@ -5,7 +5,7 @@
 		"project_name": "v2ray-core"
 	},
 	"download":{
-		"keyword": "%OS-%arch",
+		"keyword": ["%OS","%arch"],
 		"filetype":"zip",
         "add_version_to_filename": true
 	},

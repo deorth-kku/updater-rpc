@@ -46,19 +46,21 @@ class Updater:
 
     platform_info=platform.platform().split("-")
     OS=platform_info[0].lower()
+    supported_arch=("arm","aarch64","i386","i686","amd64","mips","mips64","mipsle","mips64le","ppc64","ppc64le","s390x")
     if OS=="windows":
         if platform.architecture()[0]=="64bit":
-            arch="x64"
+            arch="64"
         else:
-            arch="x86"
+            arch="32"
     elif OS=="linux":
-        if platform_info[2]=="aarch64":
+        for a in supported_arch:
+            if a in platform_info:
+                arch=a
+        if arch=="aarch64":
             arch="arm64"
-        else:
-            arch=platform_info[2]
     else:
         arch=""
-        print("Not supported OS %s, vars will not working.")
+        print("Not supported OS %s, vars will not working."%OS)
     
     config_vars={
         r"%arch":arch,
