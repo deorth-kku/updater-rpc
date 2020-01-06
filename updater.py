@@ -99,6 +99,10 @@ class Updater:
     @classmethod
     def setDefaults(cls, defaults):
         cls.CONF = mergeDict(cls.CONF, defaults)
+    @classmethod
+    def setBins(cls,bin_aria2c,bin_7z):
+        Aria2Rpc.setAria2Bin(bin_aria2c)
+        Py7z.set7zBin(bin_7z)
     
     @staticmethod
     def version_compare(newversion,oldversion):

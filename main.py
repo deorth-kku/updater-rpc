@@ -3,25 +3,30 @@
 import sys,os
 import click
 from updater import Updater
-from utils import LoadConfig
+from utils import LoadConfig,mergeDict
 
 
 class Main:
-    def __init__(self):
-        self.configfile = LoadConfig("config.json")
-        self.config = self.configfile.config
-        if self.config == {}:
-            self.config = {
+    default={
                 "aria2": {
                     "ip": "127.0.0.1",
                     "rpc-listen-port": "6800",
                     "rpc-secret": ""
                 },
+                "binarys":{
+                    "aria2c":"aria2c",
+                    "7z":"7z"
+                },
                 "projects": {},
                 "defaults": {}
             }
-            self.configfile.dumpconfig(self.config)
+    def __init__(self):
+        self.configfile = LoadConfig("config.json")
+        self.config = self.configfile.config
+        self.config = mergeDict(self.default,self.config)
+        self.configfile.dumpconfig(self.config)
 
+        Updater.setBins(self.config["binarys"]["aria2c"],self.config["binarys"]["7z"])
         Updater.setAria2Rpc(self.config["aria2"]["ip"], self.config["aria2"]
                             ["rpc-listen-port"], self.config["aria2"]["rpc-secret"])
         Updater.setDefaults(self.config["defaults"])

@@ -87,6 +87,11 @@ def getJson(url):
 
 
 class Aria2Rpc:
+    bin_path="aria2c"
+    @classmethod
+    def setAria2Bin(cls,bin_path):
+        cls.bin_path=bin_path
+
     def __init__(self, ip, port="6800", passwd="",args=[]):
         connection = xmlrpc.client.ServerProxy(
             "http://%s:%s/rpc" % (ip, port))
@@ -99,7 +104,7 @@ class Aria2Rpc:
         except ConnectionRefusedError:
             if ip == "127.0.0.1" or ip == "localhost" or ip == "127.1":
                 cmd = [
-                    "aria2c",
+                    self.bin_path,
                     "--enable-rpc=true",
                     "--rpc-allow-origin-all=true",
                     "--rpc-listen-port=%s" % port
@@ -187,15 +192,19 @@ def progressBar(current, total, speed):
           str(round(total/1048756, 1))+"MB "+speed+"      ", end="\r")
 
 
-class Py7z:  # TODO: Throw exception when decompress error
+class Py7z: 
+    bin_path="7z"
+    @classmethod
+    def set7zBin(cls,bin_path):
+        cls.bin_path=bin_path
     def __init__(self, filename):
-        if subprocess.call("7z", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL):
+        if subprocess.call(self.bin_path, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL):
             print("PLease check if 7z is installed")
             sys.exit(2)
 
         self.filename = filename
 
-        cmd = ["7z", "t", self.filename]
+        cmd = [self.bin_path, "t", self.filename]
         code = subprocess.call(
             cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if code != 0:
@@ -206,7 +215,7 @@ class Py7z:  # TODO: Throw exception when decompress error
             return self.filelist
         except AttributeError:
             self.filelist = []
-            with subprocess.Popen(["7z", "l", self.filename], stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
+            with subprocess.Popen([self.bin_path, "l", self.filename], stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
                 for line in p.stdout:
                     line = line.strip()
                     try:
@@ -222,11 +231,11 @@ class Py7z:  # TODO: Throw exception when decompress error
         return dir
 
     def extractFiles(self, filenames, outdir):
-        cmd = ["7z", "x", "-y", "-o"+outdir, self.filename]+filenames
+        cmd = [self.bin_path, "x", "-y", "-o"+outdir, self.filename]+filenames
         subprocess.call(cmd)
 
     def extractAll(self, outdir):
-        cmd = ["7z", "x", "-y", "-o"+outdir, self.filename]
+        cmd = [self.bin_path, "x", "-y", "-o"+outdir, self.filename]
         subprocess.call(cmd)
 
 
