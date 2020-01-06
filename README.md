@@ -8,7 +8,7 @@ Download is using aria2 via rpc interface, decompress using 7z binary. Current b
 ### Python
 Python 3 with "requests", "psutil" and "click" installed. To use "use_exe_version", you'll also need "pefile".
 ### Binary program
-aria2 and 7z binary in your $PATH.
+aria2 and 7z binary in your $PATH. Or you can set the full path in config.json.  
 ## Config file
 As you might noticed, we use json as config file. Though making a config file, you can provide the infromaion that is needed to update your local program.  
 There are already a few config file I wrote for projects that I use. If you make some others, feel free to make a PR.
