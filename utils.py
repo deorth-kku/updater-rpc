@@ -219,7 +219,7 @@ class Py7z:
                 for line in p.stdout:
                     line = line.strip()
                     try:
-                        if line[20:25] == r"....A":
+                        if line[20:24] == r"....":
                             filename = line[53:]
                             self.filelist.append(filename)
                     except IndexError:

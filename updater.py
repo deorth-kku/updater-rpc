@@ -131,10 +131,11 @@ class Updater:
             if type(self.conf["download"][key])==str:
                 self.conf["download"][key]=[self.conf["download"][key]]
 
-        try:
-            self.conf["process"]["image_name"]
-        except KeyError:
-            self.conf["process"].update({"image_name": self.name+".exe"})
+        if "image_name" not in self.conf["process"]:
+            self.conf["process"].update({"image_name": self.name})
+        if self.OS=="windows":
+            self.conf["process"].update({"image_name": self.conf["process"]["image_name"]+".exe"})
+            
         
         apistr=self.conf["basic"]["api_type"].capitalize()+"Api"
         self.api = eval(apistr)(
