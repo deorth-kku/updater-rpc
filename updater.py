@@ -133,7 +133,7 @@ class Updater:
 
         if "image_name" not in self.conf["process"]:
             self.conf["process"].update({"image_name": self.name})
-        if self.OS=="windows":
+        if self.OS=="windows" and not self.conf["process"]["image_name"].endswith(".exe"):
             self.conf["process"].update({"image_name": self.conf["process"]["image_name"]+".exe"})
             
         

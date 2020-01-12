@@ -80,7 +80,10 @@ class GithubApi(FatherApi):
     def getReleases(self):
         self.releasesurl = urljoin(
             self.apiurl, self.account_name, self.project_name, "releases")
-        return getJson(self.releasesurl)
+        releases=getJson(self.releasesurl)
+        if "message" in releases:
+            raise ValueError(releases["message"])
+        return releases
 
     def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z"):
         try:
