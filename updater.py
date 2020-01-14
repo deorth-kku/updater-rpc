@@ -88,7 +88,11 @@ class Updater:
             "--split=16",
             "--continue=true"
         ]
-        cls.aria2 = Aria2Rpc(ip, port, passwd,args)
+        try:
+            cls.aria2 = Aria2Rpc(ip, port, passwd,args)
+        except xmlrpc.client.Fault:
+            print("aria2 rpc密码错误")
+            raise
 
     @classmethod
     def quitAriaRpc(cls):

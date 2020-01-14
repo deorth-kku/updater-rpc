@@ -21,7 +21,18 @@ class Main:
                 "defaults": {}
             }
     def __init__(self):
-        self.configfile = LoadConfig("config.json")
+        self.configpath=os.path.join(sys.path[0],"config.json")
+        if not os.path.exists(self.configpath):
+            configdir_upper=os.getenv("APPDATA")
+            if configdir_upper==None:
+                configdir_upper=os.path.join(os.getenv("HOME"),".config")
+            configdir=os.path.join(configdir_upper,"updater-rpc")
+            try:
+                os.makedirs(configdir)
+            except FileExistsError:
+                pass
+            self.configpath=os.path.join(configdir,"config.json")
+        self.configfile = LoadConfig(self.configpath)
         self.config = self.configfile.config
         self.config = mergeDict(self.default,self.config)
         self.configfile.dumpconfig(self.config)
@@ -63,7 +74,7 @@ class Main:
     type=click.BOOL, is_flag=True,
     help='wait to exit')
 def main(projects, path, force, wait):
-    os.chdir(sys.path[0])
+    
     start = Main()
     if len(projects) == 0:
         start.runUpdate(force=force)
