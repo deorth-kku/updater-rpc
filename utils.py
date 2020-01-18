@@ -77,11 +77,21 @@ class LoadConfig:
             json.dump(config, f, sort_keys=True,
                       indent=4, separators=(',', ': '))
 
+def setProxy(improxy):
+    global proxy
+    proxy=improxy
 
 def getJson(url):
     try:
-        request = requests.get(url=url,timeout=30)
-    except (requests.exceptions.ConnectTimeout,requests.exceptions.ConnectTimeout):
+        p={
+            "http":proxy,
+            "https":proxy
+        }
+    except NameError:
+        p={}
+    try:
+        request = requests.get(url=url,proxies=p,timeout=30)
+    except (requests.exceptions.ConnectTimeout,requests.exceptions.ConnectionError):
         raise
     return request.json()
 
@@ -130,10 +140,14 @@ class Aria2Rpc:
 
     
     def download(self, url, pwd, filename=None):
-        if filename==None:
-            opts = dict(dir=pwd)
-        else:
-            opts = dict(dir=pwd,out=filename)
+        opts={"dir":pwd}
+        try:
+            opts.update({"all-proxy":proxy})
+        except NameError:
+            pass
+        if filename!=None:
+            opts.update({"out":filename})
+
         req = self.addUri([url], opts)
         self.tasks.append(req)
         return req

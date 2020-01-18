@@ -3,7 +3,7 @@
 import sys,os
 import click
 from updater import Updater
-from utils import LoadConfig,mergeDict
+from utils import LoadConfig,mergeDict,setProxy
 
 
 class Main:
@@ -17,11 +17,13 @@ class Main:
                     "aria2c":"aria2c",
                     "7z":"7z"
                 },
+                "proxy":"",
                 "projects": {},
                 "defaults": {}
             }
     def __init__(self):
-        self.configpath=os.path.join(sys.path[0],"config.json")
+        os.chdir(sys.path[0])
+        self.configpath="config.json"
         if not os.path.exists(self.configpath):
             configdir_upper=os.getenv("APPDATA")
             if configdir_upper==None:
@@ -36,6 +38,8 @@ class Main:
         self.config = self.configfile.config
         self.config = mergeDict(self.default,self.config)
         self.configfile.dumpconfig(self.config)
+
+        setProxy(self.config["proxy"])
 
         Updater.setBins(self.config["binarys"]["aria2c"],self.config["binarys"]["7z"])
         Updater.setAria2Rpc(self.config["aria2"]["ip"], self.config["aria2"]
