@@ -49,7 +49,16 @@ class AppveyorApi(FatherApi):
                     continue
                 except KeyError:
                     pass
-            self.jobid = self.buildjson["build"]["jobs"][0]["jobId"]
+            jobs=self.buildjson["build"]["jobs"]
+            if len(jobs)>1:
+                for job in jobs:
+                    if "elease" in job["name"]:
+                        self.jobid=job["jobId"]
+            elif len(jobs)==1:
+                self.jobid=jobs[0]["jobId"]
+            else:
+                continue
+            
             self.artifactsurl = urljoin(
                 self.apiurl, "buildjobs", self.jobid, "artifacts")
             self.artifactsjson = getJson(self.artifactsurl)
