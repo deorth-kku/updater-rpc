@@ -51,16 +51,19 @@ class Updater:
         if platform.architecture()[0]=="64bit":
             arch="64"
         else:
-            arch="32"
+            arch=["86","32"]
+        OS="win"
     elif OS=="linux":
         for a in supported_arch:
             if a in platform_info:
                 arch=a
         if arch=="aarch64":
-            arch="arm64"
+            arch=["arm64","arch64","armv8"]
     else:
         arch=""
         print("Not supported OS %s, vars will not working."%OS)
+
+    OS=[OS,OS.capitalize()]
     
     config_vars={
         r"%arch":arch,
@@ -137,7 +140,7 @@ class Updater:
 
         if "image_name" not in self.conf["process"]:
             self.conf["process"].update({"image_name": self.name})
-        if self.OS=="windows" and not self.conf["process"]["image_name"].endswith(".exe"):
+        if self.OS[0]=="win" and not self.conf["process"]["image_name"].endswith(".exe"):
             self.conf["process"].update({"image_name": self.conf["process"]["image_name"]+".exe"})
             
         

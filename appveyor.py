@@ -9,8 +9,20 @@ class FatherApi:
     @staticmethod
     def filename_check(filename, keywords, no_keywords, filetype):
         for keyword in keywords:
-            if keyword not in filename:
-                return False
+            type_flag=type(keyword)
+            if type_flag==str:
+                if keyword not in filename:
+                    return False
+            elif type_flag==list:
+                exist_flag=False
+                for keyword_sub in keyword:
+                    if keyword_sub in filename:
+                        exist_flag=True
+                if not exist_flag:
+                    return False
+            else:
+                raise TypeError("keyword must be a str or a list.")
+
         for no_keyword in no_keywords:
             if no_keyword in filename:
                 return False

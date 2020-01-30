@@ -43,7 +43,10 @@ class LoadConfig:
     def replace(config,var_key,var_value):
         typeflag = type(config)
         if typeflag==str:
-            return config.replace(var_key,var_value)
+            if config==var_key:
+                return var_value
+            else:
+                return config
         elif typeflag==int or typeflag==float or typeflag==bool:
             return config
         elif typeflag==dict:

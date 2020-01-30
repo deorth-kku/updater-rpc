@@ -6,9 +6,9 @@
 		"project_name": "citra-nightly"
 	},
 	"process": {
-		"image_name": "citra_qt.exe"
+		"image_name": "citra_qt"
 	},
 	"download": {
-		"keyword": "mingw"
+		"keyword": ["%OS"]
 	}
 }
