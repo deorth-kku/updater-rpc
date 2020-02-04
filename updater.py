@@ -98,6 +98,11 @@ class Updater:
             raise
 
     @classmethod
+    def setRemoteAria2(cls,remote_dir,local_dir):
+        cls.remote_dir=remote_dir
+        cls.local_dir=local_dir
+
+    @classmethod
     def quitAriaRpc(cls):
         while cls.count!=0:
             time.sleep(1)
@@ -212,9 +217,12 @@ class Updater:
             return not self.version == oldversion
 
     def download(self):
-        self.dldir = os.path.join(self.path, "downloads")
-        if not os.path.exists(self.dldir):
-            os.makedirs(self.dldir)
+        try:
+            self.dldir=self.remote_dir+"/"+self.name
+        except AttributeError:
+            self.dldir = os.path.join(self.path, "downloads")
+            if not os.path.exists(self.dldir):
+                os.makedirs(self.dldir)
 
         if self.conf["download"]["add_version_to_filename"]:
             temp_name=os.path.splitext(self.filename)
@@ -223,7 +231,10 @@ class Updater:
         self.aria2.wget(self.dlurl, self.dldir, self.filename)
 
     def extract(self):
-        self.fullfilename = os.path.join(self.dldir, self.filename)
+        try:
+            self.fullfilename= os.path.join(self.local_dir,self.name,self.filename)
+        except AttributeError:
+            self.fullfilename = os.path.join(self.dldir, self.filename)
         times = 5
         sucuss = False
         while times>0 and not sucuss:

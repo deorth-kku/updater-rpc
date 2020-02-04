@@ -45,6 +45,13 @@ class Main:
         Updater.setAria2Rpc(self.config["aria2"]["ip"], self.config["aria2"]
                             ["rpc-listen-port"], self.config["aria2"]["rpc-secret"])
         Updater.setDefaults(self.config["defaults"])
+        if self.config["aria2"]["ip"] == "127.0.0.1" or self.config["aria2"]["ip"] == "localhost" or self.config["aria2"]["ip"] == "127.1":
+            pass
+        else:
+            try:
+                Updater.setRemoteAria2(self.config["aria2"]["remote-dir"],self.config["aria2"]["local-dir"])
+            except KeyError:
+                raise KeyError("you must set remote-dir and local-dir to use remote aria2")
 
     def addProject(self, project, path):
         self.config["projects"].update({project: path})

@@ -165,7 +165,7 @@ class Aria2Rpc:
             progressBar(int(r['completedLength']), int(
                 r['totalLength']), int(r['downloadSpeed']))
         if status != 'complete':
-            raise DownloadError(status)
+            raise DownloadError(r["errorMessage"])
     
     def quit(self):
         try:
