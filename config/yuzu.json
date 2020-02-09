@@ -1,11 +1,11 @@
 {
 	"basic": {
 		"api_type": "github",
-		"account_name": "citra-emu",
-		"project_name": "citra-nightly"
+		"account_name": "yuzu-emu",
+		"project_name": "yuzu-mainline"
 	},
 	"process": {
-		"image_name": "citra_qt"
+		"image_name": "yuzu"
 	},
 	"download": {
 		"keyword": ["%OS"]

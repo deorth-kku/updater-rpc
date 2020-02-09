@@ -300,7 +300,11 @@ class Updater:
     def run(self, force=False):
         if  self.checkIfUpdateIsNeed() or force:
             print("开始更新%s"%self.name)
-            self.getDlUrl()
+            try:
+                self.getDlUrl()
+            except ValueError:
+                print("cannot get dlurl, skipping")
+                return
             self.download()
             self.proc = ProcessCtrl(self.conf["process"]["image_name"])
             if self.conf["process"]["allow_restart"]:
