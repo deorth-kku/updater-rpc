@@ -14,6 +14,7 @@
         "add_version_to_filename": true
     },
     "decompress":{
-        "exclude_file_type":["ini","dat","url","md5","sfv"]
+        "exclude_file_type":["url","md5","sfv"],
+        "exclude_file_type_when_update":["ini","dat"]
     }
 }
