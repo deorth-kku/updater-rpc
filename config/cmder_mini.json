@@ -17,6 +17,6 @@
             "use_exe_version": true
     },
     "decompress":{
-        "exclude_file_type":["xml"]
+        "exclude_file_type_when_update":["xml"]
     }
 }
