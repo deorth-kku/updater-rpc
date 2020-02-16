@@ -39,6 +39,7 @@ These are option that control how this program behave when the program you want 
 These are option that control how to decompress the downloaded file.
 * "include_file_type": Only decompress files with specific suffix. Needs to be a list. Default is a empty list [].
 * "exclude_file_type": Don't decompress files with specific suffix. Needs to be a list. Default is a empty list [].
+* "exclude_file_type_when_update": Don't decompress files with specific suffix when updating. Needs to be a list. Default is a empty list [].
 * "single_dir": If download file contain only one directory and this is set to true, move files from the directory to upper level directory (which is the program directory). Default is true.
 * "keep_download_file": Keep compress file after decompression. If it set to false, compress file will be deleted. Default is true.
 #### "version": Version contorl options
@@ -59,6 +60,13 @@ Just run
 ## Update only specific projects:
 `python main.py [project_name] [another_project_name] [some_more_project_name] ...`  
 These project names must already included in your project list.
+## TODOs
+* Global log level
+* Muti-thread
+* Sourceforge support
+* Muti-language
+* self-update
+* Static url
 
 
 
