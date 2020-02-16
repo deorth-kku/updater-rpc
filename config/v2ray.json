@@ -12,5 +12,8 @@
 	"process": {
 		"image_name": "v2ray",
 		"allow_restart": true
-	}
+	},
+	"decompress":{
+        "exclude_file_type_when_update":["service"]
+    }
 }

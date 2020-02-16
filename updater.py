@@ -35,6 +35,7 @@ class Updater:
         {
             "include_file_type": [],
             "exclude_file_type": [],
+            "exclude_file_type_when_update":[],
             "single_dir": True,
             "keep_download_file": True
         },
@@ -246,6 +247,8 @@ class Updater:
                 self.download()
                 times -= 1
         filelist0 = f.getFileList()
+        if not self.install:
+            self.conf["decompress"]["exclude_file_type"]=self.conf["decompress"]["exclude_file_type"]+self.conf["decompress"]["exclude_file_type_when_update"]
         if self.conf["decompress"]["include_file_type"] == [] and self.conf["decompress"]["exclude_file_type"] == []:
             f.extractAll(self.path)
         else:
