@@ -1,0 +1,11 @@
+{
+	"basic": {
+		"api_type": "github",
+		"account_name": "vapoursynth",
+		"project_name": "vapoursynth"
+	},
+	"download":{
+		"keyword": ["Portable","%arch"],
+		"filetype":"7z"
+	}
+}
