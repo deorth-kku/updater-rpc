@@ -6,6 +6,7 @@ import os
 import time
 import re
 import requests
+from requests.adapters import HTTPAdapter
 import json
 import psutil
 import subprocess
@@ -80,20 +81,26 @@ class LoadConfig:
             json.dump(config, f, sort_keys=True,
                       indent=4, separators=(',', ': '))
 
-def setProxy(improxy):
-    global proxy
-    proxy=improxy
+def setRequestsArgs(improxy,times,tmout): 
+    global requests_obj
+    global time_out
+    time_out=tmout
+
+    requests_obj=requests.Session()
+    requests_obj.mount('http://', HTTPAdapter(max_retries=times))
+    requests_obj.mount('https://', HTTPAdapter(max_retries=times))
+    if improxy!="":
+        proxies={
+            "http":improxy,
+            "https":improxy
+        }
+        requests_obj.proxies.update(proxies)
+
+
 
 def getJson(url):
     try:
-        p={
-            "http":proxy,
-            "https":proxy
-        }
-    except NameError:
-        p={}
-    try:
-        request = requests.get(url=url,proxies=p,timeout=30)
+        request = requests_obj.get(url=url,timeout=time_out)
     except (requests.exceptions.ConnectTimeout,requests.exceptions.ConnectionError):
         raise
     return request.json()

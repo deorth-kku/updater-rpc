@@ -3,7 +3,7 @@
 import sys,os
 import click
 from updater import Updater
-from utils import LoadConfig,mergeDict,setProxy
+from utils import LoadConfig,mergeDict,setRequestsArgs
 
 
 class Main:
@@ -17,7 +17,11 @@ class Main:
                     "aria2c":"aria2c",
                     "7z":"7z"
                 },
-                "proxy":"",
+                "requests":{
+                    "proxy":"",
+                    "timeout":30,
+                    "retry":5
+                },
                 "projects": {},
                 "defaults": {}
             }
@@ -37,14 +41,18 @@ class Main:
         self.configfile = LoadConfig(self.configpath)
         self.config = self.configfile.config
         self.config = mergeDict(self.default,self.config)
+        
+        if "proxy" in self.config:
+            self.config["requests"]["proxy"]=self.config["proxy"]
+            self.config.pop("proxy")
         self.configfile.dumpconfig(self.config)
 
-        setProxy(self.config["proxy"])
 
         Updater.setBins(self.config["binarys"]["aria2c"],self.config["binarys"]["7z"])
         Updater.setAria2Rpc(self.config["aria2"]["ip"], self.config["aria2"]
                             ["rpc-listen-port"], self.config["aria2"]["rpc-secret"])
         Updater.setDefaults(self.config["defaults"])
+        setRequestsArgs(self.config["requests"]["proxy"],self.config["requests"]["retry"],self.config["requests"]["timeout"])
         if self.config["aria2"]["ip"] == "127.0.0.1" or self.config["aria2"]["ip"] == "localhost" or self.config["aria2"]["ip"] == "127.1":
             pass
         else:

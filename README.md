@@ -64,9 +64,12 @@ These project names must already included in your project list.
 * Global log level
 * Muti-thread
 * Sourceforge support
+* version selection
 * Muti-language
 * self-update
 * Static url
+* search same download quest before adding
+* restart command override
 
 
 
