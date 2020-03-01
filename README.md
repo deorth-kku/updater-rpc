@@ -40,7 +40,7 @@ These are option that control how to decompress the downloaded file.
 * "include_file_type": Only decompress files with specific suffix. Needs to be a list. Default is a empty list [].
 * "exclude_file_type": Don't decompress files with specific suffix. Needs to be a list. Default is a empty list [].
 * "exclude_file_type_when_update": Don't decompress files with specific suffix when updating. Needs to be a list. Default is a empty list [].
-* "single_dir": If download file contain only one directory and this is set to true, move files from the directory to upper level directory (which is the program directory). Default is true.
+* "single_dir": If download file contain only one directory and this is set to true, move files from the directory to upper level directory (which is the program directory). If you want only one directory form the compressed file, set this to the directory name. Default is true.
 * "keep_download_file": Keep compress file after decompression. If it set to false, compress file will be deleted. Default is true.
 #### "version": Version contorl options
 * "use_exe_version": Use win32 PE(Portable Executable) version info instead of version file. Won't work on projects unless its exe contain win32 PE version info. I made this for DS4windows. Default is false.
@@ -70,6 +70,7 @@ These project names must already included in your project list.
 * Static url
 * search same download quest before adding
 * restart command override
+* show release notes
 
 
 

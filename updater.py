@@ -246,11 +246,26 @@ class Updater:
                 os.remove(self.fullfilename)
                 self.download()
                 times -= 1
+        
         filelist0 = f.getFileList()
+
+        if type(self.conf["decompress"]["single_dir"])==bool:
+            prefix = f.getPrefixDir()
+        else:
+            filelist1=deepcopy(filelist0)
+            prefix = self.conf["decompress"]["single_dir"]
+            for file in filelist0:
+                booo=file.startswith(os.path.join(prefix,""))
+                if not booo:
+                    filelist1.remove(file)
+            filelist0=filelist1
+        
         if not self.install:
             self.conf["decompress"]["exclude_file_type"]=self.conf["decompress"]["exclude_file_type"]+self.conf["decompress"]["exclude_file_type_when_update"]
-        if self.conf["decompress"]["include_file_type"] == [] and self.conf["decompress"]["exclude_file_type"] == []:
+        
+        if self.conf["decompress"]["include_file_type"] == [] and self.conf["decompress"]["exclude_file_type"] == [] and prefix == "":
             f.extractAll(self.path)
+    
         else:
             if self.conf["decompress"]["include_file_type"] != []:
                 filelist1 = []
@@ -270,7 +285,7 @@ class Updater:
                 if not flag:
                     filelist0.append(file)
             f.extractFiles(filelist0, self.path)
-        prefix = f.getPrefixDir()
+
         if self.conf["decompress"]["single_dir"] and prefix != "":
             for file in os.listdir(os.path.join(self.path, prefix)):
                 new = os.path.join(self.path, prefix, file)

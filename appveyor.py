@@ -122,7 +122,7 @@ class GithubApi(FatherApi):
 
     def getVersion(self, no_pull=False):
         for release in self.getReleases():
-            if release["name"] != None:
+            if release["name"] != None and release["name"] != "":
                 self.version = release["name"]
             else:
                 self.version = release["tag_name"]

@@ -228,26 +228,25 @@ class Py7z:
 
         self.filename = filename
 
-        cmd = [self.bin_path, "t", self.filename]
-        code = subprocess.call(
-            cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if code != 0:
-            raise FileBrokenError(self.filename)
+        self.getFileList()
 
     def getFileList(self):
         try:
             return self.filelist
         except AttributeError:
             self.filelist = []
-            with subprocess.Popen([self.bin_path, "l", self.filename], stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
-                for line in p.stdout:
-                    line = line.strip()
-                    try:
-                        if line[20:24] == r"....":
-                            filename = line[53:]
-                            self.filelist.append(filename)
-                    except IndexError:
-                        pass
+            p=subprocess.Popen([self.bin_path, "l", self.filename], stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+            for line in p.stdout:
+                line = line.strip()
+                try:
+                    if line[20:24] == r"....":
+                        filename = line[53:]
+                        self.filelist.append(filename)
+                except IndexError:
+                    pass
+            p.wait()
+            if p.returncode!=0:
+                raise FileBrokenError(self.filename)
             return self.filelist
 
     def getPrefixDir(self):
