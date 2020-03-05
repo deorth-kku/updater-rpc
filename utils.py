@@ -66,7 +66,7 @@ class LoadConfig:
     def __init__(self, file):
         self.file = file
         try:
-            with open(file, 'r') as f:
+            with open(file, 'r',encoding='utf-8') as f:
                 self.config = json.load(f)
         except (IOError, json.decoder.JSONDecodeError):
             self.config = {}
@@ -77,9 +77,9 @@ class LoadConfig:
 
 
     def dumpconfig(self, config):
-        with open(self.file, "w") as f:
+        with open(self.file, "w",encoding='utf-8') as f:
             json.dump(config, f, sort_keys=True,
-                      indent=4, separators=(',', ': '))
+                      indent=4, separators=(',', ': '),ensure_ascii=False)
 
 def setRequestsArgs(improxy,times,tmout): 
     global requests_obj
