@@ -9,5 +9,8 @@
 	},
 	"download": {
 		"keyword": ["%OS"]
+	},
+	"decompress":{
+		"exclude_file_type":["tar.xz"]
 	}
 }
