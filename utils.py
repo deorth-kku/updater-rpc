@@ -84,6 +84,8 @@ class LoadConfig:
 def setRequestsArgs(improxy,times,tmout): 
     global requests_obj
     global time_out
+    global proxy_str
+    proxy_str=improxy
     time_out=tmout
 
     requests_obj=requests.Session()
@@ -112,7 +114,7 @@ class Aria2Rpc:
     def setAria2Bin(cls,bin_path):
         cls.bin_path=bin_path
 
-    def __init__(self, ip, port="6800", passwd="",args=[]):
+    def __init__(self, ip, port="6800", passwd="",args={}):
         connection = xmlrpc.client.ServerProxy(
             "http://%s:%s/rpc" % (ip, port))
         self.aria2 = connection.aria2
@@ -129,7 +131,10 @@ class Aria2Rpc:
                     "--rpc-allow-origin-all=true",
                     "--rpc-listen-port=%s" % port
                 ]
-                cmd+=args
+                for arg in args:
+                    arg_str="--%s=%s"%(arg,args[arg])
+                    cmd.append(arg_str)
+
                 if passwd != "":
                     cmd.append("--rpc-secret=%s" % passwd)
                 self.process = subprocess.Popen(cmd,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -152,7 +157,7 @@ class Aria2Rpc:
     def download(self, url, pwd, filename=None):
         opts={"dir":pwd}
         try:
-            opts.update({"all-proxy":proxy})
+            opts.update({"all-proxy":proxy_str})
         except NameError:
             pass
         if filename!=None:
