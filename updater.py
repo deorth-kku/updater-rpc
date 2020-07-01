@@ -84,14 +84,14 @@ class Updater:
             os.remove(log)
         except IOError:
             pass
-        args=[
-            "--log=%s"%log,
-            "--log-level=notice",#TODO:Global log level
-            "--max-connection-per-server=16",
-            "--min-split-size=1M",
-            "--split=16",
-            "--continue=true"
-        ]
+        args={
+            "log":log,
+            "log-level":"notice",#TODO:Global log level
+            "max-connection-per-server":"16",
+            "min-split-size":"1M",
+            "split":"16",
+            "continue":"true"
+        }
         try:
             cls.aria2 = Aria2Rpc(ip, port, passwd,args)
         except xmlrpc.client.Fault:

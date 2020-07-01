@@ -132,7 +132,10 @@ class Aria2Rpc:
                     "--rpc-listen-port=%s" % port
                 ]
                 for arg in args:
-                    arg_str="--%s=%s"%(arg,args[arg])
+                    if len(arg)!=1:
+                        arg_str="--%s=%s"%(arg,args[arg])
+                    else:
+                        arg_str="-%s=%s"%(arg,args[arg])
                     cmd.append(arg_str)
 
                 if passwd != "":
