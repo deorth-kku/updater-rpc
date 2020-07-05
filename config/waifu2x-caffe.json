@@ -5,7 +5,6 @@
 		"project_name": "waifu2x-caffe"
 	},
 	"download":{
-		"update_keyword": "Difference",
 		"filetype":"zip",
 		"add_version_to_filename": true
 	}
