@@ -10,7 +10,7 @@ from requests.adapters import HTTPAdapter
 import json
 import psutil
 import subprocess
-from copy import deepcopy
+from copy import copy,deepcopy
 
 
 def urljoin(*args):
@@ -170,18 +170,28 @@ class Aria2Rpc:
         self.tasks.append(req)
         return req
 
-    def wget(self, url, pwd, filename=None):
-        req = self.download(url, pwd, filename)
-        status = self.tellStatus(req)['status']
-        while status == 'active' or status == 'paused':
-            time.sleep(0.1)
-            r = self.tellStatus(req)
-            status = r['status']
-            progressBar(int(r['completedLength']), int(
-                r['totalLength']), int(r['downloadSpeed']))
-        if status != 'complete':
-            raise DownloadError(r["errorMessage"])
-    
+    def wget(self, url, pwd, filename=None,retry=5):
+        full_retry=copy(retry)
+        while True:
+            req = self.download(url, pwd, filename)
+            status = self.tellStatus(req)['status']
+            while status == 'active' or status == 'paused':
+                time.sleep(0.1)
+                r = self.tellStatus(req)
+                status = r['status']
+                progressBar(int(r['completedLength']), int(
+                    r['totalLength']), int(r['downloadSpeed']))
+            if status != 'complete':
+                if retry<=0:
+                    raise DownloadError(r["errorMessage"])
+                else:
+                    retry-=1
+                    print("%s, gonna retry %s/%s"%(r["errorMessage"],full_retry-retry,full_retry))
+                    continue
+            else:
+                break
+
+            
     def quit(self):
         try:
             self.process.terminate()
@@ -194,7 +204,7 @@ class Aria2Rpc:
 class DownloadError(Exception):
     def __init__(self, status):
         Exception.__init__(self)
-        self.message = "Download is not complete, Download task is %s" % status
+        self.message = "Download failed, Download task is %s" % status
 
     def __str__(self):
         return repr(self.message)
