@@ -187,6 +187,7 @@ class Aria2Rpc:
                 else:
                     retry-=1
                     print("%s, gonna retry %s/%s"%(r["errorMessage"],full_retry-retry,full_retry))
+                    time.sleep(1)
                     continue
             else:
                 break
