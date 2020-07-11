@@ -47,7 +47,7 @@ class Updater:
 
     platform_info=platform.platform().split("-")
     OS=platform_info[0].lower()
-    supported_arch=("arm","aarch64","i386","i686","amd64","mips","mips64","mipsle","mips64le","ppc64","ppc64le","s390x")
+    supported_arch=("arm","aarch64","i386","i686","amd64","mips","mips64","mipsle","mips64le","ppc64","ppc64le","s390x","x86_64")
     if OS=="windows":
         if platform.architecture()[0]=="64bit":
             arch="64"
@@ -60,6 +60,8 @@ class Updater:
                 arch=a
         if arch=="aarch64":
             arch=["arm64","arch64","armv8"]
+        elif arch=="x86_64":
+            arch="64"
     else:
         arch=""
         print("Not supported OS %s, vars will not working."%OS)
