@@ -9,12 +9,11 @@
     },
     "download":{  
         "filetype":"zip",
-        "update_keyword":"Update",
-        "exclude_keyword":["Vista7","AMDPack"],
+        "keyword":"AMDPack",
+        "exclude_keyword":"Vista7",
         "add_version_to_filename": true
     },
     "decompress":{
-        "exclude_file_type":["url","md5","sfv","bat"],
-        "exclude_file_type_when_update":["ini","dat"]
+        "exclude_file_type":["txt"]
     }
 }
