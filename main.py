@@ -25,9 +25,9 @@ class Main:
                 "projects": {},
                 "defaults": {}
             }
-    def __init__(self):
+    def __init__(self,conf="config.json"):
         os.chdir(sys.path[0])
-        self.configpath="config.json"
+        self.configpath=conf
         if not os.path.exists(self.configpath):
             configdir_upper=os.getenv("APPDATA")
             if configdir_upper==None:
@@ -84,6 +84,7 @@ class Main:
 @click.command()
 @click.argument('projects', nargs=-1)
 @click.option('--path', type=str, help='the path you want to add')
+@click.option('-c',"--conf", type=str, help='using specific config file')
 @click.option(
     '--force', '-f', default=False,
     type=click.BOOL, is_flag=True,
@@ -92,9 +93,12 @@ class Main:
     '--wait', '-w', default=False,
     type=click.BOOL, is_flag=True,
     help='wait to exit')
-def main(projects, path, force, wait):
+def main(projects, path, force, wait, conf):
     
-    start = Main()
+    if conf:
+        start = Main(conf=conf)
+    else:
+        start = Main()
     if len(projects) == 0:
         start.runUpdate(force=force)
     if not path:
