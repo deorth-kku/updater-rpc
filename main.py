@@ -22,7 +22,7 @@ class Main:
                     "timeout":30,
                     "retry":5
                 },
-                "projects": {},
+                "projects": [],
                 "defaults": {}
             }
     def __init__(self,conf="config.json"):
@@ -40,6 +40,17 @@ class Main:
             self.configpath=os.path.join(configdir,"config.json")
         self.configfile = LoadConfig(self.configpath)
         self.config = self.configfile.config
+        
+        if type(self.config["projects"])==dict:
+            new_projects=[]
+            for pro in self.config["projects"]:
+                new_pro={
+                    "name":pro,
+                    "path":self.config["projects"][pro]
+                }
+                new_projects.append(new_pro)
+            self.config.update({"projects":new_projects})
+
         self.config = mergeDict(self.default,self.config)
         
         if "proxy" in self.config:
@@ -62,18 +73,19 @@ class Main:
                 raise KeyError("you must set remote-dir and local-dir to use remote aria2")
 
     def addProject(self, project, path):
-        self.config["projects"].update({project: path})
+        pro={
+            "name":project,
+            "path":path
+        }
+        self.config["projects"].append(pro)
         self.configfile.dumpconfig(self.config)
 
     def runUpdate(self, projects=None, force=False):
         updaters = []
-        if projects == None:
-            for pro in self.config["projects"]:
-                obj = Updater(pro, self.config["projects"][pro])
-                updaters.append(obj)
-        else:
-            for pro in projects:
-                obj = Updater(pro, self.config["projects"][pro])
+
+        for pro in self.config["projects"]:
+            if projects==None or pro["name"] in projects:
+                obj = Updater(pro["name"], pro["path"])
                 updaters.append(obj)
 
         for pro in updaters:
