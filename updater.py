@@ -3,13 +3,12 @@ from utils import *
 from appveyor import *
 import json
 import shutil
-import platform
 try:
     from pefile import PE
 except ImportError:
     pass
 from distutils import dir_util
-
+from copy import copy
 
 class Updater:
     CONF = {
@@ -29,7 +28,8 @@ class Updater:
         },
         "process":
         {
-            "allow_restart": False
+            "allow_restart": False,
+            "service": False
         },
         "decompress":
         {
@@ -44,9 +44,8 @@ class Updater:
             "use_exe_version": False
         }
     }
-
-    platform_info=platform.platform().split("-")
-    OS=platform_info[0].lower()
+    platform_info=ProcessCtrl.platform_info
+    OS=copy(ProcessCtrl.OS)
     supported_arch=("arm","aarch64","i386","i686","amd64","mips","mips64","mipsle","mips64le","ppc64","ppc64le","s390x","x86_64")
     if OS=="windows":
         if platform.architecture()[0]=="64bit":
@@ -326,7 +325,7 @@ class Updater:
                 print("cannot get dlurl, skipping")
                 return
             self.download()
-            self.proc = ProcessCtrl(self.conf["process"]["image_name"])
+            self.proc = ProcessCtrl(self.conf["process"]["image_name"],self.conf["process"]["service"])
             if self.conf["process"]["allow_restart"]:
                 self.proc.stopProc()
                 self.extract()
