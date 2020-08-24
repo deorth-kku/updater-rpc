@@ -72,13 +72,14 @@ class Main:
             except KeyError:
                 raise KeyError("you must set remote-dir and local-dir to use remote aria2")
 
-    def addProject(self, project, path):
+    def addProject(self, project, path, add2conf=False):
         pro={
             "name":project,
             "path":path
         }
         self.config["projects"].append(pro)
-        self.configfile.dumpconfig(self.config)
+        if add2conf:
+            self.configfile.dumpconfig(self.config)
 
     def runUpdate(self, projects=None, force=False):
         updaters = []
@@ -96,28 +97,29 @@ class Main:
 @click.command()
 @click.argument('projects', nargs=-1)
 @click.option('--path', type=str, help='the path you want to add')
-@click.option('-c',"--conf", type=str, help='using specific config file')
+@click.option('-c',"--conf", type=str, help='using specific config file',default="config.json")
 @click.option(
     '--force', '-f', default=False,
     type=click.BOOL, is_flag=True,
     help='force update')
 @click.option(
+    '--add2conf', '-a', default=False,
+    type=click.BOOL, is_flag=True,
+    help='add current project path to conf')
+@click.option(
     '--wait', '-w', default=False,
     type=click.BOOL, is_flag=True,
     help='wait to exit')
-def main(projects, path, force, wait, conf):
+def main(projects, path, force, wait, conf, add2conf):
     
-    if conf:
-        start = Main(conf=conf)
-    else:
-        start = Main()
+    start = Main(conf=conf)
     if len(projects) == 0:
         start.runUpdate(force=force)
     if not path:
         start.runUpdate(projects=projects, force=force)
     else:
         if len(projects) == 1:
-            start.addProject(projects[0], path)
+            start.addProject(projects[0], path, add2conf)
             start.runUpdate(projects=projects, force=force)
         else:
             print("error")
