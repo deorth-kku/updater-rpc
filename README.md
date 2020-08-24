@@ -71,7 +71,7 @@ These project names must already included in your project list.
 * search same download quest before adding
 * restart command override
 * show release notes
-* fix aria2 proxy
+
 
 
 
