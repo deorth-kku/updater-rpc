@@ -270,7 +270,10 @@ class Py7z:
             return self.filelist
 
     def getPrefixDir(self):
-        dir = os.path.commonprefix(self.filelist)
+        if len(self.filelist)==1:
+            dir=""
+        else:
+            dir = os.path.commonprefix(self.filelist)
         return dir
 
     def extractFiles(self, filenames, outdir):
