@@ -41,6 +41,8 @@ class Main:
         self.configfile = LoadConfig(self.configpath)
         self.config = self.configfile.config
         
+        self.config = mergeDict(self.default,self.config)
+        
         if type(self.config["projects"])==dict:
             new_projects=[]
             for pro in self.config["projects"]:
@@ -51,8 +53,6 @@ class Main:
                 new_projects.append(new_pro)
             self.config.update({"projects":new_projects})
 
-        self.config = mergeDict(self.default,self.config)
-        
         if "proxy" in self.config:
             self.config["requests"]["proxy"]=self.config["proxy"]
             self.config.pop("proxy")
