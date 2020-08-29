@@ -3,7 +3,7 @@
 import sys,os
 import click
 from updater import Updater
-from utils import LoadConfig,mergeDict,setRequestsArgs
+from utils import JsonConfig,setRequestsArgs
 
 
 class Main:
@@ -38,8 +38,8 @@ class Main:
             except FileExistsError:
                 pass
             self.configpath=os.path.join(configdir,"config.json")
-        self.configfile = LoadConfig(self.configpath)
-        self.config = self.configfile.config
+        self.config = JsonConfig(self.configpath)
+
         
         if "projects" in self.config and type(self.config["projects"])==dict:
             new_projects=[]
@@ -55,8 +55,8 @@ class Main:
             self.config["requests"]["proxy"]=self.config["proxy"]
             self.config.pop("proxy")
 
-        self.config = mergeDict(self.default,self.config)
-        self.configfile.dumpconfig(self.config)
+        self.config.set_defaults(self.default)
+        self.config.dumpconfig()
 
 
         Updater.setBins(self.config["binarys"]["aria2c"],self.config["binarys"]["7z"])
@@ -73,13 +73,17 @@ class Main:
                 raise KeyError("you must set remote-dir and local-dir to use remote aria2")
 
     def addProject(self, project, path, add2conf=False):
+        for pro in self.config["projects"]:
+            if pro["name"]==project:
+                self.config["projects"].remove(pro)
+                break
         pro={
             "name":project,
             "path":path
         }
         self.config["projects"].append(pro)
         if add2conf:
-            self.configfile.dumpconfig(self.config)
+            self.config.dumpconfig()
 
     def runUpdate(self, projects=None, force=False):
         updaters = []

@@ -12,6 +12,7 @@ import psutil
 import subprocess
 import platform
 from copy import copy,deepcopy
+from collections import UserDict
 
 
 def urljoin(*args):
@@ -40,26 +41,28 @@ def mergeDict(a, b):
     return newdict
 
 
-class LoadConfig:
+class JsonConfig(UserDict):
     @staticmethod
     def replace(config,var_key,var_value):
         typeflag = type(config)
         if typeflag==str:
-            if config==var_key:
+            if var_key == config:
                 return var_value
+            elif type(var_value)==str and var_key in config:
+                return config.replace(var_key,var_value)
             else:
                 return config
-        elif typeflag==int or typeflag==float or typeflag==bool:
+        elif typeflag==int or typeflag==float or typeflag==bool or config==None:
             return config
         elif typeflag==dict:
             for key in config:
-                newvalue = LoadConfig.replace(config[key],var_key, var_value)
+                newvalue = JsonConfig.replace(config[key],var_key, var_value)
                 config.update({key:newvalue})
             return config
         else:
             new=[]
             for key in config:
-                new_key = LoadConfig.replace(key,var_key,var_value)
+                new_key = JsonConfig.replace(key,var_key,var_value)
                 new.append(new_key)
             return typeflag(new)
 
@@ -68,16 +71,21 @@ class LoadConfig:
         self.file = file
         try:
             with open(file, 'r',encoding='utf-8') as f:
-                self.config = json.load(f)
+                self.data = json.load(f)
         except (IOError, json.decoder.JSONDecodeError):
-            self.config = {}
+            self.data = {}
 
 
     def var_replace(self,key,value):
-        self.config=self.replace(self.config,key,value)
+        self.data=self.replace(self.data,key,value)
+
+    def set_defaults(self,defaults):
+        self.data=mergeDict(defaults,self.data)
 
 
-    def dumpconfig(self, config):
+    def dumpconfig(self, config=None):
+        if config==None:
+            config=self.data
         with open(self.file, "w",encoding='utf-8') as f:
             json.dump(config, f, sort_keys=True,
                       indent=4, separators=(',', ': '),ensure_ascii=False)

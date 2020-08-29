@@ -134,12 +134,12 @@ class Updater:
 
         self.addversioninfo = False
 
-        config=LoadConfig("config/%s.json" % name)
+        self.conf=JsonConfig("config/%s.json" % name)
 
         for key in self.config_vars:
-            config.var_replace(key,self.config_vars[key])
-        self.newconf = config.config
-        self.conf = mergeDict(self.CONF, self.newconf)
+            self.conf.var_replace(key,self.config_vars[key])
+
+        self.conf.set_defaults(self.CONF)
 
         for key in ("keyword","update_keyword","exclude_keyword"):
             if type(self.conf["download"][key])==str:
@@ -172,6 +172,7 @@ class Updater:
     def checkIfUpdateIsNeed(self):
         self.install=False
         self.version = self.api.getVersion(self.conf["build"]["no_pull"])
+        self.conf.var_replace("%VER",self.version)
         if self.conf["version"]["use_exe_version"]:
             version = re.sub('[^0-9\.\-]', '', self.version)
             version = version.replace(r"-", r".")
