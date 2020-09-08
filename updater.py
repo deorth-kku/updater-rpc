@@ -9,7 +9,7 @@ except ImportError:
     pass
 from distutils import dir_util
 from copy import copy
-
+from codecs import open
 class Updater:
     CONF = {
         "basic": {},
@@ -313,7 +313,7 @@ class Updater:
             pe.write(self.exepath)
             '''
         else:
-            with open(self.versionfile_path, 'w') as versionfile:
+            with open(self.versionfile_path, 'w',encoding="utf8") as versionfile:
                 versionfile.write(self.version)
             versionfile.close()
 
