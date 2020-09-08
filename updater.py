@@ -211,7 +211,7 @@ class Updater:
             
         else:
             try:
-                versionfile = open(self.versionfile_path, 'r')
+                versionfile = open(self.versionfile_path, 'r',encoding="utf8")
                 oldversion = versionfile.read()
                 versionfile.close()
             except FileNotFoundError:
