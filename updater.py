@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from utils import *
 from appveyor import *
+from simpleapi import *
 import json
 import shutil
 try:
@@ -24,7 +25,8 @@ class Updater:
             "update_keyword":[],
             "exclude_keyword": [],
             "filetype": "7z",
-            "add_version_to_filename": False
+            "add_version_to_filename": False,
+            "index":0
         },
         "process":
         {
@@ -41,7 +43,9 @@ class Updater:
         },
         "version":
         {
-            "use_exe_version": False
+            "use_exe_version": False,
+            "from_page":False,
+            "index":0
         }
     }
     platform_info=ProcessCtrl.platform_info
@@ -149,18 +153,28 @@ class Updater:
             self.conf["process"].update({"image_name": self.name})
         if self.OS[0]=="win" and not self.conf["process"]["image_name"].endswith(".exe"):
             self.conf["process"].update({"image_name": self.conf["process"]["image_name"]+".exe"})
+
+
             
-        
-        apistr=self.conf["basic"]["api_type"].capitalize()+"Api"
-        self.api = eval(apistr)(
-                self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
+        self.simple=False
+        if self.conf["basic"]["api_type"]=="github":
+            self.api = GithubApi(self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
+        elif self.conf["basic"]["api_type"]=="appveyor":
+            self.api = AppveyorApi(self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
+        elif self.conf["basic"]["api_type"]=="simplespider":
+            self.api = SimpleSpider(self.conf["basic"]["page_url"])
+            self.simple = True
+        else:
+            raise ValueError("No such api %s"%self.conf["basic"]["api_type"])
 
     def getDlUrl(self):  
         try:
-            if self.install or self.conf["download"]["update_keyword"]==[]:
-                self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"]+self.conf["download"]["update_keyword"], self.conf["download"]["filetype"])
+            if self.simple:
+                self.dlurl = self.api.getDlUrl(self.conf["download"]["regex"],self.conf["download"]["index"])
+            elif self.install or self.conf["download"]["update_keyword"]==[]:
+                self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"]+self.conf["download"]["update_keyword"], self.conf["download"]["filetype"],self.conf["download"]["index"])
             else:
-                self.dlurl = self.api.getDlUrl(self.conf["download"]["update_keyword"], self.conf["download"]["exclude_keyword"], self.conf["download"]["filetype"])
+                self.dlurl = self.api.getDlUrl(self.conf["download"]["update_keyword"], self.conf["download"]["exclude_keyword"], self.conf["download"]["filetype"],self.conf["download"]["index"])
         except requests.exceptions.ConnectionError:
             print("连接失败")
             raise
@@ -171,7 +185,11 @@ class Updater:
 
     def checkIfUpdateIsNeed(self):
         self.install=False
-        self.version = self.api.getVersion(self.conf["build"]["no_pull"])
+        if self.simple:
+            self.getDlUrl()
+            self.version = self.api.getVersion(self.conf["version"]["regex"],self.conf["version"]["from_page"],self.conf["version"]["index"])
+        else:
+            self.version = self.api.getVersion(self.conf["build"]["no_pull"])
         self.conf.var_replace("%VER",self.version)
         if self.conf["version"]["use_exe_version"]:
             version = re.sub('[^0-9\.\-]', '', self.version)

@@ -78,14 +78,16 @@ class AppveyorApi(FatherApi):
                 continue
             return self.version
 
-    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z"):
+    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z",index=0):
         try:
+            match_urls=[]
             for fileinfo in self.artifactsjson:
                 filename = fileinfo["fileName"]
                 if self.filename_check(filename,keyword,no_keyword,filetype):
-                    self.dlurl = urljoin(
+                    dlurl = urljoin(
                         self.apiurl, "buildjobs", self.jobid, "artifacts", filename)
-                    return self.dlurl
+                    match_urls.append(dlurl)
+            return match_urls[index]
         except AttributeError:
             raise #AttributeError("you must run getVersion before you run getDlUrl")
 
@@ -106,12 +108,14 @@ class GithubApi(FatherApi):
             raise ValueError(releases["message"])
         return releases
 
-    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z"):
+    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z",index=0):
         try:
             if len(self.release["assets"]) != 0:
+                match_urls=[]
                 for file in self.release["assets"]:
                     if self.filename_check(file["name"],keyword,no_keyword,filetype):
-                        return file["browser_download_url"]
+                        match_urls.append(file["browser_download_url"])
+                return match_urls[index]
             elif filetype == "zip":
                 return self.release["zipball_url"]
             elif filetype == "tar.gz":
