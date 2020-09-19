@@ -6,5 +6,11 @@
 	},
 	"download":{
 		"filetype": "zip"
-	}
+	},
+	"version":{
+		"use_exe_version":true
+	},
+	"process":{
+        "image_name":"nvidiaProfileInspector.exe"
+    }
 }

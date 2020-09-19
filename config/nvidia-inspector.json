@@ -10,6 +10,10 @@
     },
     "version":{
         "regex":"Download Nvidia Inspector (.*?) Latest Version For Windows",
-        "from_page":true
+        "from_page":true,
+        "use_exe_version":true
+    },
+    "process":{
+        "image_name":"nvidiaInspector.exe"
     }
 }
