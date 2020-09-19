@@ -132,8 +132,12 @@ class Updater:
     def version_compare(newversion,oldversion):
         count=min(len(newversion),len(oldversion))
         for i in range(count):
-            if newversion[i]>oldversion[i]:
+            aa=newversion[i]
+            bb=oldversion[i]
+            if aa>bb:
                 return False
+            elif aa<bb:
+                return True
         return True
 
     def __init__(self, name, path, proxy=""):
