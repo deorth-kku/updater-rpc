@@ -3,7 +3,7 @@ import requests
 from requests.adapters import HTTPAdapter
 import re
 import os
-from utils import urljoin
+from utils import Url
 
 
 class FatherApi:
@@ -63,7 +63,7 @@ class AppveyorApi(FatherApi):
         self.project_name = project_name
 
     def getHistory(self):
-        self.historyurl = urljoin(self.apiurl, "projects", self.account_name,
+        self.historyurl = Url.join(self.apiurl, "projects", self.account_name,
                                   self.project_name, "history?recordsNumber=100"+self.branch)
         self.json = self.getJson(self.historyurl)
         for build in self.json["builds"]:
@@ -73,7 +73,7 @@ class AppveyorApi(FatherApi):
     def getVersion(self,no_pull=False):
         for version in self.getHistory():
             self.version = version
-            self.buildurl = urljoin(
+            self.buildurl = Url.join(
                 self.apiurl, "projects", self.account_name, self.project_name, "build", self.version)
             self.buildjson = self.getJson(self.buildurl)
             if no_pull:
@@ -92,7 +92,7 @@ class AppveyorApi(FatherApi):
             else:
                 continue
             
-            self.artifactsurl = urljoin(
+            self.artifactsurl = Url.join(
                 self.apiurl, "buildjobs", self.jobid, "artifacts")
             self.artifactsjson = self.getJson(self.artifactsurl)
             if len(self.artifactsjson) == 0:
@@ -105,7 +105,7 @@ class AppveyorApi(FatherApi):
             for fileinfo in self.artifactsjson:
                 filename = fileinfo["fileName"]
                 if self.filename_check(filename,keyword,no_keyword,filetype):
-                    dlurl = urljoin(
+                    dlurl = Url.join(
                         self.apiurl, "buildjobs", self.jobid, "artifacts", filename)
                     match_urls.append(dlurl)
             return match_urls[index]
@@ -122,7 +122,7 @@ class GithubApi(FatherApi):
         self.project_name = project_name
 
     def getReleases(self):
-        self.releasesurl = urljoin(
+        self.releasesurl = Url.join(
             self.apiurl, self.account_name, self.project_name, "releases")
         releases=self.getJson(self.releasesurl)
         if "message" in releases:

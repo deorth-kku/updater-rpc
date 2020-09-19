@@ -12,13 +12,24 @@ import platform
 from copy import copy,deepcopy
 from collections import UserDict
 
+class Url:
+    @staticmethod
+    def join(*args):
+        """
+        Joins given arguments into an url. Trailing but not leading slashes are
+        stripped for each argument.
+        """
+        return "/".join(map(lambda x: str(x).rstrip('/'), args))
+    @staticmethod
+    def basename(url):
+        filename=os.path.basename(url)
+        return filename.split("?")[0]
+    @staticmethod
+    def sitename(url):
+        parts=url.split("/")
+        return parts[0]+"//"+parts[2]
 
-def urljoin(*args):
-    """
-    Joins given arguments into an url. Trailing but not leading slashes are
-    stripped for each argument.
-    """
-    return "/".join(map(lambda x: str(x).rstrip('/'), args))
+
 
 
 def mergeDict(a, b):

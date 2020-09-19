@@ -13,7 +13,10 @@ from copy import copy
 from codecs import open
 class Updater:
     CONF = {
-        "basic": {},
+        "basic": {
+            "page_regex": False,
+            "index":0
+        },
         "build":
         {
             "branch": None,
@@ -173,7 +176,7 @@ class Updater:
         elif self.conf["basic"]["api_type"]=="appveyor":
             self.api = AppveyorApi(self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
         elif self.conf["basic"]["api_type"]=="simplespider":
-            self.api = SimpleSpider(self.conf["basic"]["page_url"])
+            self.api = SimpleSpider(self.conf["basic"]["page_url"],self.conf["basic"]["page_regex"],self.conf["basic"]["index"])
             self.simple = True
         else:
             raise ValueError("No such api %s"%self.conf["basic"]["api_type"])
@@ -193,7 +196,7 @@ class Updater:
             raise
         if self.conf["download"]["filename_override"]=="":
             try:
-                self.filename = os.path.basename(self.dlurl)
+                self.filename = Url.basename(self.dlurl)
             except TypeError:
                 raise ValueError("Can't get download url!")
         else:
