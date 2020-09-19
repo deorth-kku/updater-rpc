@@ -26,7 +26,9 @@ class Updater:
             "exclude_keyword": [],
             "filetype": "7z",
             "add_version_to_filename": False,
-            "index":0
+            "index":0,
+            "try_redirect":True,
+            "filename_override":""
         },
         "process":
         {
@@ -102,6 +104,10 @@ class Updater:
         except xmlrpc.client.Fault:
             print("aria2 rpc密码错误")
             raise
+    @classmethod
+    def setRequestsArgs(cls,times,tmout):
+        cls.times=times
+        cls.tmout=tmout
 
     @classmethod
     def setRemoteAria2(cls,remote_dir,local_dir):
@@ -130,10 +136,11 @@ class Updater:
                 return False
         return True
 
-    def __init__(self, name, path):
+    def __init__(self, name, path, proxy=""):
         self.count += 1
         self.path = path
         self.name = name
+        self.proxy = proxy
         self.versionfile_path = os.path.join(self.path, self.name+".VERSION")
 
         self.addversioninfo = False
@@ -167,10 +174,12 @@ class Updater:
         else:
             raise ValueError("No such api %s"%self.conf["basic"]["api_type"])
 
+        self.api.setRequestsArgs(self.proxy,self.times,self.tmout)
+
     def getDlUrl(self):  
         try:
             if self.simple:
-                self.dlurl = self.api.getDlUrl(self.conf["download"]["regex"],self.conf["download"]["index"])
+                self.dlurl = self.api.getDlUrl(self.conf["download"]["regex"],self.conf["download"]["index"],self.conf["download"]["try_redirect"])
             elif self.install or self.conf["download"]["update_keyword"]==[]:
                 self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"]+self.conf["download"]["update_keyword"], self.conf["download"]["filetype"],self.conf["download"]["index"])
             else:
@@ -178,10 +187,13 @@ class Updater:
         except requests.exceptions.ConnectionError:
             print("连接失败")
             raise
-        try:
-            self.filename = os.path.basename(self.dlurl)
-        except TypeError:
-            raise ValueError("Can't get download url!")
+        if self.conf["download"]["filename_override"]=="":
+            try:
+                self.filename = os.path.basename(self.dlurl)
+            except TypeError:
+                raise ValueError("Can't get download url!")
+        else:
+            self.filename=self.conf["download"]["filename_override"]
 
     def checkIfUpdateIsNeed(self):
         self.install=False
@@ -249,7 +261,7 @@ class Updater:
             temp_name=os.path.splitext(self.filename)
             self.filename=temp_name[0]+"_"+self.version+temp_name[-1]
 
-        self.aria2.wget(self.dlurl, self.dldir, self.filename)
+        self.aria2.wget(self.dlurl, self.dldir, self.filename, self.proxy)
 
     def extract(self):
         try:

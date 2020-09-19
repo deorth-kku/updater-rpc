@@ -3,7 +3,7 @@
 import sys,os
 import click
 from updater import Updater
-from utils import JsonConfig,setRequestsArgs
+from utils import JsonConfig
 
 
 class Main:
@@ -63,7 +63,8 @@ class Main:
         Updater.setAria2Rpc(self.config["aria2"]["ip"], self.config["aria2"]
                             ["rpc-listen-port"], self.config["aria2"]["rpc-secret"])
         Updater.setDefaults(self.config["defaults"])
-        setRequestsArgs(self.config["requests"]["proxy"],self.config["requests"]["retry"],self.config["requests"]["timeout"])
+        Updater.setRequestsArgs(self.config["requests"]["retry"],self.config["requests"]["timeout"])
+        
         if self.config["aria2"]["ip"] == "127.0.0.1" or self.config["aria2"]["ip"] == "localhost" or self.config["aria2"]["ip"] == "127.1":
             pass
         else:
@@ -90,7 +91,11 @@ class Main:
 
         for pro in self.config["projects"]:
             if projects==None or pro["name"] in projects:
-                obj = Updater(pro["name"], pro["path"])
+                try:
+                    pro_proxy=pro["proxy"]
+                except KeyError:
+                    pro_proxy=self.config["requests"]["proxy"]
+                obj = Updater(pro["name"], pro["path"],pro_proxy)
                 updaters.append(obj)
 
         for pro in updaters:

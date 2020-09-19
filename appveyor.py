@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 import requests
+from requests.adapters import HTTPAdapter
 import re
 import os
-from utils import getJson, urljoin
+from utils import urljoin
 
 
 class FatherApi:
@@ -30,6 +31,26 @@ class FatherApi:
             return False
         return True
 
+    def setRequestsArgs(self,proxy,times,tmout):
+        self.requests_obj=requests.Session()
+        self.tmout=tmout
+        self.requests_obj.mount('http://', HTTPAdapter(max_retries=times))
+        self.requests_obj.mount('https://', HTTPAdapter(max_retries=times))
+        if proxy!="":
+            proxies={
+                "http":proxy,
+                "https":proxy
+            }
+            self.requests_obj.proxies.update(proxies)
+
+    def getJson(self,url):
+        try:
+            request = self.requests_obj.get(url=url,timeout=self.tmout)
+        except (requests.exceptions.ConnectTimeout,requests.exceptions.ConnectionError):
+            raise
+        return request.json()
+
+
 class AppveyorApi(FatherApi):
     apiurl = "https://ci.appveyor.com/api"
 
@@ -44,7 +65,7 @@ class AppveyorApi(FatherApi):
     def getHistory(self):
         self.historyurl = urljoin(self.apiurl, "projects", self.account_name,
                                   self.project_name, "history?recordsNumber=100"+self.branch)
-        self.json = getJson(self.historyurl)
+        self.json = self.getJson(self.historyurl)
         for build in self.json["builds"]:
             yield build["version"]
     
@@ -54,7 +75,7 @@ class AppveyorApi(FatherApi):
             self.version = version
             self.buildurl = urljoin(
                 self.apiurl, "projects", self.account_name, self.project_name, "build", self.version)
-            self.buildjson = getJson(self.buildurl)
+            self.buildjson = self.getJson(self.buildurl)
             if no_pull:
                 try:
                     self.buildjson['build']['pullRequestId']
@@ -73,7 +94,7 @@ class AppveyorApi(FatherApi):
             
             self.artifactsurl = urljoin(
                 self.apiurl, "buildjobs", self.jobid, "artifacts")
-            self.artifactsjson = getJson(self.artifactsurl)
+            self.artifactsjson = self.getJson(self.artifactsurl)
             if len(self.artifactsjson) == 0:
                 continue
             return self.version
@@ -103,7 +124,7 @@ class GithubApi(FatherApi):
     def getReleases(self):
         self.releasesurl = urljoin(
             self.apiurl, self.account_name, self.project_name, "releases")
-        releases=getJson(self.releasesurl)
+        releases=self.getJson(self.releasesurl)
         if "message" in releases:
             raise ValueError(releases["message"])
         return releases

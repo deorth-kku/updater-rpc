@@ -5,8 +5,6 @@ import sys
 import os
 import time
 import re
-import requests
-from requests.adapters import HTTPAdapter
 import json
 import psutil
 import subprocess
@@ -90,32 +88,6 @@ class JsonConfig(UserDict):
             json.dump(config, f, sort_keys=True,
                       indent=4, separators=(',', ': '),ensure_ascii=False)
 
-def setRequestsArgs(improxy,times,tmout): 
-    global requests_obj
-    global time_out
-    global proxy_str
-    proxy_str=improxy
-    time_out=tmout
-
-    requests_obj=requests.Session()
-    requests_obj.mount('http://', HTTPAdapter(max_retries=times))
-    requests_obj.mount('https://', HTTPAdapter(max_retries=times))
-    if improxy!="":
-        proxies={
-            "http":improxy,
-            "https":improxy
-        }
-        requests_obj.proxies.update(proxies)
-
-
-
-def getJson(url):
-    try:
-        request = requests_obj.get(url=url,timeout=time_out)
-    except (requests.exceptions.ConnectTimeout,requests.exceptions.ConnectionError):
-        raise
-    return request.json()
-
 
 class Aria2Rpc:
     bin_path="aria2c"
@@ -166,12 +138,11 @@ class Aria2Rpc:
             return method(*newargs)
 
     
-    def download(self, url, pwd, filename=None):
-        opts={"dir":pwd}
-        try:
-            opts.update({"all-proxy":proxy_str})
-        except NameError:
-            pass
+    def download(self, url, pwd, filename=None,proxy=""):
+        opts={
+            "dir":pwd,
+            "all-proxy":proxy
+        }
         if filename!=None:
             opts.update({"out":filename})
 
@@ -179,10 +150,10 @@ class Aria2Rpc:
         self.tasks.append(req)
         return req
 
-    def wget(self, url, pwd, filename=None,retry=5):
+    def wget(self, url, pwd, filename=None,retry=5,proxy=""):
         full_retry=copy(retry)
         while True:
-            req = self.download(url, pwd, filename)
+            req = self.download(url, pwd, filename,proxy=proxy)
             status = self.tellStatus(req)['status']
             while status == 'active' or status == 'paused':
                 time.sleep(0.1)
