@@ -261,7 +261,7 @@ class Updater:
             temp_name=os.path.splitext(self.filename)
             self.filename=temp_name[0]+"_"+self.version+temp_name[-1]
 
-        self.aria2.wget(self.dlurl, self.dldir, self.filename, self.proxy)
+        self.aria2.wget(self.dlurl, self.dldir, self.filename, proxy=self.proxy)
 
     def extract(self):
         try:
