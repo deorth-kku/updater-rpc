@@ -14,8 +14,6 @@ from codecs import open
 class Updater:
     CONF = {
         "basic": {
-            "page_regex": False,
-            "index":0
         },
         "build":
         {
@@ -29,7 +27,8 @@ class Updater:
             "exclude_keyword": [],
             "filetype": "7z",
             "add_version_to_filename": False,
-            "index":0,
+            "regex":[],
+            "index":[0],
             "try_redirect":True,
             "filename_override":""
         },
@@ -176,7 +175,7 @@ class Updater:
         elif self.conf["basic"]["api_type"]=="appveyor":
             self.api = AppveyorApi(self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
         elif self.conf["basic"]["api_type"]=="simplespider":
-            self.api = SimpleSpider(self.conf["basic"]["page_url"],self.conf["basic"]["page_regex"],self.conf["basic"]["index"])
+            self.api = SimpleSpider(self.conf["basic"]["page_url"])
             self.simple = True
         else:
             raise ValueError("No such api %s"%self.conf["basic"]["api_type"])

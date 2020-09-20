@@ -1,14 +1,15 @@
 {
 	"basic": {
 		"api_type": "simplespider",
-        "page_url": "https://portableapps.com/apps/utilities/gpu-z-portable/",
-        "page_regex": "<a href=\"(/downloading/.*?exe)\""
+        "page_url": "https://portableapps.com/apps/utilities/gpu-z-portable/"
     },
     "download":{
-        "regex":"<a href=\"(/redirect/.*?exe)\""
+        "regex":["<a href=\"(/downloading/.*?exe)\"","<a href=\"(/redirect/.*?exe)\""],
+        "index":[0,0]
     },
     "version":{
-        "regex":"GPU-ZPortable_(.*?).paf.exe"
+        "regex":"GPU-ZPortable_(.*?).paf.exe",
+        "use_exe_version":true
     },
     "decompress":{
         "single_dir":"App\\GPU-Z"
