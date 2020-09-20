@@ -4,8 +4,8 @@
 		"page_url": "https://download.nextcloud.com/server/releases/"
     },
     "download":{
-        "regex":["<a href=\"(nextcloud-.*?\\.zip)\">"],
-        "index":[-1]
+        "regexes":["<a href=\"(nextcloud-.*?\\.zip)\">"],
+        "indexes":[-1]
     },
     "version":{
         "regex":"nextcloud-(.*?)\\.zip"

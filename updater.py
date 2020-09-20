@@ -27,8 +27,9 @@ class Updater:
             "exclude_keyword": [],
             "filetype": "7z",
             "add_version_to_filename": False,
-            "regex":[],
-            "index":[0],
+            "regexes":[],
+            "index":0,
+            "indexes":[],
             "try_redirect":True,
             "filename_override":""
         },
@@ -185,7 +186,7 @@ class Updater:
     def getDlUrl(self):  
         try:
             if self.simple:
-                self.dlurl = self.api.getDlUrl(self.conf["download"]["regex"],self.conf["download"]["index"],self.conf["download"]["try_redirect"])
+                self.dlurl = self.api.getDlUrl(self.conf["download"]["regexes"],self.conf["download"]["indexes"],self.conf["download"]["try_redirect"])
             elif self.install or self.conf["download"]["update_keyword"]==[]:
                 self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"]+self.conf["download"]["update_keyword"], self.conf["download"]["filetype"],self.conf["download"]["index"])
             else:

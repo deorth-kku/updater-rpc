@@ -34,9 +34,12 @@ class SimpleSpider(FatherApi):
         req=self.requests_obj.get(url=self.pageurl,headers=self.headers)
         self.page=req.text
 
-    def getDlUrl(self,regexs,indexs=[0],try_redirect=True):
+    def getDlUrl(self,regexs,indexs=[],try_redirect=True):
         self.getPage()
-        for lv in range(len(regexs)):
+        lvlen=len(regexs)
+        if indexs==[]:
+            indexs=[0]*lvlen
+        for lv in range(lvlen):
             if lv==0:
                 url=self.page_regex_url(self.pageurl,regexs[lv],indexs[lv],pagetext=self.page,try_redirect=try_redirect)
             else:

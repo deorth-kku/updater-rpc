@@ -4,7 +4,7 @@
 		"page_url": "https://www.nvidiainspector.com/nvidia-inspector-download/"
     },
     "download":{
-        "regex":["<a class=\"button primary\" href=\"(.*?)\">Download Nvidia Inspector"],
+        "regexes":["<a class=\"button primary\" href=\"(.*?)\">Download Nvidia Inspector"],
         "try_redirect": false,
         "filename_override":"nvidia-inspector-%VER.rar"
     },

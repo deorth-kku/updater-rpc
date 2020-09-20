@@ -4,8 +4,7 @@
         "page_url": "https://portableapps.com/apps/utilities/gpu-z-portable/"
     },
     "download":{
-        "regex":["<a href=\"(/downloading/.*?exe)\"","<a href=\"(/redirect/.*?exe)\""],
-        "index":[0,0]
+        "regexes":["<a href=\"(/downloading/.*?exe)\"","<a href=\"(/redirect/.*?exe)\""]
     },
     "version":{
         "regex":"GPU-ZPortable_(.*?).paf.exe",
