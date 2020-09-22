@@ -7,8 +7,7 @@
 	"download":{
 		"keyword": ["%OS","%arch"],
 		"filetype":"zip",
-	        "add_version_to_filename": true,
-		"index":-1
+	    "add_version_to_filename": true
 	},
 	"process": {
 		"image_name": "v2ray",
