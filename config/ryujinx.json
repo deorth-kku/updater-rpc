@@ -1,0 +1,14 @@
+{
+	"basic": {
+		"api_type": "appveyor",
+		"account_name": "gdkchan",
+		"project_name": "ryujinx"
+	},
+	"download": {
+        "keyword": ["%OS"],
+        "filetype":""
+	},
+	"build": {
+		"no_pull": true
+	}
+}
