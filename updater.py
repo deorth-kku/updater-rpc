@@ -359,7 +359,7 @@ class Updater:
             print("开始更新%s"%self.name)
             try:
                 self.getDlUrl()
-            except ValueError:
+            except IndexError:
                 print("cannot get dlurl, skipping")
                 return
             self.download()
