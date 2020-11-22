@@ -302,7 +302,7 @@ class Updater:
         if not self.install:
             self.conf["decompress"]["exclude_file_type"]=self.conf["decompress"]["exclude_file_type"]+self.conf["decompress"]["exclude_file_type_when_update"]
         
-        if self.conf["decompress"]["include_file_type"] == [] and self.conf["decompress"]["exclude_file_type"] == [] and prefix == "":
+        if self.conf["decompress"]["include_file_type"] == [] and self.conf["decompress"]["exclude_file_type"] == []:
             f.extractAll(self.path)
     
         else:
