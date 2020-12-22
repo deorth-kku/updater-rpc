@@ -161,9 +161,12 @@ class Aria2Rpc:
         self.tasks.append(req)
         return req
 
-    def wget(self, url, pwd, filename=None,retry=5,proxy=""):
+    def wget(self, url, pwd, filename=None,retry=5,proxy="",del_failed_task=True):
         full_retry=copy(retry)
+        req=False
         while True:
+            if del_failed_task and  req:
+                self.removeDownloadResult(req)
             req = self.download(url, pwd, filename,proxy=proxy)
             status = self.tellStatus(req)['status']
             while status == 'active' or status == 'paused':
