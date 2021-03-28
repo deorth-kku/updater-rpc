@@ -11,6 +11,6 @@
 		"keyword": ["%OS"]
 	},
 	"decompress":{
-		"exclude_file_type":["tar.xz"]
+		"exclude_file_type":["xz"]
 	}
 }
