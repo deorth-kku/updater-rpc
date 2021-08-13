@@ -5,7 +5,7 @@
         "project_name": "pd-loader"
     },
     "process":{
-        "image_name": "Diva.exe"
+        "image_name": "diva.exe"
     },
     "download":{  
         "filetype":"zip",
