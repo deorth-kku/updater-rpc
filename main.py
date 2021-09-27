@@ -90,6 +90,11 @@ class Main:
         updaters = []
 
         for pro in self.config["projects"]:
+            try:
+                if pro["hold"] and not force:
+                    break
+            except KeyError:
+                pass
             if projects==None or pro["name"] in projects:
                 try:
                     pro_proxy=pro["proxy"]
