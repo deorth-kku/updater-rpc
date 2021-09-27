@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import sys,os
+from typing import ContextManager
 import click
 from updater import Updater
 from utils import JsonConfig
@@ -92,7 +93,7 @@ class Main:
         for pro in self.config["projects"]:
             try:
                 if pro["hold"] and not force:
-                    break
+                    continue
             except KeyError:
                 pass
             if projects==None or pro["name"] in projects:
