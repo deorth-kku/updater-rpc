@@ -67,7 +67,9 @@ These project names must already included in your project list.
 * version selection
 * Muti-language
 * self-update
-* Static url
+* Static url (version by regex maybe)
+* rollback (via local file or redownload)
+* get version via command line
 * search same download quest before adding
 * restart command override
 * show release notes
