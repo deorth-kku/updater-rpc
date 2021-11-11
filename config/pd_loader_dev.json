@@ -1,14 +1,16 @@
 {
     "basic":{
-        "api_type": "github",
-        "account_name": "PDModdingCommunity",
-        "project_name": "PD-Loader"
+        "api_type": "appveyor",
+        "account_name": "nastys",
+        "project_name": "pd-loader"
     },
     "process":{
         "image_name": "diva.exe"
     },
     "download":{  
-        "filetype":"zip"
+        "filetype":"zip",
+        "exclude_keyword":["AMDPack"],
+        "add_version_to_filename": true
     },
     "decompress":{
         "exclude_file_type":["url","md5","sfv","bat"],
