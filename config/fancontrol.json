@@ -4,7 +4,8 @@
         "page_url": "https://github.com/Rem0o/FanControl.Releases"
     },
     "download":{
-        "url":"https://github.com/Rem0o/FanControl.Releases/raw/master/FanControl.zip"
+        "url":"https://github.com/Rem0o/FanControl.Releases/raw/master/FanControl.zip",
+        "add_version_to_filename": true
     },
     "version":{
         "regex":"\"\/Rem0o\/FanControl.Releases\/releases\/tag\/(.*?)\"",
