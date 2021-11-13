@@ -380,9 +380,11 @@ class Updater:
                 self.extract()
                 self.updateVersionFile()
             self.count-=1
+            return True
         else:
             # TODO:Use log instead of print
             print("当前%s已是最新，无需更新！" % (self.name))
+            return False
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@
 import sys,os
 from typing import ContextManager
 import click
+from pefile import ExportData
 from updater import Updater
 from utils import JsonConfig
 
@@ -88,8 +89,6 @@ class Main:
             self.config.dumpconfig()
 
     def runUpdate(self, projects=None, force=False):
-        updaters = []
-
         for pro in self.config["projects"]:
             try:
                 if pro["hold"] and not force:
@@ -102,10 +101,16 @@ class Main:
                 except KeyError:
                     pro_proxy=self.config["requests"]["proxy"]
                 obj = Updater(pro["name"], pro["path"],pro_proxy)
-                updaters.append(obj)
-
-        for pro in updaters:
-            pro.run(force)
+                if obj.run(force):
+                    try:
+                        for line in pro["post-cmds"]:
+                            line=line.replace("%PATH",pro["path"])
+                            line=line.replace("%NAME",pro["name"])
+                            os.system(line)
+                    except KeyError:
+                        pass
+    
+    def __del__(self):
         Updater.quitAriaRpc()
 
 
