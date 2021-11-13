@@ -2,7 +2,7 @@
 from utils import *
 from appveyor import *
 from simpleapi import *
-import json
+import time
 import shutil
 try:
     from pefile import PE
@@ -31,12 +31,14 @@ class Updater:
             "index":0,
             "indexes":[],
             "try_redirect":True,
-            "filename_override":""
+            "filename_override":"",
+            "url":""
         },
         "process":
         {
             "allow_restart": False,
-            "service": False
+            "service": False,
+            "wait":3
         },
         "decompress":
         {
@@ -175,7 +177,7 @@ class Updater:
             self.api = GithubApi(self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
         elif self.conf["basic"]["api_type"]=="appveyor":
             self.api = AppveyorApi(self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
-        elif self.conf["basic"]["api_type"]=="simplespider":
+        elif self.conf["basic"]["api_type"]=="simplespider" or self.conf["basic"]["api_type"]=="staticlink":
             self.api = SimpleSpider(self.conf["basic"]["page_url"])
             self.simple = True
         else:
@@ -186,7 +188,7 @@ class Updater:
     def getDlUrl(self):  
         try:
             if self.simple:
-                self.dlurl = self.api.getDlUrl(self.conf["download"]["regexes"],self.conf["download"]["indexes"],self.conf["download"]["try_redirect"])
+                self.dlurl = self.api.getDlUrl(regexes=self.conf["download"]["regexes"],indexs=self.conf["download"]["indexes"],try_redirect=self.conf["download"]["try_redirect"],dlurl=self.conf["download"]["url"])
             elif self.install or self.conf["download"]["update_keyword"]==[]:
                 self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"]+self.conf["download"]["update_keyword"], self.conf["download"]["filetype"],self.conf["download"]["index"])
             else:
@@ -366,6 +368,7 @@ class Updater:
             self.proc = ProcessCtrl(self.conf["process"]["image_name"],self.conf["process"]["service"])
             if self.conf["process"]["allow_restart"]:
                 self.proc.stopProc()
+                time.sleep(self.conf["process"]["wait"])
                 self.extract()
                 self.updateVersionFile()
                 self.proc.startProc()

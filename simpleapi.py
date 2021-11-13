@@ -1,8 +1,6 @@
 #!/usr/bin/python3
-import requests
 from html import unescape
 import re
-import os
 from utils import Url
 from appveyor import FatherApi
 
@@ -34,17 +32,20 @@ class SimpleSpider(FatherApi):
         req=self.requests_obj.get(url=self.pageurl,headers=self.headers)
         self.page=req.text
 
-    def getDlUrl(self,regexs,indexs=[],try_redirect=True):
+    def getDlUrl(self,regexes,indexs=[],try_redirect=True,dlurl=''):
         self.getPage()
-        lvlen=len(regexs)
-        if indexs==[]:
-            indexs=[0]*lvlen
-        for lv in range(lvlen):
-            if lv==0:
-                url=self.page_regex_url(self.pageurl,regexs[lv],indexs[lv],pagetext=self.page,try_redirect=try_redirect)
-            else:
-                url=self.page_regex_url(url,regexs[lv],indexs[lv],try_redirect=try_redirect)
-        self.dlurl=url
+        if dlurl!="":
+            self.dlurl=dlurl
+        else:
+            lvlen=len(regexes)
+            if indexs==[]:
+                indexs=[0]*lvlen
+            for lv in range(lvlen):
+                if lv==0:
+                    url=self.page_regex_url(self.pageurl,regexes[lv],indexs[lv],pagetext=self.page,try_redirect=try_redirect)
+                else:
+                    url=self.page_regex_url(url,regexes[lv],indexs[lv],try_redirect=try_redirect)
+            self.dlurl=url
         return self.dlurl
 
     def getVersion(self,regex,from_page=False,index=0):
@@ -54,7 +55,7 @@ class SimpleSpider(FatherApi):
             self.dl_filename=Url.basename(self.dlurl)
             version=re.findall(regex,self.dl_filename)[index]
         return version
-        
+
 
 
 
