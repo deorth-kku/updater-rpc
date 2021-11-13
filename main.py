@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import sys,os
-from typing import ContextManager
 import click
-from pefile import ExportData
 from updater import Updater
 from utils import JsonConfig
 
