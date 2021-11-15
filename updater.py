@@ -11,6 +11,7 @@ except ImportError:
 from distutils import dir_util
 from copy import copy
 from codecs import open
+import os
 class Updater:
     CONF = {
         "basic": {
@@ -51,6 +52,7 @@ class Updater:
         "version":
         {
             "use_exe_version": False,
+            "use_cmd_version": False,
             "from_page":False,
             "index":0
         }
@@ -204,8 +206,9 @@ class Updater:
         else:
             self.filename=self.conf["download"]["filename_override"]
 
-    def checkIfUpdateIsNeed(self):
-        self.install=False
+    def checkIfUpdateIsNeed(self,currentVersion):
+        self.exepath = os.path.join(self.path, self.conf["process"]["image_name"])
+        self.install=os.path.exists(self.exepath) or currentVersion!=""
         if self.simple:
             self.getDlUrl()
             self.version = self.api.getVersion(self.conf["version"]["regex"],self.conf["version"]["from_page"],self.conf["version"]["index"])
@@ -223,13 +226,7 @@ class Updater:
                 except ValueError:
                     self.versiontuple.append(0)
 
-            self.exepath = os.path.join(
-                self.path, self.conf["process"]["image_name"])
-            try:
-                pe = PE(self.exepath)
-            except FileNotFoundError:
-                self.install=True
-                return True
+            pe = PE(self.exepath)
             if not 'VS_FIXEDFILEINFO' in pe.__dict__:
                 #raise NameError("ERROR: Oops, %s has no version info. Can't continue."%self.exepath)
                 self.addversioninfo = True
@@ -247,16 +244,13 @@ class Updater:
                        verinfo.ProductVersionLS >> 16, verinfo.ProductVersionLS & 0xFFFF)
             pe.close()
             return not (self.version_compare(self.versiontuple,filever) or self.version_compare(self.versiontuple,prodver))
-            
-        else:
+        elif self.conf["version"]["use_cmd_version"]:
             try:
-                versionfile = open(self.versionfile_path, 'r',encoding="utf8")
-                oldversion = versionfile.read()
-                versionfile.close()
-            except FileNotFoundError:
-                self.install=True
-                return True
-            return not self.version == oldversion
+                pass
+            except IndexError:
+                pass
+        else:
+            return not self.version == currentVersion
 
     def download(self):
         try:
@@ -356,8 +350,8 @@ class Updater:
                 versionfile.write(self.version)
             versionfile.close()
 
-    def run(self, force=False):
-        if  self.checkIfUpdateIsNeed() or force:
+    def run(self, force=False,currentVersion=""):
+        if  self.checkIfUpdateIsNeed(currentVersion) or force:
             print("开始更新%s"%self.name)
             try:
                 self.getDlUrl()
@@ -370,7 +364,6 @@ class Updater:
                 self.proc.stopProc()
                 time.sleep(self.conf["process"]["wait"])
                 self.extract()
-                self.updateVersionFile()
                 self.proc.startProc()
 
             else:
@@ -378,9 +371,8 @@ class Updater:
                     print("请先关闭正在运行的"+self.name, end="\r")
                     time.sleep(1)
                 self.extract()
-                self.updateVersionFile()
             self.count-=1
-            return True
+            return self.version
         else:
             # TODO:Use log instead of print
             print("当前%s已是最新，无需更新！" % (self.name))
