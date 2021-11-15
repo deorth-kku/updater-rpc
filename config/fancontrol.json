@@ -13,6 +13,7 @@
     },
     "process":{
         "image_name":"FanControl.exe",
-        "allow_restart": true
+        "allow_restart": true,
+        "restart_wait":3
     }
 }

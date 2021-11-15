@@ -4,6 +4,9 @@
         "account_name": "PDModdingCommunity",
         "project_name": "PD-Loader"
     },
+    "build":{
+        "no_pull":true
+    },
     "process":{
         "image_name": "diva.exe"
     },

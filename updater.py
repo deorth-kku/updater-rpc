@@ -39,7 +39,7 @@ class Updater:
         {
             "allow_restart": False,
             "service": False,
-            "wait":3
+            "restart_wait":3
         },
         "decompress":
         {
@@ -362,7 +362,7 @@ class Updater:
             self.proc = ProcessCtrl(self.conf["process"]["image_name"],self.conf["process"]["service"])
             if self.conf["process"]["allow_restart"]:
                 self.proc.stopProc()
-                time.sleep(self.conf["process"]["wait"])
+                time.sleep(self.conf["process"]["restart_wait"])
                 self.extract()
                 self.proc.startProc()
 
