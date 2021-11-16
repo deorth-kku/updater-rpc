@@ -1,0 +1,16 @@
+{
+	"basic": {
+		"api_type": "github",
+		"account_name": "dezem",
+		"project_name": "SAK"
+	},
+    "download":{
+        "keyword":["%arch"]
+    },
+	"process": {
+		"image_name": "SAK.exe"
+	},
+    "version":{
+        "use_exe_version":true
+    }
+}
