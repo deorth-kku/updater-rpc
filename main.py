@@ -105,10 +105,9 @@ class Main:
                 obj = Updater(pro["name"], pro["path"],pro_proxy)
                 new_version=obj.run(force,pro["currentVersion"])
                 if new_version:
-                    if new_version!="":
-                        pro_index=self.config["projects"].index(pro)
-                        self.config["projects"][pro_index].update({"currentVersion":new_version})
-                        self.config.dumpconfig()
+                    pro_index=self.config["projects"].index(pro)
+                    self.config["projects"][pro_index].update({"currentVersion":new_version})
+                    self.config.dumpconfig()
                     try:
                         for line in pro["post-cmds"]:
                             line=line.replace("%PATH",pro["path"])

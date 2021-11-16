@@ -208,14 +208,22 @@ class Updater:
 
     def checkIfUpdateIsNeed(self,currentVersion):
         self.exepath = os.path.join(self.path, self.conf["process"]["image_name"])
-        self.install=os.path.exists(self.exepath) or currentVersion!=""
+        if currentVersion=="" and not self.conf["version"]["use_exe_version"]:
+            self.install=True
+        elif self.conf["version"]["use_exe_version"] and not os.path.exists(self.exepath):
+            self.install=True
+        else:
+            self.install=False
+        #self.install=currentVersion=="" and not self.conf["version"]["use_exe_version"] and not os.path.exists(self.exepath)
         if self.simple:
             self.getDlUrl()
             self.version = self.api.getVersion(self.conf["version"]["regex"],self.conf["version"]["from_page"],self.conf["version"]["index"])
         else:
             self.version = self.api.getVersion(self.conf["build"]["no_pull"])
         self.conf.var_replace("%VER",self.version)
-        if self.conf["version"]["use_exe_version"]:
+        if self.install:
+            return True
+        elif self.conf["version"]["use_exe_version"]:
             version = re.sub('[^0-9\.\-]', '', self.version)
             version = version.replace(r"-", r".")
             version = version.split(r".")
@@ -372,7 +380,10 @@ class Updater:
                     time.sleep(1)
                 self.extract()
             self.count-=1
-            return self.version
+            if self.conf["version"]["use_exe_version"]:
+                return False
+            else:
+                return self.version
         else:
             # TODO:Use log instead of print
             print("当前%s已是最新，无需更新！" % (self.name))
