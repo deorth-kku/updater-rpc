@@ -380,10 +380,7 @@ class Updater:
                     time.sleep(1)
                 self.extract()
             self.count-=1
-            if self.conf["version"]["use_exe_version"]:
-                return False
-            else:
-                return self.version
+            return self.version
         else:
             # TODO:Use log instead of print
             print("当前%s已是最新，无需更新！" % (self.name))
