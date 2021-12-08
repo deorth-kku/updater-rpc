@@ -1,0 +1,11 @@
+{
+	"basic": {
+		"api_type": "github",
+		"account_name": "Loyalsoldier",
+		"project_name": "v2ray-rules-dat"
+	},
+	"download": {
+		"keyword": "rules",
+		"filetype": "zip"
+	}
+}
