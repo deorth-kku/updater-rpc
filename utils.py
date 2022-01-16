@@ -348,7 +348,9 @@ class ProcessCtrl:
             self.Service(self.process_name,"start")
         else:
             for cmd in self.cmds:
+                sys.path.append(cmd[1])
                 subprocess.Popen(cmd[0], cwd=cmd[1])
+                sys.path.pop()
 
     def restartProc(self):
         self.stopProc()
