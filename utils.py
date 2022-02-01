@@ -101,6 +101,20 @@ class JsonConfig(UserDict):
 
 
 class Aria2Rpc:
+    @staticmethod
+    def readAria2Conf(conf_path):
+        conf={}
+        f=open(conf_path,"r")
+        for line in f.readlines():
+            line=line.split(r"#")[0]
+            kv=line.split(r"=")
+            if len(kv)==2:
+                conf.update({line[0]:line[1]})
+            else:
+                continue
+        f.close()
+
+
     bin_path="aria2c"
     @classmethod
     def setAria2Bin(cls,bin_path):
@@ -149,11 +163,15 @@ class Aria2Rpc:
             return method(*newargs)
 
     
-    def download(self, url, pwd, filename=None,proxy=""):
+    def download(self, url, pwd, filename=None,proxy="",**raw_opts):
         opts={
             "dir":pwd,
             "all-proxy":proxy
         }
+        for key in raw_opts:
+            new_key=key.replace("_","-")
+            value=raw_opts[key]
+            opts.update({new_key:value})
         if filename!=None:
             opts.update({"out":filename})
 
@@ -161,13 +179,13 @@ class Aria2Rpc:
         self.tasks.append(req)
         return req
 
-    def wget(self, url, pwd, filename=None,retry=5,proxy="",del_failed_task=True):
+    def wget(self, url, pwd, filename=None,retry=5,proxy="",del_failed_task=True,**raw_opts):
         full_retry=copy(retry)
         req=False
         while True:
             if del_failed_task and  req:
                 self.removeDownloadResult(req)
-            req = self.download(url, pwd, filename,proxy=proxy)
+            req = self.download(url, pwd, filename,proxy=proxy,**raw_opts)
             status = self.tellStatus(req)['status']
             while status == 'active' or status == 'paused':
                 time.sleep(0.1)

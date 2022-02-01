@@ -6,6 +6,7 @@
 	},
 	"download": {
 		"keyword": "rules",
-		"filetype": "zip"
+		"filetype": "zip",
+		"add_version_to_filename": true
 	}
 }
