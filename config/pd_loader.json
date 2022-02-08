@@ -11,7 +11,8 @@
         "image_name": "diva.exe"
     },
     "download":{  
-        "filetype":"zip"
+        "filetype":"zip",
+        "exclude_keyword": ["old"]
     },
     "decompress":{
         "exclude_file_type":["url","md5","sfv","bat"],

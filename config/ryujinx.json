@@ -1,11 +1,12 @@
 {
 	"basic": {
-		"api_type": "appveyor",
-		"account_name": "gdkchan",
-		"project_name": "ryujinx"
+		"api_type": "github",
+		"account_name": "Ryujinx",
+		"project_name": "release-channel-master"
 	},
 	"download": {
         "keyword": ["%OS"],
+		"exclude_keyword": ["headless"],
         "filetype":""
 	},
 	"build": {
