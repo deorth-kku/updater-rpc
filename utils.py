@@ -284,7 +284,7 @@ class Py7z:
         if len(self.filelist)==1:
             dir=""
         else:
-            dir = os.path.commonprefix(self.filelist)
+            dir = os.path.commonpath(self.filelist)
         return dir
 
     def extractFiles(self, filenames, outdir):
