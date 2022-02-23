@@ -110,7 +110,7 @@ class Main:
                     self.config.dumpconfig()
                     try:
                         for line in pro["post-cmds"]:
-                            line=line.replace("%PATH",pro["path"])
+                            line=line.replace("%PATH",'"%s"'%pro["path"])
                             line=line.replace("%NAME",pro["name"])
                             os.system(line)
                     except KeyError:
