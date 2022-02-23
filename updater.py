@@ -2,6 +2,7 @@
 from utils import *
 from appveyor import *
 from simpleapi import *
+from sourceforge import *
 import time
 import shutil
 try:
@@ -71,7 +72,7 @@ class Updater:
             if a in platform_info:
                 arch=a
         if arch=="aarch64":
-            arch=["arm64","arch64","armv8"]
+            arch=["arm64","aarch64","armv8"]
         elif arch=="x86_64":
             arch="64"
     else:
@@ -179,6 +180,8 @@ class Updater:
             self.api = GithubApi(self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
         elif self.conf["basic"]["api_type"]=="appveyor":
             self.api = AppveyorApi(self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
+        elif self.conf["basic"]["api_type"]=="sourceforge":
+            self.api = SourceforgeApi(self.conf["basic"]["project_name"])
         elif self.conf["basic"]["api_type"]=="simplespider" or self.conf["basic"]["api_type"]=="staticlink":
             self.api = SimpleSpider(self.conf["basic"]["page_url"])
             self.simple = True
@@ -218,6 +221,9 @@ class Updater:
         if self.simple:
             self.getDlUrl()
             self.version = self.api.getVersion(self.conf["version"]["regex"],self.conf["version"]["from_page"],self.conf["version"]["index"])
+        elif self.conf["basic"]["api_type"]=="sourceforge":
+            self.getDlUrl()
+            self.version = self.api.getVersion()
         else:
             self.version = self.api.getVersion(self.conf["build"]["no_pull"])
         self.conf.var_replace("%VER",self.version)

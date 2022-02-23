@@ -268,13 +268,10 @@ class Py7z:
             self.filelist = []
             p=subprocess.Popen([self.bin_path, "l", self.filename], stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
             for line in p.stdout:
-                line = line.strip()
-                try:
-                    if line[20:24] == r"....":
-                        filename = line[53:]
-                        self.filelist.append(filename)
-                except IndexError:
-                    pass
+                line = line.split()
+                if "....." in line or "....A" in line:
+                    filename = line[-1]
+                    self.filelist.append(filename)
             p.wait()
             if p.returncode!=0:
                 raise FileBrokenError(self.filename)
@@ -376,4 +373,6 @@ class ProcessCtrl:
 
 
 if __name__ == "__main__":
-    pass
+    f=Py7z(sys.argv[1])
+    print(f.getFileList())
+    print(f.getPrefixDir())
