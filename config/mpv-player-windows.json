@@ -1,0 +1,12 @@
+{
+	"basic":{
+		"api_type": "sourceforge",
+		"project_name": "mpv-player-windows"
+	},
+	"download":{
+        "keyword":["%arch"]
+	},
+	"process": {
+		"image_name": "mpv.exe"
+	}
+}
