@@ -65,7 +65,7 @@ class Updater:
         if platform.architecture()[0]=="64bit":
             arch="64"
         else:
-            arch=["86","32"]
+            arch=["32","86"]
         OS="win"
     elif OS=="linux":
         for a in supported_arch:
