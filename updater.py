@@ -40,7 +40,9 @@ class Updater:
         {
             "allow_restart": False,
             "service": False,
-            "restart_wait":3
+            "restart_wait":3,
+            "stop_cmd":"",
+            "start_cmd":""
         },
         "decompress":
         {
@@ -375,10 +377,16 @@ class Updater:
             self.download()
             self.proc = ProcessCtrl(self.conf["process"]["image_name"],self.conf["process"]["service"])
             if self.conf["process"]["allow_restart"]:
-                self.proc.stopProc()
+                if self.conf["process"]["stop_cmd"]=="":
+                    self.proc.stopProc()
+                else:
+                    os.system(self.conf["process"]["stop_cmd"]) # should add %PATH support sometime
                 time.sleep(self.conf["process"]["restart_wait"])
                 self.extract()
-                self.proc.startProc()
+                if self.conf["process"]["start_cmd"]=="":
+                    self.proc.startProc()
+                else:
+                    os.system(self.conf["process"]["start_cmd"])
 
             else:
                 while self.proc.checkProc():
