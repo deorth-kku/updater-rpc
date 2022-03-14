@@ -63,13 +63,16 @@ class Updater:
     platform_info=ProcessCtrl.platform_info
     OS=copy(ProcessCtrl.OS)
     supported_arch=("arm","aarch64","i386","i686","amd64","mips","mips64","mipsle","mips64le","ppc64","ppc64le","s390x","x86_64")
-    if OS=="windows":
+    
+    OS=[OS,OS.capitalize()]
+    if OS[0]=="windows":
         if platform.architecture()[0]=="64bit":
             arch="64"
         else:
             arch=["32","86"]
         OS="win"
-    elif OS=="linux":
+    elif OS[0]=="linux":
+        OS.append("ubuntu") #dirty workaround for nihui's *-ncnn-vulkan projects
         for a in supported_arch:
             if a in platform_info:
                 arch=a
@@ -81,7 +84,7 @@ class Updater:
         arch=""
         print("Not supported OS %s, vars will not working."%OS)
 
-    OS=[OS,OS.capitalize()]
+    
     
     config_vars={
         r"%arch":arch,
