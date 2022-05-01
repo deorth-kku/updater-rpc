@@ -64,15 +64,23 @@ These project names must already included in your project list.
 * Global log level
 * Muti-thread
 * ~~Sourceforge support~~
-* version selection
-* Muti-language
-* self-update
-* Static url (version by regex maybe)
+* ~Static url (version by regex maybe)~
 * rollback (via local file or redownload)
 * get version via command line
 * search same download quest before adding
-* restart command override
+* ~restart command override~
 * show release notes
+* skip decompress(single file mode)
+* user override config
+* remote device update (via ssh or adb)
+### utils rework
+* utils as a submodule
+* rework Py7z using native python library
+### long-term (maybe on 0.0.2)
+* GUI (probably pyQT)
+* version selection
+* Muti-language
+* self-update
 
 
 
