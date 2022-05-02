@@ -76,7 +76,7 @@ These project names must already included in your project list.
 ### utils rework
 * utils as a submodule
 * rework Py7z using native python library
-### long-term (maybe on 0.0.2)
+### long-term (maybe on 0.0.3)
 * GUI (probably pyQT)
 * version selection
 * Muti-language

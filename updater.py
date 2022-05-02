@@ -5,12 +5,13 @@ from simpleapi import *
 from sourceforge import *
 import time
 import shutil
+import platform
 try:
     from pefile import PE
 except ImportError:
     pass
 from distutils import dir_util
-from copy import copy
+from copy import copy,deepcopy
 from codecs import open
 import os
 class Updater:
@@ -112,11 +113,8 @@ class Updater:
             "split":"16",
             "continue":"true"
         }
-        try:
-            cls.aria2 = Aria2Rpc(ip, port, passwd,args)
-        except xmlrpc.client.Fault:
-            print("aria2 rpc密码错误")
-            raise
+        cls.aria2 = Aria2Rpc(ip, port, passwd,args)
+
     @classmethod
     def setRequestsArgs(cls,times,tmout):
         cls.times=times
@@ -135,7 +133,7 @@ class Updater:
 
     @classmethod
     def setDefaults(cls, defaults):
-        cls.CONF = mergeDict(cls.CONF, defaults)
+        cls.CONF = JsonConfig.mergeDict(cls.CONF, defaults)
     @classmethod
     def setBins(cls,bin_aria2c,bin_7z):
         Aria2Rpc.setAria2Bin(bin_aria2c)
