@@ -73,6 +73,8 @@ These project names must already included in your project list.
 * skip decompress(single file mode)
 * user override config
 * remote device update (via ssh or adb)
+* global download dir for local aria2
+* add --allow-overwrite
 ### utils rework
 * utils as a submodule
 * rework Py7z using native python library
