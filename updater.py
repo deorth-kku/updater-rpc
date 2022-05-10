@@ -281,7 +281,10 @@ class Updater:
 
         if self.conf["download"]["add_version_to_filename"]:
             temp_name=os.path.splitext(self.filename)
-            self.filename=temp_name[0]+"_"+self.version+temp_name[-1]
+            temp_version=copy(self.version)
+            for disallow in (r"<",r">",r"/","\\",r"|",r":",r"*",r"?"):
+                temp_version=temp_version.replace(disallow," ")
+            self.filename=temp_name[0]+"_"+temp_version+temp_name[-1]
 
         self.aria2.wget(self.dlurl, self.dldir, self.filename, proxy=self.proxy)
 
