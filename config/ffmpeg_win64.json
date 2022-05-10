@@ -1,0 +1,20 @@
+{
+	"basic":{
+		"api_type": "github",
+		"account_name": "BtbN",
+		"project_name": "FFmpeg-Builds"
+	},
+	"download":{
+		"filetype": "zip",
+        "keyword": ["5.0","win64"],
+        "exclude_keyword": ["lgpl","shared"],
+		"add_version_to_filename": true
+	},
+	"decompress":
+	{
+		"single_dir": "ffmpeg-n5.0-latest-win64-gpl-5.0\\bin"
+	},
+	"process":{
+        "image_name":"ffmpeg.exe"
+    }
+}
