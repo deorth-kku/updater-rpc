@@ -7,7 +7,8 @@
 	"download":{
 		"filetype": "zip",
         "keyword": ["5.0","win64"],
-        "exclude_keyword": ["lgpl","shared"]
+        "exclude_keyword": ["lgpl","shared"],
+		"add_version_to_filename": true
 	},
 	"decompress":
 	{
