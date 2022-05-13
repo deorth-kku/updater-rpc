@@ -113,7 +113,7 @@ class Updater:
             "split":"16",
             "continue":"true"
         }
-        cls.aria2 = Aria2Rpc(ip, port, passwd,args)
+        cls.aria2 = Aria2Rpc(ip, port, passwd,**args)
 
     @classmethod
     def setRequestsArgs(cls,times,tmout):
