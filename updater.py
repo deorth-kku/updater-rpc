@@ -297,7 +297,7 @@ class Updater:
             try:
                 f = Decompress(self.fullfilename)
                 sucuss = True
-            except FileBrokenError:
+            except Decompress.libarchive.exception.ArchiveError:
                 os.remove(self.fullfilename)
                 self.download()
                 times -= 1
