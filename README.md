@@ -1,12 +1,12 @@
-# English
+# Interduction
 Updater for opensource projects which don't have buildin update.
 ## How does it work?
 We use RESTful apis to get the lastest release of the project.  
 Currently using github api and appveyor api. If you want any other api added, feel free to open an issue.  
-Download is using aria2 via rpc interface, decompress using 7z binary. Current both binary file is not included, but I'm planning to add auto download for both if either of them wasn't found in PATH.
+Download is using aria2 via rpc interface, ~decompress using 7z binary~. Current both binary file is not included, but I'm planning to add auto download for both if either of them wasn't found in PATH.
 ## Dependency
 ### Python
-Python 3.5+ with "requests", "psutil" and "click" installed. To use "use_exe_version", you'll also need "pefile". To use sourceforge, you'll need "xmltodict". Install them with pip. 
+Python 3.5+ with "requests", "psutil", "py7zr" and "click" installed. To use "use_exe_version", you'll also need "pefile". To use sourceforge, you'll need "xmltodict". Install them with pip. 
 ### Binary program
 aria2 and 7z binary in your $PATH. Or you can set the full path in config.json.  
 ## Config file

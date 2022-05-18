@@ -137,7 +137,7 @@ class Updater:
     @classmethod
     def setBins(cls,bin_aria2c,bin_7z):
         Aria2Rpc.setAria2Bin(bin_aria2c)
-        Py7z.set7zBin(bin_7z)
+        #Py7z.set7zBin(bin_7z)
     
     @staticmethod
     def version_compare(newversion,oldversion):
@@ -295,7 +295,7 @@ class Updater:
         sucuss = False
         while times>0 and not sucuss:
             try:
-                f = Py7z(self.fullfilename)
+                f = Decompress(self.fullfilename)
                 sucuss = True
             except FileBrokenError:
                 os.remove(self.fullfilename)
