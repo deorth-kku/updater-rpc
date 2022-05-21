@@ -108,7 +108,8 @@ class Main:
                     pro_proxy = pro["proxy"]
                 except KeyError:
                     pro_proxy = self.config["requests"]["proxy"]
-                obj = Updater(pro["name"], pro["path"], pro_proxy)
+                obj = Updater(pro["name"], pro["path"],
+                              pro_proxy, self.config["requests"]["retry"])
                 new_version = obj.run(force, pro["currentVersion"])
                 if new_version:
                     pro_index = self.config["projects"].index(pro)
