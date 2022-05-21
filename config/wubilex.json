@@ -1,0 +1,19 @@
+{
+	"basic": {
+		"api_type": "simplespider",
+        "page_url": "https://wubi.aardio.com/update/"
+    },
+    "download":{
+        "url":"https://wubi.aardio.com/update/WubiLex.7z",
+        "add_version_to_filename": true
+    },
+    "version":{
+        "regex":"\"version\":\"([\\.0-9]*?)\"",
+        "from_page":true,
+        "use_exe_version":true
+    },
+    "process":{
+        "image_name":"wubiLex.exe",
+        "allow_restart": true
+    }
+}
