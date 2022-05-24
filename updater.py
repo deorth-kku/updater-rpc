@@ -11,7 +11,7 @@ try:
 except ImportError:
     pass
 from distutils import dir_util
-from copy import copy, deepcopy
+from copy import copy
 from codecs import open
 import os
 
@@ -322,7 +322,7 @@ class Updater:
         if type(self.conf["decompress"]["single_dir"]) == bool:
             prefix = f.getPrefixDir()
         else:
-            filelist1 = deepcopy(filelist0)
+            filelist1 = list(filelist0)
             prefix = self.conf["decompress"]["single_dir"]
             for file in filelist0:
                 booo = file.startswith(os.path.join(prefix, ""))
