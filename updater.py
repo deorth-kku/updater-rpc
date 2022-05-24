@@ -53,7 +53,8 @@ class Updater:
             "exclude_file_type": [],
             "exclude_file_type_when_update": [],
             "single_dir": True,
-            "keep_download_file": True
+            "keep_download_file": True,
+            "use_builtin_zipfile": False
         },
         "version":
         {
@@ -138,9 +139,10 @@ class Updater:
         cls.CONF = JsonConfig.mergeDict(cls.CONF, defaults)
 
     @classmethod
-    def setBins(cls, bin_aria2c, bin_7z):
+    def setBins(cls, bin_aria2c, bin_libarchive):
         Aria2Rpc.setAria2Bin(bin_aria2c)
-        # Py7z.set7zBin(bin_7z)
+        if bin_libarchive:
+            Decompress.setLibarchive(bin_libarchive)
 
     @staticmethod
     def version_compare(newversion, oldversion):
@@ -307,7 +309,8 @@ class Updater:
         sucuss = False
         while times > 0 and not sucuss:
             try:
-                f = Decompress(self.fullfilename)
+                f = Decompress(self.fullfilename,
+                               self.conf["decompress"]["use_builtin_zipfile"])
                 sucuss = True
             except Decompress.libarchive.exception.ArchiveError:
                 os.remove(self.fullfilename)

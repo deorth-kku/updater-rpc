@@ -18,7 +18,7 @@ class Main:
         },
         "binarys": {
             "aria2c": "aria2c",
-            "7z": "7z"
+            "libarchive": None
         },
         "requests": {
             "proxy": "",
@@ -62,7 +62,7 @@ class Main:
         self.config.dumpconfig()
 
         Updater.setBins(self.config["binarys"]
-                        ["aria2c"], self.config["binarys"]["7z"])
+                        ["aria2c"], self.config["binarys"]["libarchive"])
         Updater.setAria2Rpc(self.config["aria2"]["ip"], self.config["aria2"]
                             ["rpc-listen-port"], self.config["aria2"]["rpc-secret"])
         Updater.setDefaults(self.config["defaults"])
