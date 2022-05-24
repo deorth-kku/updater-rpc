@@ -149,18 +149,20 @@ class Main:
     help='wait to exit')
 def main(projects, path, force, wait, conf, add2conf, log_file, log_level):
     my_log_settings(log_file, log_level)
-    start = Main(conf=conf)
-    if len(projects) == 0:
-        start.runUpdate(force=force)
-    if not path:
-        start.runUpdate(projects=projects, force=force)
-    else:
-        if len(projects) == 1:
-            start.addProject(projects[0], path, add2conf)
+    try:
+        start = Main(conf=conf)
+        if len(projects) == 0:
+            start.runUpdate(force=force)
+        if not path:
             start.runUpdate(projects=projects, force=force)
         else:
-            print("error")
-
+            if len(projects) == 1:
+                start.addProject(projects[0], path, add2conf)
+                start.runUpdate(projects=projects, force=force)
+            else:
+                print("error")
+    except Exception as e:
+        logging.exception(e)
     if wait:
         os.system("pause")
 
