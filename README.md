@@ -1,12 +1,12 @@
-# English
+# Interduction
 Updater for opensource projects which don't have buildin update.
 ## How does it work?
 We use RESTful apis to get the lastest release of the project.  
 Currently using github api and appveyor api. If you want any other api added, feel free to open an issue.  
-Download is using aria2 via rpc interface, decompress using 7z binary. Current both binary file is not included, but I'm planning to add auto download for both if either of them wasn't found in PATH.
+Download is using aria2 via rpc interface, ~decompress using 7z binary~. Current both binary file is not included, but I'm planning to add auto download for both if either of them wasn't found in PATH.
 ## Dependency
 ### Python
-Python 3.5+ with "requests", "psutil" and "click" installed. To use "use_exe_version", you'll also need "pefile". To use sourceforge, you'll need "xmltodict". Install them with pip. 
+Python 3.5+ with "requests", "psutil", "py7zr" and "click" installed. To use "use_exe_version", you'll also need "pefile". To use sourceforge, you'll need "xmltodict". Install them with pip. 
 ### Binary program
 aria2 and 7z binary in your $PATH. Or you can set the full path in config.json.  
 ## Config file
@@ -64,15 +64,26 @@ These project names must already included in your project list.
 * Global log level
 * Muti-thread
 * ~~Sourceforge support~~
-* version selection
-* Muti-language
-* self-update
-* Static url (version by regex maybe)
+* ~Static url (version by regex maybe)~
 * rollback (via local file or redownload)
 * get version via command line
 * search same download quest before adding
-* restart command override
+* ~restart command override~
 * show release notes
+* skip decompress(single file mode)
+* user override config
+* remote device update (via ssh or adb)
+* global download dir for local aria2
+* add --allow-overwrite
+* Check download file integrity
+### utils rework
+* utils as a submodule
+* rework Py7z using native python library
+### long-term (maybe on 0.0.3)
+* GUI (probably pyQT)
+* version selection
+* Muti-language
+* self-update
 
 
 

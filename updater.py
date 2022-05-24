@@ -5,14 +5,17 @@ from simpleapi import *
 from sourceforge import *
 import time
 import shutil
+import platform
 try:
     from pefile import PE
 except ImportError:
     pass
 from distutils import dir_util
-from copy import copy
+from copy import copy, deepcopy
 from codecs import open
 import os
+
+
 class Updater:
     CONF = {
         "basic": {
@@ -25,30 +28,30 @@ class Updater:
         "download":
         {
             "keyword": [],
-            "update_keyword":[],
+            "update_keyword": [],
             "exclude_keyword": [],
             "filetype": "7z",
             "add_version_to_filename": False,
-            "regexes":[],
-            "index":0,
-            "indexes":[],
-            "try_redirect":True,
-            "filename_override":"",
-            "url":""
+            "regexes": [],
+            "index": 0,
+            "indexes": [],
+            "try_redirect": True,
+            "filename_override": "",
+            "url": ""
         },
         "process":
         {
             "allow_restart": False,
             "service": False,
-            "restart_wait":3,
-            "stop_cmd":"",
-            "start_cmd":""
+            "restart_wait": 3,
+            "stop_cmd": "",
+            "start_cmd": ""
         },
         "decompress":
         {
             "include_file_type": [],
             "exclude_file_type": [],
-            "exclude_file_type_when_update":[],
+            "exclude_file_type_when_update": [],
             "single_dir": True,
             "keep_download_file": True
         },
@@ -56,38 +59,38 @@ class Updater:
         {
             "use_exe_version": False,
             "use_cmd_version": False,
-            "from_page":False,
-            "index":0
+            "from_page": False,
+            "index": 0
         }
     }
-    platform_info=ProcessCtrl.platform_info
-    OS=copy(ProcessCtrl.OS)
-    supported_arch=("arm","aarch64","i386","i686","amd64","mips","mips64","mipsle","mips64le","ppc64","ppc64le","s390x","x86_64")
-    
-    OS=[OS,OS.capitalize()]
-    if OS[0]=="windows":
-        if platform.architecture()[0]=="64bit":
-            arch="64"
+    platform_info = ProcessCtrl.platform_info
+    OS = copy(ProcessCtrl.OS)
+    supported_arch = ("arm", "aarch64", "i386", "i686", "amd64", "mips",
+                      "mips64", "mipsle", "mips64le", "ppc64", "ppc64le", "s390x", "x86_64")
+
+    OS = [OS, OS.capitalize()]
+    if OS[0] == "windows":
+        if platform.architecture()[0] == "64bit":
+            arch = "64"
         else:
-            arch=["32","86"]
-        OS="win"
-    elif OS[0]=="linux":
-        OS.append("ubuntu") #dirty workaround for nihui's *-ncnn-vulkan projects
+            arch = ["32", "86"]
+        OS = "win"
+    elif OS[0] == "linux":
+        # dirty workaround for nihui's *-ncnn-vulkan projects
+        OS.append("ubuntu")
         for a in supported_arch:
             if a in platform_info:
-                arch=a
-        if arch=="aarch64":
-            arch=["arm64","aarch64","armv8"]
-        elif arch=="x86_64":
-            arch="64"
+                arch = a
+        if arch == "aarch64":
+            arch = ["arm64", "aarch64", "armv8"]
+        elif arch == "x86_64":
+            arch = "64"
     else:
-        arch=""
-        print("Not supported OS %s, vars will not working."%OS)
+        arch = ""
+        print("Not supported OS %s, vars will not working." % OS)
 
-    
-    
-    config_vars={
-        r"%arch":arch,
+    config_vars = {
+        r"%arch": arch,
         r"%OS": OS
     }
 
@@ -95,7 +98,7 @@ class Updater:
 
     @classmethod
     def setAria2Rpc(cls, ip="127.0.0.1", port="6800", passwd=""):
-        log="log/aria2.log"
+        log = "log/aria2.log"
         try:
             os.makedirs("log")
         except FileExistsError:
@@ -104,134 +107,139 @@ class Updater:
             os.remove(log)
         except IOError:
             pass
-        args={
-            "log":log,
-            "log-level":"notice",#TODO:Global log level
-            "max-connection-per-server":"16",
-            "min-split-size":"1M",
-            "split":"16",
-            "continue":"true"
+        args = {
+            "log": log,
+            "log-level": "notice",  # TODO:Global log level
+            "max-connection-per-server": "16",
+            "min-split-size": "1M",
+            "split": "16",
+            "continue": "true"
         }
-        try:
-            cls.aria2 = Aria2Rpc(ip, port, passwd,args)
-        except xmlrpc.client.Fault:
-            print("aria2 rpc密码错误")
-            raise
-    @classmethod
-    def setRequestsArgs(cls,times,tmout):
-        cls.times=times
-        cls.tmout=tmout
+        cls.aria2 = Aria2Rpc(ip, port, passwd, **args)
 
     @classmethod
-    def setRemoteAria2(cls,remote_dir,local_dir):
-        cls.remote_dir=remote_dir
-        cls.local_dir=local_dir
+    def setRequestsArgs(cls, times, tmout):
+        cls.times = times
+        cls.tmout = tmout
+
+    @classmethod
+    def setRemoteAria2(cls, remote_dir, local_dir):
+        cls.remote_dir = remote_dir
+        cls.local_dir = local_dir
 
     @classmethod
     def quitAriaRpc(cls):
-        while cls.count!=0:
+        while cls.count != 0:
             time.sleep(1)
         cls.aria2.quit()
 
     @classmethod
     def setDefaults(cls, defaults):
-        cls.CONF = mergeDict(cls.CONF, defaults)
+        cls.CONF = JsonConfig.mergeDict(cls.CONF, defaults)
+
     @classmethod
-    def setBins(cls,bin_aria2c,bin_7z):
+    def setBins(cls, bin_aria2c, bin_7z):
         Aria2Rpc.setAria2Bin(bin_aria2c)
-        Py7z.set7zBin(bin_7z)
-    
+        # Py7z.set7zBin(bin_7z)
+
     @staticmethod
-    def version_compare(newversion,oldversion):
-        count=min(len(newversion),len(oldversion))
+    def version_compare(newversion, oldversion):
+        count = min(len(newversion), len(oldversion))
         for i in range(count):
-            aa=newversion[i]
-            bb=oldversion[i]
-            if aa>bb:
+            aa = newversion[i]
+            bb = oldversion[i]
+            if aa > bb:
                 return False
-            elif aa<bb:
+            elif aa < bb:
                 return True
         return True
 
-    def __init__(self, name, path, proxy=""):
+    def __init__(self, name, path, proxy="", retry=5):
         self.count += 1
         self.path = path
         self.name = name
         self.proxy = proxy
+        self.retry = retry
         self.versionfile_path = os.path.join(self.path, self.name+".VERSION")
 
         self.addversioninfo = False
 
-        self.conf=JsonConfig("config/%s.json" % name)
+        self.conf = JsonConfig("config/%s.json" % name)
 
         for key in self.config_vars:
-            self.conf.var_replace(key,self.config_vars[key])
+            self.conf.var_replace(key, self.config_vars[key])
 
         self.conf.set_defaults(self.CONF)
 
-        for key in ("keyword","update_keyword","exclude_keyword"):
-            if type(self.conf["download"][key])==str:
-                self.conf["download"][key]=[self.conf["download"][key]]
+        for key in ("keyword", "update_keyword", "exclude_keyword"):
+            if type(self.conf["download"][key]) == str:
+                self.conf["download"][key] = [self.conf["download"][key]]
 
         if "image_name" not in self.conf["process"]:
             self.conf["process"].update({"image_name": self.name})
-        if self.OS[0]=="win" and not self.conf["process"]["image_name"].endswith(".exe"):
-            self.conf["process"].update({"image_name": self.conf["process"]["image_name"]+".exe"})
+        if self.OS[0] == "win" and not self.conf["process"]["image_name"].endswith(".exe"):
+            self.conf["process"].update(
+                {"image_name": self.conf["process"]["image_name"]+".exe"})
 
-
-            
-        self.simple=False
-        if self.conf["basic"]["api_type"]=="github":
-            self.api = GithubApi(self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
-        elif self.conf["basic"]["api_type"]=="appveyor":
-            self.api = AppveyorApi(self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
-        elif self.conf["basic"]["api_type"]=="sourceforge":
+        self.simple = False
+        if self.conf["basic"]["api_type"] == "github":
+            self.api = GithubApi(self.conf["basic"]["account_name"],
+                                 self.conf["basic"]["project_name"], self.conf["build"]["branch"])
+        elif self.conf["basic"]["api_type"] == "appveyor":
+            self.api = AppveyorApi(
+                self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
+        elif self.conf["basic"]["api_type"] == "sourceforge":
             self.api = SourceforgeApi(self.conf["basic"]["project_name"])
-        elif self.conf["basic"]["api_type"]=="simplespider" or self.conf["basic"]["api_type"]=="staticlink":
+        elif self.conf["basic"]["api_type"] == "simplespider" or self.conf["basic"]["api_type"] == "staticlink":
             self.api = SimpleSpider(self.conf["basic"]["page_url"])
             self.simple = True
         else:
-            raise ValueError("No such api %s"%self.conf["basic"]["api_type"])
+            raise ValueError("No such api %s" % self.conf["basic"]["api_type"])
 
-        self.api.setRequestsArgs(self.proxy,self.times,self.tmout)
+        self.api.setRequestsArgs(self.proxy, self.times, self.tmout)
 
-    def getDlUrl(self):  
+    def getDlUrl(self):
         try:
             if self.simple:
-                self.dlurl = self.api.getDlUrl(regexes=self.conf["download"]["regexes"],indexs=self.conf["download"]["indexes"],try_redirect=self.conf["download"]["try_redirect"],dlurl=self.conf["download"]["url"])
-            elif self.install or self.conf["download"]["update_keyword"]==[]:
-                self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"]+self.conf["download"]["update_keyword"], self.conf["download"]["filetype"],self.conf["download"]["index"])
+                self.dlurl = self.api.getDlUrl(regexes=self.conf["download"]["regexes"], indexs=self.conf["download"]
+                                               ["indexes"], try_redirect=self.conf["download"]["try_redirect"], dlurl=self.conf["download"]["url"])
+            elif self.install or self.conf["download"]["update_keyword"] == []:
+                self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"] +
+                                               self.conf["download"]["update_keyword"], self.conf["download"]["filetype"], self.conf["download"]["index"])
             else:
-                self.dlurl = self.api.getDlUrl(self.conf["download"]["update_keyword"], self.conf["download"]["exclude_keyword"], self.conf["download"]["filetype"],self.conf["download"]["index"])
+                self.dlurl = self.api.getDlUrl(self.conf["download"]["update_keyword"], self.conf["download"]
+                                               ["exclude_keyword"], self.conf["download"]["filetype"], self.conf["download"]["index"])
         except requests.exceptions.ConnectionError:
             print("连接失败")
             raise
-        if self.conf["download"]["filename_override"]=="":
+        if self.conf["download"]["filename_override"] == "":
             try:
                 self.filename = Url.basename(self.dlurl)
             except TypeError:
                 raise ValueError("Can't get download url!")
         else:
-            self.filename=self.conf["download"]["filename_override"]
+            self.filename = self.conf["download"]["filename_override"]
 
-    def checkIfUpdateIsNeed(self,currentVersion):
-        self.exepath = os.path.join(self.path, self.conf["process"]["image_name"])
-        if currentVersion=="" and not self.conf["version"]["use_exe_version"]:
-            self.install=True
+    def checkIfUpdateIsNeed(self, currentVersion):
+        self.exepath = os.path.join(
+            self.path, self.conf["process"]["image_name"])
+        if currentVersion == "" and not self.conf["version"]["use_exe_version"]:
+            self.install = True
         elif self.conf["version"]["use_exe_version"] and not os.path.exists(self.exepath):
-            self.install=True
+            self.install = True
         else:
-            self.install=False
+            self.install = False
         #self.install=currentVersion=="" and not self.conf["version"]["use_exe_version"] and not os.path.exists(self.exepath)
         if self.simple:
             self.getDlUrl()
-            self.version = self.api.getVersion(self.conf["version"]["regex"],self.conf["version"]["from_page"],self.conf["version"]["index"])
-        elif self.conf["basic"]["api_type"]=="sourceforge":
+            self.version = self.api.getVersion(
+                self.conf["version"]["regex"], self.conf["version"]["from_page"], self.conf["version"]["index"])
+        elif self.conf["basic"]["api_type"] == "sourceforge":
             self.getDlUrl()
             self.version = self.api.getVersion()
         else:
             self.version = self.api.getVersion(self.conf["build"]["no_pull"])
-        self.conf.var_replace("%VER",self.version)
+        self.conf.var_replace("%VER", self.version)
         if self.install:
             return True
         elif self.conf["version"]["use_exe_version"]:
@@ -262,7 +270,7 @@ class Updater:
             prodver = (verinfo.ProductVersionMS >> 16, verinfo.ProductVersionMS & 0xFFFF,
                        verinfo.ProductVersionLS >> 16, verinfo.ProductVersionLS & 0xFFFF)
             pe.close()
-            return not (self.version_compare(self.versiontuple,filever) or self.version_compare(self.versiontuple,prodver))
+            return not (self.version_compare(self.versiontuple, filever) or self.version_compare(self.versiontuple, prodver))
         elif self.conf["version"]["use_cmd_version"]:
             try:
                 pass
@@ -273,56 +281,59 @@ class Updater:
 
     def download(self):
         try:
-            self.dldir=self.remote_dir+"/"+self.name
+            self.dldir = self.remote_dir+"/"+self.name
         except AttributeError:
             self.dldir = os.path.join(self.path, "downloads")
             if not os.path.exists(self.dldir):
                 os.makedirs(self.dldir)
 
         if self.conf["download"]["add_version_to_filename"]:
-            temp_name=os.path.splitext(self.filename)
-            temp_version=copy(self.version)
-            for disallow in (r"<",r">",r"/","\\",r"|",r":",r"*",r"?"):
-                temp_version=temp_version.replace(disallow," ")
-            self.filename=temp_name[0]+"_"+temp_version+temp_name[-1]
+            temp_name = os.path.splitext(self.filename)
+            temp_version = copy(self.version)
+            for disallow in (r"<", r">", r"/", "\\", r"|", r":", r"*", r"?"):
+                temp_version = temp_version.replace(disallow, " ")
+            self.filename = temp_name[0]+"_"+temp_version+temp_name[-1]
 
-        self.aria2.wget(self.dlurl, self.dldir, self.filename, proxy=self.proxy)
+        self.aria2.wget(self.dlurl, self.dldir, self.filename,
+                        proxy=self.proxy, retry=self.retry)
 
     def extract(self):
         try:
-            self.fullfilename= os.path.join(self.local_dir,self.name,self.filename)
+            self.fullfilename = os.path.join(
+                self.local_dir, self.name, self.filename)
         except AttributeError:
             self.fullfilename = os.path.join(self.dldir, self.filename)
         times = 5
         sucuss = False
-        while times>0 and not sucuss:
+        while times > 0 and not sucuss:
             try:
-                f = Py7z(self.fullfilename)
+                f = Decompress(self.fullfilename)
                 sucuss = True
-            except FileBrokenError:
+            except Decompress.libarchive.exception.ArchiveError:
                 os.remove(self.fullfilename)
                 self.download()
                 times -= 1
-        
+
         filelist0 = f.getFileList()
 
-        if type(self.conf["decompress"]["single_dir"])==bool:
+        if type(self.conf["decompress"]["single_dir"]) == bool:
             prefix = f.getPrefixDir()
         else:
-            filelist1=deepcopy(filelist0)
+            filelist1 = deepcopy(filelist0)
             prefix = self.conf["decompress"]["single_dir"]
             for file in filelist0:
-                booo=file.startswith(os.path.join(prefix,""))
+                booo = file.startswith(os.path.join(prefix, ""))
                 if not booo:
                     filelist1.remove(file)
-            filelist0=filelist1
-        
+            filelist0 = filelist1
+
         if not self.install:
-            self.conf["decompress"]["exclude_file_type"]=self.conf["decompress"]["exclude_file_type"]+self.conf["decompress"]["exclude_file_type_when_update"]
-        
+            self.conf["decompress"]["exclude_file_type"] = self.conf["decompress"]["exclude_file_type"] + \
+                self.conf["decompress"]["exclude_file_type_when_update"]
+
         if self.conf["decompress"]["include_file_type"] == [] and self.conf["decompress"]["exclude_file_type"] == []:
             f.extractAll(self.path)
-    
+
         else:
             if self.conf["decompress"]["include_file_type"] != []:
                 filelist1 = []
@@ -355,9 +366,9 @@ class Updater:
         if not self.conf["decompress"]["keep_download_file"]:
             os.remove(self.fullfilename)
 
-    def updateVersionFile(self): 
+    def updateVersionFile(self):
         if self.conf["version"]["use_exe_version"]:
-            if self.addversioninfo: #not working for now
+            if self.addversioninfo:  # not working for now
                 pass
             '''
             FileVersionMS=self.versiontuple[0]*0xFFFF+self.versiontuple[1]
@@ -368,28 +379,30 @@ class Updater:
             pe.write(self.exepath)
             '''
         else:
-            with open(self.versionfile_path, 'w',encoding="utf8") as versionfile:
+            with open(self.versionfile_path, 'w', encoding="utf8") as versionfile:
                 versionfile.write(self.version)
             versionfile.close()
 
-    def run(self, force=False,currentVersion=""):
-        if  self.checkIfUpdateIsNeed(currentVersion) or force:
-            print("开始更新%s"%self.name)
+    def run(self, force=False, currentVersion=""):
+        if self.checkIfUpdateIsNeed(currentVersion) or force:
+            print("开始更新%s" % self.name)
             try:
                 self.getDlUrl()
             except IndexError:
                 print("cannot get dlurl, skipping")
                 return
             self.download()
-            self.proc = ProcessCtrl(self.conf["process"]["image_name"],self.conf["process"]["service"])
+            self.proc = ProcessCtrl(
+                self.conf["process"]["image_name"], self.conf["process"]["service"])
             if self.conf["process"]["allow_restart"]:
-                if self.conf["process"]["stop_cmd"]=="":
+                if self.conf["process"]["stop_cmd"] == "":
                     self.proc.stopProc()
                 else:
-                    os.system(self.conf["process"]["stop_cmd"]) # should add %PATH support sometime
+                    # should add %PATH support sometime
+                    os.system(self.conf["process"]["stop_cmd"])
                 time.sleep(self.conf["process"]["restart_wait"])
                 self.extract()
-                if self.conf["process"]["start_cmd"]=="":
+                if self.conf["process"]["start_cmd"] == "":
                     self.proc.startProc()
                 else:
                     os.system(self.conf["process"]["start_cmd"])
@@ -399,7 +412,7 @@ class Updater:
                     print("请先关闭正在运行的"+self.name, end="\r")
                     time.sleep(1)
                 self.extract()
-            self.count-=1
+            self.count -= 1
             return self.version
         else:
             # TODO:Use log instead of print
