@@ -1,19 +1,22 @@
 {
 	"basic": {
 		"api_type": "simplespider",
-        "page_url": "https://portableapps.com/apps/utilities/gpu-z-portable/"
+        "page_url": "https://www.guru3d.com/files-details/gpu-z-download-techpowerup.html"
     },
     "download":{
-        "regexes":["<a href=\"(/downloading/.*?exe)\"","<a href=\"(/redirect/.*?exe)\""]
-    },
-    "version":{
-        "regex":"GPU-ZPortable_(.*?).paf.exe",
-        "use_exe_version":true
+        "url":"https://ftp.nluug.nl/pub/games/PC/guru3d/generic/GPU-Z-[Guru3D.com].zip",
+        "add_version_to_filename": true
     },
     "decompress":{
-        "single_dir":"App\\GPU-Z"
+        "exclude_file_type":["com/","nfo","url"]
+    },
+    "version":{
+        "regex":"GPU-Z Download v(.*?) ",
+        "from_page":true,
+        "use_exe_version":true
     },
     "process":{
-        "image_name":"GPU-Z.exe"
+        "image_name":"GPU-Z.exe",
+        "allow_restart": true
     }
 }
