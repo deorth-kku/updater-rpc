@@ -317,7 +317,7 @@ class Updater:
                 self.download()
                 times -= 1
 
-        filelist0 = f.getFileList()
+        filelist0 = list(f.getFileList())
 
         if type(self.conf["decompress"]["single_dir"]) == bool:
             prefix = f.getPrefixDir()
@@ -401,11 +401,8 @@ class Updater:
     def run(self, force=False, currentVersion=""):
         if self.checkIfUpdateIsNeed(currentVersion) or force:
             print("开始更新%s" % self.name)
-            try:
-                self.getDlUrl()
-            except IndexError:
-                print("cannot get dlurl, skipping")
-                return
+
+            self.getDlUrl()
             self.download()
             self.proc = ProcessCtrl(
                 self.conf["process"]["image_name"], self.conf["process"]["service"])

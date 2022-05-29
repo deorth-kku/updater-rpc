@@ -110,7 +110,13 @@ class Main:
                     pro_proxy = self.config["requests"]["proxy"]
                 obj = Updater(pro["name"], pro["path"],
                               pro_proxy, self.config["requests"]["retry"])
-                new_version = obj.run(force, pro["currentVersion"])
+                try:
+                    new_version = obj.run(force, pro["currentVersion"])
+                except Exception as e:
+                    logging.error("update for %s failed, see log below"%obj.name)
+                    logging.exception(e)
+                    if logging.root.isEnabledFor(logging.DEBUG):
+                        raise e
                 if new_version:
                     pro_index = self.config["projects"].index(pro)
                     self.config["projects"][pro_index].update(
@@ -149,20 +155,19 @@ class Main:
     help='wait to exit')
 def main(projects, path, force, wait, conf, add2conf, log_file, log_level):
     my_log_settings(log_file, log_level)
-    try:
-        start = Main(conf=conf)
-        if len(projects) == 0:
-            start.runUpdate(force=force)
-        if not path:
+
+    start = Main(conf=conf)
+    if len(projects) == 0:
+        start.runUpdate(force=force)
+    if not path:
+        start.runUpdate(projects=projects, force=force)
+    else:
+        if len(projects) == 1:
+            start.addProject(projects[0], path, add2conf)
             start.runUpdate(projects=projects, force=force)
         else:
-            if len(projects) == 1:
-                start.addProject(projects[0], path, add2conf)
-                start.runUpdate(projects=projects, force=force)
-            else:
-                print("error")
-    except Exception as e:
-        logging.exception(e)
+            print("error")
+
     if wait:
         os.system("pause")
 
