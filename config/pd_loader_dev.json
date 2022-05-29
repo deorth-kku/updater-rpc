@@ -4,6 +4,9 @@
         "account_name": "nastys",
         "project_name": "pd-loader"
     },
+    "build":{
+        "branch":"dev"
+    },
     "process":{
         "image_name": "diva.exe"
     },
