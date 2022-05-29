@@ -12,7 +12,7 @@
     },
     "download":{  
         "filetype":"zip",
-        "exclude_keyword":["AMDPack"],
+        "exclude_keyword":["HardMode"],
         "add_version_to_filename": true
     },
     "decompress":{
