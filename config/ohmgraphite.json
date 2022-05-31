@@ -1,0 +1,17 @@
+{
+    "basic":{
+        "api_type": "github",
+        "account_name": "nickbabcock",
+        "project_name": "OhmGraphite"
+    },
+    "download":{  
+        "filetype":"zip"
+    },
+    "process":{
+        "image_name":"OhmGraphite.exe",
+        "allow_restart": true,
+        "restart_wait": 5,
+        "stop_cmd": "net stop OhmGraphite",
+        "start_cmd": "net start OhmGraphite"
+    }
+}
