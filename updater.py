@@ -14,7 +14,7 @@ from distutils import dir_util
 from copy import copy
 from codecs import open
 import os
-
+import logging
 
 class Updater:
     CONF = {
@@ -88,7 +88,7 @@ class Updater:
             arch = "64"
     else:
         arch = ""
-        print("Not supported OS %s, vars will not working." % OS)
+        logging.warning("Not supported OS %s, vars will not working." % OS)
 
     config_vars = {
         r"%arch": arch,
@@ -212,7 +212,7 @@ class Updater:
                 self.dlurl = self.api.getDlUrl(self.conf["download"]["update_keyword"], self.conf["download"]
                                                ["exclude_keyword"], self.conf["download"]["filetype"], self.conf["download"]["index"])
         except requests.exceptions.ConnectionError:
-            print("连接失败")
+            logging.error("network failed")
             raise
         if self.conf["download"]["filename_override"] == "":
             try:
@@ -400,7 +400,7 @@ class Updater:
 
     def run(self, force=False, currentVersion=""):
         if self.checkIfUpdateIsNeed(currentVersion) or force:
-            print("开始更新%s" % self.name)
+            logging.info("starting update %s" % self.name)
 
             self.getDlUrl()
             self.download()
@@ -421,14 +421,13 @@ class Updater:
 
             else:
                 while self.proc.checkProc():
-                    print("请先关闭正在运行的"+self.name, end="\r")
+                    logging.warning("请先关闭正在运行的"+self.name, end="\r")
                     time.sleep(1)
                 self.extract()
             self.count -= 1
             return self.version
         else:
-            # TODO:Use log instead of print
-            print("当前%s已是最新，无需更新！" % (self.name))
+            logging.info("%s is already updated, no need for update" % (self.name))
             return False
 
 
