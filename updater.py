@@ -16,6 +16,7 @@ from codecs import open
 import os
 import logging
 
+
 class Updater:
     CONF = {
         "basic": {
@@ -357,11 +358,6 @@ class Updater:
                     filelist0.append(file)
             f.extractFiles(filelist0, self.path)
 
-        
-        
-                
-            
-
         if self.conf["decompress"]["single_dir"] and prefix != "":
             for file in os.listdir(os.path.join(self.path, prefix)):
                 new = os.path.join(self.path, prefix, file)
@@ -371,15 +367,18 @@ class Updater:
                     old = os.path.join(self.path, file)
                     dir_util.copy_tree(new, old)
             shutil.rmtree(os.path.join(self.path, prefix))
-        elif len(filelist0)==1: #quick workaround for gpu-z
-            main_program_file=os.path.join(self.path,self.conf["process"]["image_name"])
-            extracted_file=os.path.join(self.path,filelist0[0])
+        elif len(filelist0) == 1:  # quick workaround for gpu-z
+            main_program_file = os.path.join(
+                self.path, self.conf["process"]["image_name"])
+            extracted_file = os.path.join(self.path, filelist0[0])
             if os.path.exists(main_program_file):
                 os.remove(main_program_file)
-            os.rename(extracted_file,main_program_file)
+            os.rename(extracted_file, main_program_file)
 
         if not self.conf["decompress"]["keep_download_file"]:
             os.remove(self.fullfilename)
+
+        logging.info("update %s successed" % self.name)
 
     def updateVersionFile(self):
         if self.conf["version"]["use_exe_version"]:
@@ -427,7 +426,8 @@ class Updater:
             self.count -= 1
             return self.version
         else:
-            logging.info("%s is already updated, no need for update" % (self.name))
+            logging.info(
+                "%s is already updated, no need for update" % (self.name))
             return False
 
 
