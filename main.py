@@ -137,8 +137,8 @@ class Main:
 
 @click.command()
 @click.argument('projects', nargs=-1)
-@click.option('--path', type=click.Path(), help='the install path for added project')
-@click.option('-c', "--conf", type=click.Path(exists=True), help='using specific config file', default="config.json")
+@click.option('--path',"--install-path", type=click.Path(), help='the install path for added project')
+@click.option('-c', "--conf", type=click.Path(), help='using specific config file', default="config.json")
 @click.option('-l', "--log-file", type=click.Path(), help='using specific log file', default=None)
 @click.option("--log-level", type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], case_sensitive=False), help='using specific log level', default="INFO")
 @click.option(
