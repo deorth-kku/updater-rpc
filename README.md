@@ -61,14 +61,14 @@ Just run
 `python main.py [project_name] [another_project_name] [some_more_project_name] ...`  
 These project names must already included in your project list.
 ## TODOs
-* Global log level
+* ~~Global log level~~
 * Muti-thread
 * ~~Sourceforge support~~
-* ~Static url (version by regex maybe)~
+* ~~Static url (version by regex maybe)~~
 * rollback (via local file or redownload)
 * get version via command line
 * search same download quest before adding
-* ~restart command override~
+* ~~restart command override~~
 * show release notes
 * skip decompress(single file mode)
 * user override config
@@ -77,7 +77,9 @@ These project names must already included in your project list.
 * add --allow-overwrite
 * Check download file integrity
 ### utils rework
-* utils as a submodule
+* ~~utils as a submodule~~
+* fix submodule url
+* improve JsonConfig for file not exist/invalid behavior
 * rework Py7z using native python library
 ### long-term (maybe on 0.0.3)
 * GUI (probably pyQT)
