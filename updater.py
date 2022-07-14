@@ -420,7 +420,7 @@ class Updater:
 
             else:
                 while self.proc.checkProc():
-                    logging.warning("请先关闭正在运行的"+self.name, end="\r")
+                    logging.warning("waiting for process %s to stop"%self.name)
                     time.sleep(1)
                 self.extract()
             self.count -= 1
