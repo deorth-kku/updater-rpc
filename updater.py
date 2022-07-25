@@ -50,6 +50,7 @@ class Updater:
         },
         "decompress":
         {
+            "skip": False,
             "include_file_type": [],
             "exclude_file_type": [],
             "exclude_file_type_when_update": [],
@@ -301,6 +302,8 @@ class Updater:
                         proxy=self.proxy, retry=self.retry)
 
     def extract(self):
+        if self.conf["decompress"]["skip"]:
+            return
         try:
             self.fullfilename = os.path.join(
                 self.local_dir, self.name, self.filename)
@@ -420,7 +423,8 @@ class Updater:
 
             else:
                 while self.proc.checkProc():
-                    logging.warning("waiting for process %s to stop"%self.name)
+                    logging.warning(
+                        "waiting for process %s to stop" % self.name)
                     time.sleep(1)
                 self.extract()
             self.count -= 1

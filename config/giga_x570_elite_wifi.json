@@ -1,12 +1,17 @@
 {
-	"basic": {
-		"api_type": "simplespider",
+    "basic": {
+        "api_type": "simplespider",
         "page_url": "https://www.gigabyte.cn/Motherboard/X570-AORUS-ELITE-WIFI-rev-1x/support#support-dl-bios"
     },
-    "download":{
-        "regexes":["(https://download.gigabyte.cn/FileList/BIOS/mb_bios_x570-aorus-elite-wifi_.*?)\""]
+    "download": {
+        "regexes": [
+            "(https://download.gigabyte.cn/FileList/BIOS/mb_bios_x570-aorus-elite-wifi_.*?)\""
+        ]
     },
-    "version":{
-        "regex":"mb_bios_x570-aorus-elite-wifi_(.*?).zip"
+    "version": {
+        "regex": "mb_bios_x570-aorus-elite-wifi_(.*?).zip"
+    },
+    "decompress": {
+        "skip": true
     }
 }
