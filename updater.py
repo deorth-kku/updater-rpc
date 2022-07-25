@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from apijson import ApiJson
 from utils import *
 from appveyor import *
 from simpleapi import *
@@ -28,6 +29,7 @@ class Updater:
         },
         "download":
         {
+            "path":[],
             "keyword": [],
             "update_keyword": [],
             "exclude_keyword": [],
@@ -60,6 +62,7 @@ class Updater:
         },
         "version":
         {
+            "path":[],
             "use_exe_version": False,
             "use_cmd_version": False,
             "from_page": False,
@@ -194,7 +197,9 @@ class Updater:
                 self.conf["basic"]["account_name"], self.conf["basic"]["project_name"], self.conf["build"]["branch"])
         elif self.conf["basic"]["api_type"] == "sourceforge":
             self.api = SourceforgeApi(self.conf["basic"]["project_name"])
-        elif self.conf["basic"]["api_type"] == "simplespider" or self.conf["basic"]["api_type"] == "staticlink":
+        elif self.conf["basic"]["api_type"] == "apijson":
+            self.api = ApiJson(self.conf["basic"]["api_url"])
+        elif self.conf["basic"]["api_type"] in ("simplespider","staticlink"):
             self.api = SimpleSpider(self.conf["basic"]["page_url"])
             self.simple = True
         else:
@@ -204,7 +209,9 @@ class Updater:
 
     def getDlUrl(self):
         try:
-            if self.simple:
+            if self.conf["basic"]["api_type"] == "apijson":
+                self.dlurl = self.api.getDlUrl(self.conf["download"]["path"])
+            elif self.simple:
                 self.dlurl = self.api.getDlUrl(regexes=self.conf["download"]["regexes"], indexs=self.conf["download"]
                                                ["indexes"], try_redirect=self.conf["download"]["try_redirect"], dlurl=self.conf["download"]["url"])
             elif self.install or self.conf["download"]["update_keyword"] == []:
@@ -233,8 +240,10 @@ class Updater:
             self.install = True
         else:
             self.install = False
-        #self.install=currentVersion=="" and not self.conf["version"]["use_exe_version"] and not os.path.exists(self.exepath)
-        if self.simple:
+
+        if self.conf["basic"]["api_type"] == "apijson":
+            self.version = self.api.getVersion(self.conf["version"]["path"])
+        elif self.simple:
             self.getDlUrl()
             self.version = self.api.getVersion(
                 self.conf["version"]["regex"], self.conf["version"]["from_page"], self.conf["version"]["index"])
