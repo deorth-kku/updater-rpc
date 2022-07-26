@@ -325,7 +325,10 @@ class Updater:
                 f = Decompress(self.fullfilename,
                                self.conf["decompress"]["use_builtin_zipfile"])
                 sucuss = True
-            except Decompress.libarchive.exception.ArchiveError:
+            except Exception as e:
+                raise #I'm pretty sure compress file detection is broken now. It will need fixing on the utils._Decompress side
+                logging.error("downloaded file %s is broken, trying re-download now")
+                logging.exception(e)
                 os.remove(self.fullfilename)
                 self.download()
                 times -= 1
