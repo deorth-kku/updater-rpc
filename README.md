@@ -61,6 +61,8 @@ Just run
 `python main.py [project_name] [another_project_name] [some_more_project_name] ...`  
 These project names must already included in your project list.
 ## TODOs
+* fix libarchive update
+* fix corrupted download file detection
 * ~~Global log level~~
 * Muti-thread
 * ~~Sourceforge support~~
