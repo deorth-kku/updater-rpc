@@ -76,9 +76,9 @@ These project names must already included in your project list.
 * global download dir for local aria2
 * add --allow-overwrite
 * Check download file integrity
+* online config downloading (which require to store configs json is a different place)
 ### utils rework
 * ~~utils as a submodule~~
-* fix submodule url
 * improve JsonConfig for file not exist/invalid behavior
 * rework Py7z using native python library
 ### long-term (maybe on 0.0.3)
