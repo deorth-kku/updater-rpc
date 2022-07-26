@@ -86,6 +86,7 @@ These project names must already included in your project list.
 * version selection
 * Muti-language
 * self-update
+* rework command line interface: use sub-command
 
 
 

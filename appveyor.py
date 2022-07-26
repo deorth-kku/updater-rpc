@@ -146,10 +146,14 @@ class GithubApi(FatherApi):
 
 
     def getVersion(self, no_pull=False):
-        for release in self.getReleases():
+        releases=self.getReleases()
+        releases_names=[release["name"] for release in releases]
+        releases_names_set=set(releases_names)
+        release_names_are_the_same=len(releases_names)>len(releases_names_set)
+        for release in releases:
             if release["prerelease"] and no_pull:
                 continue
-            if release["name"] != None and release["name"] != "":
+            if release["name"] != None and release["name"] != "" and not release_names_are_the_same:
                 self.version = release["name"]
             else:
                 self.version = release["tag_name"]

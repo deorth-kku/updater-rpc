@@ -1,0 +1,14 @@
+{
+	"basic": {
+		"api_type": "github",
+		"account_name": "barry-ran",
+		"project_name": "QtScrcpy"
+	},
+	"process": {
+		"image_name": "QtScrcpy"
+	},
+	"download":{
+		"filetype":"zip",
+		"keyword":["%OS","%arch"]
+	}
+}
