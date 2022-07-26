@@ -1,0 +1,13 @@
+{
+	"basic": {
+		"api_type": "github",
+		"account_name": "ivaniskandar",
+		"project_name": "shouko"
+	},
+	"download":{
+		"filetype":"apk"
+	},
+	"decompress": {
+		"skip": true
+	}
+}
