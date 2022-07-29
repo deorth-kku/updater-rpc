@@ -8,7 +8,9 @@
             "https://skyline-builds.alula.gay/cache",
             [0,"id"],
             [0,"apkName"]
-        ]
+        ],
+        "filename_override": "skyline.apk",
+        "add_version_to_filename": true
     },
     "version": {
         "path":[0,"runNumber"]

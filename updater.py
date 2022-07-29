@@ -302,7 +302,7 @@ class Updater:
 
         if self.conf["download"]["add_version_to_filename"]:
             temp_name = os.path.splitext(self.filename)
-            temp_version = copy(self.version)
+            temp_version = str(self.version)
             for disallow in (r"<", r">", r"/", "\\", r"|", r":", r"*", r"?"):
                 temp_version = temp_version.replace(disallow, " ")
             self.filename = temp_name[0]+"_"+temp_version+temp_name[-1]
