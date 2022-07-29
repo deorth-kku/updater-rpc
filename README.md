@@ -72,17 +72,17 @@ These project names must already included in your project list.
 * search same download quest before adding
 * ~~restart command override~~
 * show release notes
-* skip decompress(single file mode)
+* ~~skip decompress(single file mode)~~
 * user override config
-* remote device update (via ssh or adb)
+* create F-droid repository for android update
 * global download dir for local aria2
 * add --allow-overwrite
 * Check download file integrity
-* online config downloading (which require to store configs json is a different place)
+* online config downloading (which require to store configs json elsewhere)
 ### utils rework
 * ~~utils as a submodule~~
 * improve JsonConfig for file not exist/invalid behavior
-* rework Py7z using native python library
+* ~~rework Py7z using native python library~~
 ### long-term (maybe on 0.0.3)
 * GUI (probably pyQT)
 * version selection
