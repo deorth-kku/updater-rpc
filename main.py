@@ -93,6 +93,12 @@ class Main:
             self.config.dumpconfig()
 
     def runUpdate(self, projects=None, force=False):
+        # always update libarchive_win first to avoid update failure cause by file occupation
+        for pro in self.config["projects"]:
+            if pro["name"]=="libarchive_win":
+                self.config["projects"].remove(pro)
+                self.config["projects"].insert(0,pro)
+
         for pro in self.config["projects"]:
             try:
                 if pro["hold"] and not force:
@@ -117,6 +123,8 @@ class Main:
                     logging.exception(e)
                     if logging.root.isEnabledFor(logging.DEBUG):
                         raise e
+                    else:
+                        continue
                 if new_version:
                     pro_index = self.config["projects"].index(pro)
                     self.config["projects"][pro_index].update(

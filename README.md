@@ -61,7 +61,7 @@ Just run
 `python main.py [project_name] [another_project_name] [some_more_project_name] ...`  
 These project names must already included in your project list.
 ## TODOs
-* fix libarchive update
+* ~~fix libarchive update~~
 * fix corrupted download file detection
 * ~~Global log level~~
 * Muti-thread
@@ -74,7 +74,7 @@ These project names must already included in your project list.
 * show release notes
 * ~~skip decompress(single file mode)~~
 * user override config
-* create F-droid repository for android update
+* ~~create F-droid repository for android update~~(use offical fdroidserver program instead)
 * global download dir for local aria2
 * add --allow-overwrite
 * Check download file integrity
