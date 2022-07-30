@@ -1,0 +1,13 @@
+{
+	"basic":{
+		"api_type": "github",
+		"account_name": "sebanc",
+		"project_name": "brunch-unstable"
+	},
+	"download":{
+		"filetype":"tar.gz"
+	},
+	"decompress":{
+		"skip":true
+	}
+}
