@@ -13,5 +13,8 @@
         "restart_wait": 5,
         "stop_cmd": "net stop OhmGraphite",
         "start_cmd": "net start OhmGraphite"
+    },
+    "decompress":{
+        "exclude_file_type_when_update":[".exe.config"]
     }
 }
