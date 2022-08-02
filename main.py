@@ -95,9 +95,9 @@ class Main:
     def runUpdate(self, projects=None, force=False):
         # always update libarchive_win first to avoid update failure cause by file occupation
         for pro in self.config["projects"]:
-            if pro["name"]=="libarchive_win":
+            if pro["name"] == "libarchive_win":
                 self.config["projects"].remove(pro)
-                self.config["projects"].insert(0,pro)
+                self.config["projects"].insert(0, pro)
 
         for pro in self.config["projects"]:
             try:
@@ -115,11 +115,12 @@ class Main:
                 except KeyError:
                     pro_proxy = self.config["requests"]["proxy"]
                 obj = Updater(pro["name"], pro["path"],
-                              pro_proxy, self.config["requests"]["retry"])
+                              pro_proxy, self.config["requests"]["retry"], pro.get("override", {}))
                 try:
                     new_version = obj.run(force, pro["currentVersion"])
                 except Exception as e:
-                    logging.error("update for %s failed, see log below"%obj.name)
+                    logging.error(
+                        "update for %s failed, see log below" % obj.name)
                     logging.exception(e)
                     if logging.root.isEnabledFor(logging.DEBUG):
                         raise e
@@ -145,7 +146,7 @@ class Main:
 
 @click.command()
 @click.argument('projects', nargs=-1)
-@click.option('--path',"--install-path", type=click.Path(), help='the install path for added project')
+@click.option('--path', "--install-path", type=click.Path(), help='the install path for added project')
 @click.option('-c', "--conf", type=click.Path(), help='using specific config file', default="config.json")
 @click.option('-l', "--log-file", type=click.Path(), help='using specific log file', default=None)
 @click.option("--log-level", type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], case_sensitive=False), help='using specific log level', default="INFO")

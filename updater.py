@@ -29,7 +29,7 @@ class Updater:
         },
         "download":
         {
-            "path":[],
+            "path": [],
             "keyword": [],
             "update_keyword": [],
             "exclude_keyword": [],
@@ -62,7 +62,7 @@ class Updater:
         },
         "version":
         {
-            "path":[],
+            "path": [],
             "use_exe_version": False,
             "use_cmd_version": False,
             "from_page": False,
@@ -161,7 +161,7 @@ class Updater:
                 return True
         return True
 
-    def __init__(self, name, path, proxy="", retry=5):
+    def __init__(self, name, path, proxy="", retry=5, override={}):
         self.count += 1
         self.path = path
         self.name = name
@@ -172,6 +172,7 @@ class Updater:
         self.addversioninfo = False
 
         self.conf = JsonConfig("config/%s.json" % name)
+        self.conf = JsonConfig.mergeDict(self.conf, override)
 
         for key in self.config_vars:
             self.conf.var_replace(key, self.config_vars[key])
@@ -199,7 +200,7 @@ class Updater:
             self.api = SourceforgeApi(self.conf["basic"]["project_name"])
         elif self.conf["basic"]["api_type"] == "apijson":
             self.api = ApiJson(self.conf["basic"]["api_url"])
-        elif self.conf["basic"]["api_type"] in ("simplespider","staticlink"):
+        elif self.conf["basic"]["api_type"] in ("simplespider", "staticlink"):
             self.api = SimpleSpider(self.conf["basic"]["page_url"])
             self.simple = True
         else:
@@ -326,8 +327,9 @@ class Updater:
                                self.conf["decompress"]["use_builtin_zipfile"])
                 sucuss = True
             except Exception as e:
-                raise #I'm pretty sure compress file detection is broken now. It will need fixing on the utils._Decompress side
-                logging.error("downloaded file %s is broken, trying re-download now")
+                raise  # I'm pretty sure compress file validation is broken now. It will need fixing on the utils._Decompress side
+                logging.error(
+                    "downloaded file %s is broken, trying re-download now")
                 logging.exception(e)
                 os.remove(self.fullfilename)
                 self.download()

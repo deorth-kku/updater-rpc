@@ -73,7 +73,7 @@ These project names must already included in your project list.
 * ~~restart command override~~
 * show release notes
 * ~~skip decompress(single file mode)~~
-* user override config
+* ~~user override config~~
 * ~~create F-droid repository for android update~~(use offical fdroidserver program instead)
 * global download dir for local aria2
 * add --allow-overwrite
