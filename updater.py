@@ -171,7 +171,7 @@ class Updater:
 
         self.addversioninfo = False
 
-        self.conf = JsonConfig("config/%s.json" % name)
+        self.conf = JsonConfig("config/%s.json" % name, "r")
         self.conf = JsonConfig.mergeDict(self.conf, override)
 
         for key in self.config_vars:
