@@ -6,15 +6,15 @@
 	},
 	"download":{
 		"filetype": "zip",
-        "keyword": ["win64"],
+        "keyword": ["%OS","%arch"],
         "exclude_keyword": ["n4","lgpl","shared"],
 		"add_version_to_filename": true
 	},
 	"decompress":
 	{
-		"single_dir": "ffmpeg-master-latest-win64-gpl\\bin"
+		"single_dir": true
 	},
 	"process":{
-        "image_name":"ffmpeg.exe"
+        "image_name":"ffmpeg"
     }
 }
