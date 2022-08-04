@@ -31,7 +31,7 @@ class Main:
 
     @staticmethod
     def sel_conf_json():
-        configpath = "config.json"
+        configpath = os.path.join(sys.path[0],"config.json")
         if not os.path.exists(configpath):
             configdir_upper = os.getenv("APPDATA")
             if configdir_upper == None:
