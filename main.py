@@ -6,7 +6,7 @@ import click
 from updater import Updater
 from utils import JsonConfig
 import logging
-from utils import my_log_settings
+from utils import MyLogSettings
 
 
 class Main:
@@ -29,10 +29,10 @@ class Main:
         "defaults": {}
     }
 
-    def __init__(self, conf="config.json"):
-        os.chdir(sys.path[0])
-        self.configpath = conf
-        if not os.path.exists(self.configpath):
+    @staticmethod
+    def sel_conf_json():
+        configpath = "config.json"
+        if not os.path.exists(configpath):
             configdir_upper = os.getenv("APPDATA")
             if configdir_upper == None:
                 configdir_upper = os.path.join(os.getenv("HOME"), ".config")
@@ -41,8 +41,12 @@ class Main:
                 os.makedirs(configdir)
             except FileExistsError:
                 pass
-            self.configpath = os.path.join(configdir, "config.json")
-        self.config = JsonConfig(self.configpath)
+            configpath = os.path.join(configdir, "config.json")
+        return configpath
+
+    def __init__(self, conf="config.json"):
+        os.chdir(sys.path[0])
+        self.config = JsonConfig(conf)
 
         if "projects" in self.config and type(self.config["projects"]) == dict:
             new_projects = []
@@ -147,24 +151,21 @@ class Main:
 @click.command()
 @click.argument('projects', nargs=-1)
 @click.option('--path', "--install-path", type=click.Path(), help='the install path for added project')
-@click.option('-c', "--conf", type=click.Path(), help='using specific config file', default="config.json")
-@click.option('-l', "--log-file", type=click.Path(), help='using specific log file', default=None)
-@click.option("--log-level", type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], case_sensitive=False), help='using specific log level', default="INFO")
+@click.option('-c', "--conf", type=click.Path(), help='using specific config file', default=Main.sel_conf_json(), show_default=True)
+@MyLogSettings()
 @click.option(
     '--force', '-f', default=False,
     type=click.BOOL, is_flag=True,
-    help='force update')
+    help='force update', show_default=True)
 @click.option(
     '--add2conf', '-a', default=False,
     type=click.BOOL, is_flag=True,
-    help='add current project path to conf')
+    help='add current project path to conf', show_default=True)
 @click.option(
     '--wait', '-w', default=False,
     type=click.BOOL, is_flag=True,
-    help='wait to exit')
-def main(projects, path, force, wait, conf, add2conf, log_file, log_level):
-    my_log_settings(log_file, log_level)
-
+    help='wait to exit', show_default=True)
+def main(projects, path, force, wait, conf, add2conf):
     start = Main(conf=conf)
     if len(projects) == 0:
         start.runUpdate(force=force)

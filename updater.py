@@ -255,6 +255,7 @@ class Updater:
             self.version = self.api.getVersion(self.conf["build"]["no_pull"])
         self.conf.var_replace("%VER", self.version)
         if self.install:
+            logging.info("Running on install mode")
             return True
         elif self.conf["version"]["use_exe_version"]:
             version = re.sub('[^0-9\.\-]', '', self.version)
@@ -287,6 +288,7 @@ class Updater:
             return not (self.version_compare(self.versiontuple, filever) or self.version_compare(self.versiontuple, prodver))
         elif self.conf["version"]["use_cmd_version"]:
             try:
+                # Not impletment yet
                 pass
             except IndexError:
                 pass
