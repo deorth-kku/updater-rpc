@@ -1,16 +1,22 @@
+# WARNING
+This is a self-use purpose project with all kinds of problems including but no limited:
+* Lack of testing
+* Not documented feature/behavior
+* Grammar error/typo
+So long these problems do not effect my daliy uses, I'm lack of the willpower to fix them.
 # Interduction
 Updater for opensource projects which don't have buildin update.
 ## How does it work?
 We use RESTful apis to get the lastest release of the project.  
 Currently using github api and appveyor api. If you want any other api added, feel free to open an issue.  
-Download is using aria2 via rpc interface, ~decompress using 7z binary~. Current both binary file is not included, but I'm planning to add auto download for both if either of them wasn't found in PATH.
+Download is using aria2 via rpc interface, ~~decompress using 7z binary~~. Current both binary file is not included, but I'm planning to add auto download for both if either of them wasn't found in PATH.
 ## Dependency
 ### Python
-Python 3.5+ with "requests", "psutil", "py7zr" and "click" installed. To use "use_exe_version", you'll also need "pefile". To use sourceforge, you'll need "xmltodict". Install them with pip. 
+Python 3.5+ with "requests", "psutil", "libarchive-c" and "click" installed. To use "use_exe_version", you'll also need "pefile". To use sourceforge, you'll need "xmltodict". Install them with pip. 
 ### Binary program
-aria2 and 7z binary in your $PATH. Or you can set the full path in config.json.  
+aria2 and ~~7z~~ libarchive binary  in your $PATH. Or you can set the full path in config.json. Suggested way to install them is through the package manager from your distro. 
 ## Config file
-As you might noticed, we use json as config file. Though making a config file, you can provide the infromaion that is needed to update your local program.  
+As you might noticed, we use json as config file. Through making a config file, you can provide the infromaion that is needed to update your local program.  
 There are already a few config file I wrote for projects that I use. If you make some others, feel free to make a PR.
 ## Options
 ### "basic": Must-include options 
