@@ -6,7 +6,7 @@ import click
 from updater import Updater
 from utils import JsonConfig
 import logging
-from utils import MyLogSettings
+from utils import MyLogSettings, ExceptionLogger, InstanceLock
 
 
 class Main:
@@ -31,7 +31,7 @@ class Main:
 
     @staticmethod
     def sel_conf_json():
-        configpath = os.path.join(sys.path[0],"config.json")
+        configpath = os.path.join(sys.path[0], "config.json")
         if not os.path.exists(configpath):
             configdir_upper = os.getenv("APPDATA")
             if configdir_upper == None:
@@ -165,6 +165,8 @@ class Main:
     '--wait', '-w', default=False,
     type=click.BOOL, is_flag=True,
     help='wait to exit', show_default=True)
+@ExceptionLogger()
+@InstanceLock(None, sys.exit, 1)
 def main(projects, path, force, wait, conf, add2conf):
     start = Main(conf=conf)
     if len(projects) == 0:
