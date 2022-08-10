@@ -1,13 +1,14 @@
 {
 	"basic": {
-		"api_type": "simplespider",
-        "page_url": "https://gfwsl.geforce.cn/services_toolkit/services/com/nvidia/services/AjaxDriverService.php?func=DriverManualLookup&psid=120&pfid=985&osID=135&languageCode=2052&beta=null&isWHQL=1&dltype=-1&dch=1&upCRD=null&qnf=0&sort1=0&numberOfResults=1"
+		"api_type": "apijson",
+        "api_url": "https://gfwsl.geforce.cn/services_toolkit/services/com/nvidia/services/AjaxDriverService.php?func=DriverManualLookup&psid=120&pfid=985&osID=135&languageCode=2052&beta=null&isWHQL=1&dltype=-1&dch=1&upCRD=null&qnf=0&sort1=0&numberOfResults=1"
     },
     "download":{
-        "regexes":["\"DownloadURL\" : \"(https://.*?)\","]
+        "path":[
+            ["IDS",0,"downloadInfo","DownloadURL"]
+        ]
     },
     "version":{
-        "regex":"\"Version\" : \"(.*?)\",",
-        "from_page":true
+        "path": ["IDS",0,"downloadInfo","Version"]
     }
 }
