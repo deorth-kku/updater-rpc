@@ -1,0 +1,18 @@
+{
+    "basic": {
+        "api_type": "github",
+        "account_name": "dushixiang",
+        "project_name": "next-terminal"
+    },
+    "download": {
+        "filetype": "tar.gz",
+        "add_version_to_filename": true
+    },
+    "decompress":{
+        "single_dir":"next-terminal"
+    },
+    "process": {
+        "service": true,
+        "allow_restart": true
+    }
+}

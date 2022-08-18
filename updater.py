@@ -16,6 +16,7 @@ from copy import copy
 from codecs import open
 import os
 import logging
+from typing import Iterable, Generator
 
 
 class Updater:
@@ -160,6 +161,26 @@ class Updater:
             elif aa < bb:
                 return True
         return True
+
+    @staticmethod
+    def file_sel(filelist: Iterable[str], include_filetype: Iterable[str], exclude_filetype: Iterable[str], prefix: str) -> Generator:
+        for file in filelist:
+            if not file.startswith(prefix):
+                continue
+
+            flag=False
+            for filetype in exclude_filetype:
+                if file.endswith(filetype):
+                    flag=True
+            if flag:
+                continue
+
+            if include_filetype != []:
+                for filetype in include_filetype:
+                    if file.endswith(filetype):
+                        yield file
+            else:
+                yield file
 
     def __init__(self, name, path, proxy="", retry=5, override={}):
         self.count += 1
@@ -342,54 +363,40 @@ class Updater:
         if type(self.conf["decompress"]["single_dir"]) == bool:
             prefix = f.getPrefixDir()
         else:
-            filelist1 = list(filelist0)
             prefix = self.conf["decompress"]["single_dir"]
-            for file in filelist0:
-                booo = file.startswith(os.path.join(prefix, ""))
-                if not booo:
-                    filelist1.remove(file)
-            filelist0 = filelist1
 
         if not self.install:
             self.conf["decompress"]["exclude_file_type"] = self.conf["decompress"]["exclude_file_type"] + \
                 self.conf["decompress"]["exclude_file_type_when_update"]
 
-        if self.conf["decompress"]["include_file_type"] == [] and self.conf["decompress"]["exclude_file_type"] == []:
-            f.extractAll(self.path)
-
-        else:
-            if self.conf["decompress"]["include_file_type"] != []:
-                filelist1 = []
-                for file in filelist0:
-                    for include in self.conf["decompress"]["include_file_type"]:
-                        if file.split(r".")[-1] == include:
-                            filelist1.append(file)
-            else:
-                filelist1 = list(filelist0)
-            filelist0 = []
-            for file in filelist1:
-                flag = False
-                for exclude in self.conf["decompress"]["exclude_file_type"]:
-                    type0 = file.split(r".")[-1]
-                    if type0 == exclude:
-                        flag = True
-                if not flag:
-                    filelist0.append(file)
-            f.extractFiles(filelist0, self.path)
+        selected_files = list(self.__class__.file_sel(
+            filelist0, self.conf["decompress"]["include_file_type"], self.conf["decompress"]["exclude_file_type"], prefix))
 
         if self.conf["decompress"]["single_dir"] and prefix != "":
-            for file in os.listdir(os.path.join(self.path, prefix)):
-                new = os.path.join(self.path, prefix, file)
+            extract_path = os.path.join(InstanceLock.get_temp(), self.name)
+            os.makedirs(extract_path,exist_ok=True)
+            os.makedirs(self.path,exist_ok=True)
+        else:
+            extract_path = self.path
+
+        if selected_files == filelist0:
+            f.extractAll(extract_path)
+        else:
+            f.extractFiles(selected_files, extract_path)
+
+        if self.conf["decompress"]["single_dir"] and prefix != "":
+            for file in os.listdir(os.path.join(extract_path, prefix)):
+                new = os.path.join(extract_path, prefix, file)
                 try:
                     shutil.copy(new, self.path)
                 except (IsADirectoryError, PermissionError):
                     old = os.path.join(self.path, file)
                     dir_util.copy_tree(new, old)
-            shutil.rmtree(os.path.join(self.path, prefix))
-        elif len(filelist0) == 1:  # quick workaround for gpu-z
+            shutil.rmtree(extract_path)
+        elif len(selected_files) == 1:  # quick workaround for gpu-z
             main_program_file = os.path.join(
                 self.path, self.conf["process"]["image_name"])
-            extracted_file = os.path.join(self.path, filelist0[0])
+            extracted_file = os.path.join(extract_path, selected_files[0])
             if os.path.exists(main_program_file):
                 os.remove(main_program_file)
             os.rename(extracted_file, main_program_file)
