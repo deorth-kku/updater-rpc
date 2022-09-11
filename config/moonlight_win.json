@@ -10,5 +10,8 @@
     },
 	"process": {
 		"image_name": "Moonlight.exe"
+	},
+	"version":{
+		"use_exe_version": true
 	}
 }
