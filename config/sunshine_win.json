@@ -1,0 +1,16 @@
+{
+    "basic": {
+        "api_type": "github",
+        "account_name": "LizardByte",
+        "project_name": "Sunshine"
+    },
+    "download": {
+        "keyword": "windows",
+        "filetype": "zip"
+    },
+    "process": {
+        "image_name": "sunshinesvc",
+        "service": true,
+        "allow_restart": true
+    }
+}
