@@ -389,7 +389,10 @@ class Updater:
                 new = os.path.join(extract_path, prefix, file)
                 try:
                     shutil.copy(new, self.path)
-                except (IsADirectoryError, PermissionError):
+                except (IsADirectoryError, PermissionError) as e:
+                    if logging.root.isEnabledFor(logging.DEBUG):
+                        logging.debug("this is a debug exception logging")
+                        logging.exception(e)
                     old = os.path.join(self.path, file)
                     dir_util.copy_tree(new, old)
             shutil.rmtree(extract_path)
