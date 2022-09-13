@@ -6,7 +6,8 @@
     },
     "download": {
         "keyword": "windows",
-        "filetype": "zip"
+        "filetype": "zip",
+        "add_version_to_filename": true
     },
     "process": {
         "image_name": "sunshinesvc",
