@@ -4,12 +4,15 @@
         "account_name": "dushixiang",
         "project_name": "next-terminal"
     },
+    "build": {
+        "no_pull": true
+    },
     "download": {
         "filetype": "tar.gz",
         "add_version_to_filename": true
     },
-    "decompress":{
-        "single_dir":"next-terminal"
+    "decompress": {
+        "single_dir": "next-terminal"
     },
     "process": {
         "service": true,
