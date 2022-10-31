@@ -4,7 +4,7 @@
 		"project_name": "waydroid"
 	},
 	"download":{
-        "keyword":["%arch","vendor","VANILLA"],
+        "keyword":["%arch","vendor","MAINLINE"],
 		"filetype":"zip"
 	}
 }
