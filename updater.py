@@ -168,10 +168,10 @@ class Updater:
             if not file.startswith(prefix):
                 continue
 
-            flag=False
+            flag = False
             for filetype in exclude_filetype:
                 if file.endswith(filetype):
-                    flag=True
+                    flag = True
             if flag:
                 continue
 
@@ -374,8 +374,8 @@ class Updater:
 
         if self.conf["decompress"]["single_dir"] and prefix != "":
             extract_path = os.path.join(InstanceLock.get_temp(), self.name)
-            os.makedirs(extract_path,exist_ok=True)
-            os.makedirs(self.path,exist_ok=True)
+            os.makedirs(extract_path, exist_ok=True)
+            os.makedirs(self.path, exist_ok=True)
         else:
             extract_path = self.path
 
@@ -426,7 +426,7 @@ class Updater:
                 versionfile.write(self.version)
             versionfile.close()
 
-    def run(self, force=False, currentVersion=""):
+    def run(self, force=False, currentVersion="", popup=False):
         if self.checkIfUpdateIsNeed(currentVersion) or force:
             logging.info("starting update %s" % self.name)
 
@@ -448,10 +448,11 @@ class Updater:
                     os.system(self.conf["process"]["start_cmd"])
 
             else:
-                while self.proc.checkProc():
-                    logging.warning(
-                        "waiting for process %s to stop" % self.name)
-                    time.sleep(1)
+                if self.proc.checkProc():
+                    msg = "waiting for program %s to stop so we can update it" % self.name
+                    logging.warning(msg)
+                    ProcessCtrl.popup_msg(msg)
+                    self.proc.waitProc()
                 self.extract()
             self.count -= 1
             return self.version
