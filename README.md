@@ -70,7 +70,7 @@ These project names must already included in your project list.
 * ~~fix libarchive update~~
 * fix corrupted download file detection
 * ~~Global log level~~
-* Muti-thread
+* Multi-thread
 * ~~Sourceforge support~~
 * ~~Static url (version by regex maybe)~~
 * rollback (via local file or redownload)
@@ -83,8 +83,8 @@ These project names must already included in your project list.
 * ~~create F-droid repository for android update~~(use offical fdroidserver program instead)
 * global download dir for local aria2
 * add --allow-overwrite
-* Check download file integrity
 * online config downloading (which require to store configs json elsewhere)
+* popup message on windows when restart process is not allowed
 ### utils rework
 * ~~utils as a submodule~~
 * improve JsonConfig for file not exist/invalid behavior
