@@ -2,7 +2,7 @@
 This is a self-use purpose project with all kinds of problems including but no limited:
 * Lack of testing
 * Not documented feature/behavior
-* Grammar error/typo
+* Grammar error/typo  
 So long these problems do not effect my daliy uses, I'm lack of the willpower to fix them.
 # Interduction
 Updater for opensource projects which don't have buildin update.
@@ -84,7 +84,8 @@ These project names must already included in your project list.
 * global download dir for local aria2
 * add --allow-overwrite
 * online config downloading (which require to store configs json elsewhere)
-* popup message on windows when restart process is not allowed
+* ~~popup message on windows when restart process is not allowed~~
+* pypi packaging
 ### utils rework
 * ~~utils as a submodule~~
 * improve JsonConfig for file not exist/invalid behavior
