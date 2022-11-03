@@ -18,20 +18,19 @@ class ApiJson(FatherApi):
         self.api_url = api_url
 
     def getVersion(self, version_path: list) -> str:
-        if not hasattr(self,"json"):
-            self.json=self.getJson(self.api_url)
-        return self.__class__.dict_path_get(self.json, version_path)
+        if not hasattr(self, "json"):
+            self.json = self.getJson(self.api_url)
+        return self.dict_path_get(self.json, version_path)
 
-    def getDlUrl(self, dlurl_path_join: list):
-        if not hasattr(self,"json"):
-            self.json=self.getJson(self.api_url)
+    def getDlUrl(self, dlurl_path_join: list) -> str:
+        if not hasattr(self, "json"):
+            self.json = self.getJson(self.api_url)
         dlurl_list = []
         for arg in dlurl_path_join:
             if type(arg) == str:
                 dlurl_list.append(arg)
             elif type(arg) in (list, set, tuple):
-                dlurl_list.append(self.__class__.dict_path_get(
-                    self.json, arg))
+                dlurl_list.append(self.dict_path_get(self.json, arg))
             else:
-                logging.warning("not supported dlurl_path arg %s"%arg)
+                logging.warning("not supported dlurl_path arg %s" % arg)
         return Url.join(*dlurl_list)

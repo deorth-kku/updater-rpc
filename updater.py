@@ -19,6 +19,7 @@ import logging
 from datetime import datetime
 from typing import Iterable, Generator
 
+
 class MissingConfig(RuntimeError):
     pass
 
@@ -72,7 +73,8 @@ class Updater:
             "use_cmd_version": False,
             "from_page": False,
             "index": 0
-        }
+        },
+        "jsonver": "1.0.0"
     }
     platform_info = ProcessCtrl.platform_info
     OS = copy(ProcessCtrl.OS)
@@ -129,6 +131,7 @@ class Updater:
         cls.aria2 = Aria2Rpc(ip, port, passwd, **args)
 
     metadata = {}
+
     @classmethod
     def addRepos(cls, *repos):
         cls.requests_obj = requests.Session()
@@ -139,16 +142,17 @@ class Updater:
             metadata_url = Url.join(repo, "metadata.json")
             j = cls.requests_obj.get(metadata_url, timeout=cls.tmout).json()
             for project in j:
-                url=Url.join(repo,j[project]["config_path"])
-                new_value=j[project]
-                new_value.update({"url":url})
+                url = Url.join(repo, j[project]["config_path"])
+                new_value = j[project]
+                new_value.update({"url": url})
                 cls.metadata.update({
-                    project:new_value
+                    project: new_value
                 })
+
     @classmethod
-    def setLocalConfigDir(cls,local_config_dir):
-        os.makedirs(local_config_dir,exist_ok=True)
-        cls.config_dir=local_config_dir
+    def setLocalConfigDir(cls, local_config_dir):
+        os.makedirs(local_config_dir, exist_ok=True)
+        cls.config_dir = local_config_dir
 
     @classmethod
     def setRequestsArgs(cls, times, tmout, proxy):
@@ -181,7 +185,10 @@ class Updater:
             Decompress.setLibarchive(bin_libarchive)
 
     @staticmethod
-    def version_compare(newversion, oldversion):
+    def version_compare(newversion: Iterable[int], oldversion: Iterable[int]):
+        """
+        if newversion > oldversion, return False. else return True
+        """
         count = min(len(newversion), len(oldversion))
         for i in range(count):
             aa = newversion[i]
@@ -191,6 +198,19 @@ class Updater:
             elif aa < bb:
                 return True
         return True
+
+    @staticmethod
+    def version_convert(version: str):
+        version = re.sub('[^0-9\.\-]', '', version)
+        version = version.replace(r"-", r".")
+        version = version.split(r".")
+        versiontuple = []
+        for num in version:
+            try:
+                versiontuple.append(int(num))
+            except ValueError:
+                versiontuple.append(0)
+        return versiontuple
 
     @staticmethod
     def file_sel(filelist: Iterable[str], include_filetype: Iterable[str], exclude_filetype: Iterable[str], prefix: str) -> Generator:
@@ -222,42 +242,56 @@ class Updater:
 
         self.addversioninfo = False
 
-        config_filename=os.path.join(self.config_dir,"%s.json" % name)
+        config_filename = os.path.join(self.config_dir, "%s.json" % name)
         if os.path.exists(config_filename):
             if name in self.metadata:
-                logging.debug("config file for %s exist in local and metadata, check for update"%self.name)
-                local_config_time=datetime.utcfromtimestamp(os.path.getmtime(config_filename))
-                remote_config_time=datetime.strptime(self.metadata[name]["date"],"%Y-%m-%d %H:%M:%S.%f")
+                logging.debug(
+                    "config file for %s exist in local and metadata, check for update" % self.name)
+                local_config_time = datetime.utcfromtimestamp(
+                    os.path.getmtime(config_filename))
+                remote_config_time = datetime.strptime(
+                    self.metadata[name]["date"], "%Y-%m-%d %H:%M:%S.%f")
                 if local_config_time < remote_config_time:
-                    logging.debug("config file for %s needs downloading"%self.name)
-                    download_new_config=True
+                    logging.debug(
+                        "config file for %s needs downloading" % self.name)
+                    download_new_config = True
                 else:
-                    logging.debug("config file for %s is latest"%self.name)
-                    download_new_config=False
+                    logging.debug("config file for %s is latest" % self.name)
+                    download_new_config = False
             else:
-                logging.debug("config file for %s exist in local but not in metadata, use local config"%self.name)
-                download_new_config=False
+                logging.debug(
+                    "config file for %s exist in local but not in metadata, use local config" % self.name)
+                download_new_config = False
         else:
             if name in self.metadata:
-                logging.debug("config file for %s not exist, needs downloading"%self.name)
-                download_new_config=True
+                logging.debug(
+                    "config file for %s not exist, needs downloading" % self.name)
+                download_new_config = True
             else:
-                msg="config for %s not exist in local and remote"
+                msg = "config for %s not exist in local and remote"
                 logging.error(msg)
                 raise MissingConfig(msg)
         if download_new_config:
             self.conf = JsonConfig(config_filename, "w")
-            j=self.requests_obj.get(self.metadata[self.name]["url"]).json()
+            j = self.requests_obj.get(self.metadata[self.name]["url"]).json()
             self.conf.dumpconfig(j)
 
         self.conf = JsonConfig(config_filename, "r")
-        self.conf = JsonConfig.mergeDict(self.conf, override)
+        if not self.version_compare(self.version_convert(self.conf.get("jsonver", "999")), self.version_convert(self.CONF["jsonver"])):
+            if "jsonver" in self.conf:
+                msg = "config file %s jsonver %s is newer than program supported %s, please update this program" % (
+                    config_filename, self.conf["jsonver"], self.CONF["jsonver"])
+            else:
+                msg = "no jsonver in config file %s, exiting" % config_filename
+            raise ValueError(msg)
+        self.conf: JsonConfig = JsonConfig.mergeDict(self.conf, override)
 
         for key in self.config_vars:
             self.conf.var_replace(key, self.config_vars[key])
 
         self.conf.set_defaults(self.CONF)
 
+        # compatibility code, will remove in the future
         for key in ("keyword", "update_keyword", "exclude_keyword"):
             if type(self.conf["download"][key]) == str:
                 self.conf["download"][key] = [self.conf["download"][key]]
@@ -337,15 +371,7 @@ class Updater:
             logging.info("Running on install mode")
             return True
         elif self.conf["version"]["use_exe_version"]:
-            version = re.sub('[^0-9\.\-]', '', self.version)
-            version = version.replace(r"-", r".")
-            version = version.split(r".")
-            self.versiontuple = []
-            for num in version:
-                try:
-                    self.versiontuple.append(int(num))
-                except ValueError:
-                    self.versiontuple.append(0)
+            self.versiontuple = self.version_convert(self.version)
 
             pe = PE(self.exepath)
             if not 'VS_FIXEDFILEINFO' in pe.__dict__:
@@ -427,7 +453,7 @@ class Updater:
             self.conf["decompress"]["exclude_file_type"] = self.conf["decompress"]["exclude_file_type"] + \
                 self.conf["decompress"]["exclude_file_type_when_update"]
 
-        selected_files = list(self.__class__.file_sel(
+        selected_files = list(self.file_sel(
             filelist0, self.conf["decompress"]["include_file_type"], self.conf["decompress"]["exclude_file_type"], prefix))
 
         if self.conf["decompress"]["single_dir"] and prefix != "":
