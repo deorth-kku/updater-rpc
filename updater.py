@@ -16,7 +16,11 @@ from copy import copy
 from codecs import open
 import os
 import logging
+from datetime import datetime
 from typing import Iterable, Generator
+
+class MissingConfig(RuntimeError):
+    pass
 
 
 class Updater:
@@ -124,10 +128,36 @@ class Updater:
         }
         cls.aria2 = Aria2Rpc(ip, port, passwd, **args)
 
+    metadata = {}
     @classmethod
-    def setRequestsArgs(cls, times, tmout):
+    def addRepos(cls, *repos):
+        cls.requests_obj = requests.Session()
+        cls.requests_obj.mount('http://', HTTPAdapter(max_retries=cls.times))
+        cls.requests_obj.mount('https://', HTTPAdapter(max_retries=cls.times))
+        cls.requests_obj.proxies.update(cls.proxies)
+        for repo in repos:
+            metadata_url = Url.join(repo, "metadata.json")
+            j = cls.requests_obj.get(metadata_url, timeout=cls.tmout).json()
+            for project in j:
+                url=Url.join(repo,j[project]["config_path"])
+                new_value=j[project]
+                new_value.update({"url":url})
+                cls.metadata.update({
+                    project:new_value
+                })
+    @classmethod
+    def setLocalConfigDir(cls,local_config_dir):
+        os.makedirs(local_config_dir,exist_ok=True)
+        cls.config_dir=local_config_dir
+
+    @classmethod
+    def setRequestsArgs(cls, times, tmout, proxy):
         cls.times = times
         cls.tmout = tmout
+        cls.proxies = {
+            "http": proxy,
+            "https": proxy
+        }
 
     @classmethod
     def setRemoteAria2(cls, remote_dir, local_dir):
@@ -182,7 +212,7 @@ class Updater:
             else:
                 yield file
 
-    def __init__(self, name, path, proxy="", retry=5, override={}):
+    def __init__(self, name: str, path: str, proxy: str = "", retry: int = 5, override: dict = {}):
         self.count += 1
         self.path = path
         self.name = name
@@ -192,7 +222,35 @@ class Updater:
 
         self.addversioninfo = False
 
-        self.conf = JsonConfig("config/%s.json" % name, "r")
+        config_filename=os.path.join(self.config_dir,"%s.json" % name)
+        if os.path.exists(config_filename):
+            if name in self.metadata:
+                logging.debug("config file for %s exist in local and metadata, check for update"%self.name)
+                local_config_time=datetime.utcfromtimestamp(os.path.getmtime(config_filename))
+                remote_config_time=datetime.strptime(self.metadata[name]["date"],"%Y-%m-%d %H:%M:%S.%f")
+                if local_config_time < remote_config_time:
+                    logging.debug("config file for %s needs downloading"%self.name)
+                    download_new_config=True
+                else:
+                    logging.debug("config file for %s is latest"%self.name)
+                    download_new_config=False
+            else:
+                logging.debug("config file for %s exist in local but not in metadata, use local config"%self.name)
+                download_new_config=False
+        else:
+            if name in self.metadata:
+                logging.debug("config file for %s not exist, needs downloading"%self.name)
+                download_new_config=True
+            else:
+                msg="config for %s not exist in local and remote"
+                logging.error(msg)
+                raise MissingConfig(msg)
+        if download_new_config:
+            self.conf = JsonConfig(config_filename, "w")
+            j=self.requests_obj.get(self.metadata[self.name]["url"]).json()
+            self.conf.dumpconfig(j)
+
+        self.conf = JsonConfig(config_filename, "r")
         self.conf = JsonConfig.mergeDict(self.conf, override)
 
         for key in self.config_vars:

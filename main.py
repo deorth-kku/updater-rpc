@@ -26,6 +26,7 @@ class Main:
             "retry": 5
         },
         "projects": [],
+        "repository":[],
         "defaults": {}
     }
 
@@ -48,6 +49,7 @@ class Main:
         os.chdir(sys.path[0])
         self.config = JsonConfig(conf)
 
+        # compatibility code, will remove in the future
         if "projects" in self.config and type(self.config["projects"]) == dict:
             new_projects = []
             for pro in self.config["projects"]:
@@ -71,7 +73,9 @@ class Main:
                             ["rpc-listen-port"], self.config["aria2"]["rpc-secret"])
         Updater.setDefaults(self.config["defaults"])
         Updater.setRequestsArgs(
-            self.config["requests"]["retry"], self.config["requests"]["timeout"])
+            self.config["requests"]["retry"], self.config["requests"]["timeout"], self.config["requests"]["proxy"])
+        Updater.setLocalConfigDir(os.path.join(os.path.dirname(conf),"config"))
+        Updater.addRepos(*self.config["repository"])
 
         if self.config["aria2"]["ip"] == "127.0.0.1" or self.config["aria2"]["ip"] == "localhost" or self.config["aria2"]["ip"] == "127.1":
             pass

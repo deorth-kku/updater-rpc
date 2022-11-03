@@ -10,15 +10,15 @@ class FatherApi:
     @staticmethod
     def filename_check(filename, keywords, no_keywords, filetype):
         for keyword in keywords:
-            type_flag=type(keyword)
-            if type_flag==str:
+            type_flag = type(keyword)
+            if type_flag == str:
                 if keyword not in filename:
                     return False
-            elif type_flag==list:
-                exist_flag=False
+            elif type_flag == list:
+                exist_flag = False
                 for keyword_sub in keyword:
                     if keyword_sub in filename:
-                        exist_flag=True
+                        exist_flag = True
                 if not exist_flag:
                     return False
             else:
@@ -31,22 +31,22 @@ class FatherApi:
             return False
         return True
 
-    def setRequestsArgs(self,proxy,times,tmout):
-        self.requests_obj=requests.Session()
-        self.tmout=tmout
+    def setRequestsArgs(self, proxy, times, tmout):
+        self.requests_obj = requests.Session()
+        self.tmout = tmout
         self.requests_obj.mount('http://', HTTPAdapter(max_retries=times))
         self.requests_obj.mount('https://', HTTPAdapter(max_retries=times))
-        if proxy!="":
-            proxies={
-                "http":proxy,
-                "https":proxy
+        if proxy != "":
+            proxies = {
+                "http": proxy,
+                "https": proxy
             }
             self.requests_obj.proxies.update(proxies)
 
-    def getJson(self,url):
+    def getJson(self, url):
         try:
-            request = self.requests_obj.get(url=url,timeout=self.tmout)
-        except (requests.exceptions.ConnectTimeout,requests.exceptions.ConnectionError):
+            request = self.requests_obj.get(url=url, timeout=self.tmout)
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
             raise
         return request.json()
 
@@ -64,13 +64,12 @@ class AppveyorApi(FatherApi):
 
     def getHistory(self):
         self.historyurl = Url.join(self.apiurl, "projects", self.account_name,
-                                  self.project_name, "history?recordsNumber=100"+self.branch)
+                                   self.project_name, "history?recordsNumber=100"+self.branch)
         self.json = self.getJson(self.historyurl)
         for build in self.json["builds"]:
             yield build["version"]
-    
-    
-    def getVersion(self,no_pull=False):
+
+    def getVersion(self, no_pull=False):
         for version in self.getHistory():
             self.version = version
             self.buildurl = Url.join(
@@ -82,16 +81,16 @@ class AppveyorApi(FatherApi):
                     continue
                 except KeyError:
                     pass
-            jobs=self.buildjson["build"]["jobs"]
-            if len(jobs)>1:
+            jobs = self.buildjson["build"]["jobs"]
+            if len(jobs) > 1:
                 for job in jobs:
                     if "elease" in job["name"]:
-                        self.jobid=job["jobId"]
-            elif len(jobs)==1:
-                self.jobid=jobs[0]["jobId"]
+                        self.jobid = job["jobId"]
+            elif len(jobs) == 1:
+                self.jobid = jobs[0]["jobId"]
             else:
                 continue
-            
+
             self.artifactsurl = Url.join(
                 self.apiurl, "buildjobs", self.jobid, "artifacts")
             self.artifactsjson = self.getJson(self.artifactsurl)
@@ -99,19 +98,19 @@ class AppveyorApi(FatherApi):
                 continue
             return self.version
 
-    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z",index=0):
+    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z", index=0):
         try:
-            match_urls=[]
+            match_urls = []
             for fileinfo in self.artifactsjson:
                 filename = fileinfo["fileName"]
-                if self.filename_check(filename,keyword,no_keyword,filetype):
+                if self.filename_check(filename, keyword, no_keyword, filetype):
                     dlurl = Url.join(
                         self.apiurl, "buildjobs", self.jobid, "artifacts", filename)
                     match_urls.append(dlurl)
             return match_urls[index]
         except AttributeError:
-            raise #AttributeError("you must run getVersion before you run getDlUrl")
-
+            # AttributeError("you must run getVersion before you run getDlUrl")
+            raise
 
 
 class GithubApi(FatherApi):
@@ -124,17 +123,17 @@ class GithubApi(FatherApi):
     def getReleases(self):
         self.releasesurl = Url.join(
             self.apiurl, self.account_name, self.project_name, "releases")
-        releases=self.getJson(self.releasesurl)
+        releases = self.getJson(self.releasesurl)
         if "message" in releases:
             raise ValueError(releases["message"])
         return releases
 
-    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z",index=0):
+    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z", index=0):
         try:
             if len(self.release["assets"]) != 0:
-                match_urls=[]
+                match_urls = []
                 for file in self.release["assets"]:
-                    if self.filename_check(file["name"],keyword,no_keyword,filetype):
+                    if self.filename_check(file["name"], keyword, no_keyword, filetype):
                         match_urls.append(file["browser_download_url"])
                 return match_urls[index]
             elif filetype == "zip":
@@ -142,14 +141,15 @@ class GithubApi(FatherApi):
             elif filetype == "tar.gz":
                 return self.release["tarball_url"]
         except AttributeError:
-            raise #AttributeError("you must run getVersion before you run getDlUrl")
-
+            # AttributeError("you must run getVersion before you run getDlUrl")
+            raise
 
     def getVersion(self, no_pull=False):
-        releases=self.getReleases()
-        releases_names=[release["name"] for release in releases]
-        releases_names_set=set(releases_names)
-        release_names_are_the_same=len(releases_names)>len(releases_names_set)
+        releases = self.getReleases()
+        releases_names = [release["name"] for release in releases]
+        releases_names_set = set(releases_names)
+        release_names_are_the_same = len(
+            releases_names) > len(releases_names_set)
         for release in releases:
             if release["prerelease"] and no_pull:
                 continue
@@ -157,8 +157,8 @@ class GithubApi(FatherApi):
                 self.version = release["name"]
             else:
                 self.version = release["tag_name"]
-            self.release=release
-            return self.version #I really should make this yield version, and re-pass the version to getDlUrl() from outer-level instead of just save it in the object
+            self.release = release
+            return self.version  # I really should make this yield version, and re-pass the version to getDlUrl() from outer-level instead of just save it in the object
 
 
 if __name__ == "__main__":
