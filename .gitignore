@@ -1,6 +1,7 @@
 .vscode/
 log/
 config.json
+config/
 *.code-workspace
 
 # Byte-compiled / optimized / DLL files
