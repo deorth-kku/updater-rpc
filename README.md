@@ -83,12 +83,16 @@ These project names must already included in your project list.
 * ~~create F-droid repository for android update~~(use offical fdroidserver program instead)
 * global download dir for local aria2
 * add --allow-overwrite
-* online config downloading (which require to store configs json elsewhere)
 * ~~popup message on windows when restart process is not allowed~~
 * pypi packaging
+### online config downloading (which require to store configs json elsewhere)
+* metadata.json: contain version(date) of the project-config.json, use project-name as key?
+* project-config.json: needs a config_json_ver (and check it before runs update)
+* dir structure: may want to add a categroy dir, so it will need to storage full path of project-config.json in metadata.json as well.
+* local metadata: storage in config.json? but this will not be very convenient when it comes to pass the project-config.json ver. 
 ### utils rework
 * ~~utils as a submodule~~
-* improve JsonConfig for file not exist/invalid behavior
+* ~~improve JsonConfig for file not exist/invalid behavior~~
 * ~~rework Py7z using native python library~~
 ### long-term (maybe on 0.0.3)
 * GUI (probably pyQT)
