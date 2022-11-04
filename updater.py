@@ -140,7 +140,16 @@ class Updater:
         cls.requests_obj.proxies.update(cls.proxies)
         for repo in repos:
             metadata_url = Url.join(repo, "metadata.json")
-            j = cls.requests_obj.get(metadata_url, timeout=cls.tmout).json()
+            try:
+                j = cls.requests_obj.get(
+                    metadata_url, timeout=cls.tmout).json()
+            except Exception as e:
+                logging.warning(
+                    "getting metadata from repo %s failed, cause: %s .skipping" % (repo, e))
+                if logging.root.isEnabledFor(logging.DEBUG):
+                    logging.exception(e)
+                continue
+
             for project in j:
                 url = Url.join(repo, j[project]["config_path"])
                 new_value = j[project]
@@ -148,6 +157,10 @@ class Updater:
                 cls.metadata.update({
                     project: new_value
                 })
+        if cls.metadata == {}:
+            msg = "cannot get metadata from any repo, please check you repository configuration"
+            logging.error(msg)
+            raise ValueError(msg)
 
     @classmethod
     def setLocalConfigDir(cls, local_config_dir):
@@ -268,7 +281,7 @@ class Updater:
                     "config file for %s not exist, needs downloading" % self.name)
                 download_new_config = True
             else:
-                msg = "config for %s not exist in local and remote"
+                msg = "config for \"%s\" not exist in local and remote" % self.name
                 logging.error(msg)
                 raise MissingConfig(msg)
         if download_new_config:

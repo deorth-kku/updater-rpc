@@ -6,6 +6,7 @@ import click
 from updater import Updater
 from utils import JsonConfig
 import logging
+from typing import Iterable
 from utils import MyLogSettings, ExceptionLogger, InstanceLock
 
 
@@ -26,7 +27,7 @@ class Main:
             "retry": 5
         },
         "projects": [],
-        "repository":[],
+        "repository": [],
         "defaults": {}
     }
 
@@ -74,7 +75,14 @@ class Main:
         Updater.setDefaults(self.config["defaults"])
         Updater.setRequestsArgs(
             self.config["requests"]["retry"], self.config["requests"]["timeout"], self.config["requests"]["proxy"])
-        Updater.setLocalConfigDir(os.path.join(os.path.dirname(conf),"config"))
+        Updater.setLocalConfigDir(os.path.join(
+            os.path.dirname(conf), "config"))
+
+        # build-in repo
+        if self.config["repository"] == []:
+            self.config["repository"] += [
+                "https://raw.githubusercontent.com/deorth-kku/updater-config/master"]
+
         Updater.addRepos(*self.config["repository"])
 
         if self.config["aria2"]["ip"] == "127.0.0.1" or self.config["aria2"]["ip"] == "localhost" or self.config["aria2"]["ip"] == "127.1":
@@ -100,52 +108,64 @@ class Main:
         if add2conf:
             self.config.dumpconfig()
 
-    def runUpdate(self, projects=None, force=False):
+    def runUpdate(self, projects: Iterable[str] = None, force: bool = False) -> None:
         # always update libarchive_win first to avoid update failure cause by file occupation
         for pro in self.config["projects"]:
             if pro["name"] == "libarchive_win":
                 self.config["projects"].remove(pro)
                 self.config["projects"].insert(0, pro)
 
-        for pro in self.config["projects"]:
+        if projects == None:
+            run_projects = self.config["projects"]
+        else:
+            projects = list(projects)
+            run_projects = []
+            for pro in self.config["projects"]:
+                if pro["name"] in projects:
+                    run_projects.append(pro)
+                    projects.remove(pro["name"])
+            for name in projects:
+                logging.warning(
+                    "\"%s\" not found in config.json, skipping" % name)
+
+        for pro in run_projects:
             try:
                 if pro["hold"] and not force:
+                    logging.info(
+                        "%s has been set to hold, skipping update" % pro["name"])
                     continue
             except KeyError:
                 pass
+
             try:
-                pro["currentVersion"]
+                pro_proxy = pro["proxy"]
             except KeyError:
-                pro.update({"currentVersion": ""})
-            if projects == None or pro["name"] in projects:
-                try:
-                    pro_proxy = pro["proxy"]
-                except KeyError:
-                    pro_proxy = self.config["requests"]["proxy"]
+                pro_proxy = self.config["requests"]["proxy"]
+
+            try:
                 obj = Updater(pro["name"], pro["path"],
                               pro_proxy, self.config["requests"]["retry"], pro.get("override", {}))
-                try:
-                    new_version = obj.run(force, pro["currentVersion"])
-                except Exception as e:
-                    logging.error(
-                        "update for %s failed, see log below" % obj.name)
+                new_version = obj.run(force, pro["currentVersion"])
+            except Exception as e:
+                logging.error(
+                    "update for \"%s\" failed, cause: %s" % (pro["name"], e))
+                if logging.root.isEnabledFor(logging.DEBUG):
                     logging.exception(e)
-                    if logging.root.isEnabledFor(logging.DEBUG):
-                        raise e
-                    else:
-                        continue
-                if new_version:
-                    pro_index = self.config["projects"].index(pro)
-                    self.config["projects"][pro_index].update(
-                        {"currentVersion": new_version})
-                    self.config.dumpconfig()
-                    try:
-                        for line in pro["post-cmds"]:
-                            line = line.replace("%PATH", '"%s"' % pro["path"])
-                            line = line.replace("%NAME", pro["name"])
-                            os.system(line)
-                    except KeyError:
-                        pass
+                    raise e
+                else:
+                    continue
+            if new_version:
+                pro_index = self.config["projects"].index(pro)
+                self.config["projects"][pro_index].update(
+                    {"currentVersion": new_version})
+                self.config.dumpconfig()
+                try:
+                    for line in pro["post-cmds"]:
+                        line = line.replace("%PATH", '"%s"' % pro["path"])
+                        line = line.replace("%NAME", pro["name"])
+                        os.system(line)
+                except KeyError:
+                    pass
 
     def __del__(self):
         logging.debug("__del__ method for Main obj %s has been called" % self)

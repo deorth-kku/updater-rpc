@@ -90,7 +90,7 @@ These project names must already included in your project list.
 * ~~project-config.json: needs a config_json_ver (and check it before runs update)~~
 * dir structure: may want to add a categroy dir, so it will need to storage full path of project-config.json in metadata.json as well.
 * ~~local metadata: storage in config.json? but this will not be very convenient when it comes to pass the project-config.json ver. ~~
-* create a new repo for project config and move project config in readme to it.
+* ~~create a new repo for project config~~ and move project config in readme to it.
 * redownload on broken config file
 * handle exception during updater__init__ in Main
 ### utils rework
