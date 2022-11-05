@@ -129,18 +129,13 @@ class Main:
                     "\"%s\" not found in config.json, skipping" % name)
 
         for pro in run_projects:
-            try:
-                if pro["hold"] and not force:
-                    logging.info(
-                        "%s has been set to hold, skipping update" % pro["name"])
-                    continue
-            except KeyError:
-                pass
 
-            try:
-                pro_proxy = pro["proxy"]
-            except KeyError:
-                pro_proxy = self.config["requests"]["proxy"]
+            if pro.get("hold", False) and not force:
+                logging.info(
+                    "%s has been set to hold, skipping update" % pro["name"])
+                continue
+
+            pro_proxy = pro.get("proxy", self.config["requests"]["proxy"])
 
             try:
                 obj = Updater(pro["name"], pro["path"],
@@ -159,13 +154,11 @@ class Main:
                 self.config["projects"][pro_index].update(
                     {"currentVersion": new_version})
                 self.config.dumpconfig()
-                try:
-                    for line in pro["post-cmds"]:
-                        line = line.replace("%PATH", '"%s"' % pro["path"])
-                        line = line.replace("%NAME", pro["name"])
-                        os.system(line)
-                except KeyError:
-                    pass
+
+                for line in pro.get("post-cmds", tuple()):
+                    line = line.replace("%PATH", '"%s"' % pro["path"])
+                    line = line.replace("%NAME", pro["name"])
+                    os.system(line)
 
     def __del__(self):
         logging.debug("__del__ method for Main obj %s has been called" % self)

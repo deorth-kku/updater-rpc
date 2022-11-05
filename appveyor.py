@@ -43,7 +43,7 @@ class FatherApi:
             }
             self.requests_obj.proxies.update(proxies)
 
-    def getJson(self, url):
+    def getJson(self, url: str) -> dict:
         try:
             request = self.requests_obj.get(url=url, timeout=self.tmout)
         except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
@@ -75,12 +75,8 @@ class AppveyorApi(FatherApi):
             self.buildurl = Url.join(
                 self.apiurl, "projects", self.account_name, self.project_name, "build", self.version)
             self.buildjson = self.getJson(self.buildurl)
-            if no_pull:
-                try:
-                    self.buildjson['build']['pullRequestId']
-                    continue
-                except KeyError:
-                    pass
+            if no_pull and 'pullRequestId' in self.buildjson.get('build', dict()):
+                continue
             jobs = self.buildjson["build"]["jobs"]
             if len(jobs) > 1:
                 for job in jobs:
