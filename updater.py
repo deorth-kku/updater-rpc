@@ -98,6 +98,8 @@ class Updater:
             arch = ["arm64", "aarch64", "armv8"]
         elif arch == "x86_64":
             arch = ["x86_64", "amd64", "x64", "linux-64"]
+        elif arch in ("i386", "i686"):
+            arch = [arch, "linux-32","x86"]
     else:
         arch = ""
         logging.warning("Not supported OS %s, vars will not working." % OS)
