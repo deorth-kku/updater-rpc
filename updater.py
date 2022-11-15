@@ -84,9 +84,9 @@ class Updater:
     OS = [OS, OS.capitalize()]
     if OS[0] == "windows":
         if platform.architecture()[0] == "64bit":
-            arch = "64"
+            arch = ["x86_64", "amd64", "x64", "windows-64"]
         else:
-            arch = ["32", "86"]
+            arch = ["win32", "86", "windows-32"]
         OS = "win"
     elif OS[0] == "linux":
         # dirty workaround for nihui's *-ncnn-vulkan projects
@@ -97,7 +97,7 @@ class Updater:
         if arch == "aarch64":
             arch = ["arm64", "aarch64", "armv8"]
         elif arch == "x86_64":
-            arch = ["x86_64","amd64","x64"]
+            arch = ["x86_64", "amd64", "x64", "linux-64"]
     else:
         arch = ""
         logging.warning("Not supported OS %s, vars will not working." % OS)
