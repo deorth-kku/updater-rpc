@@ -97,7 +97,7 @@ class Updater:
         if arch == "aarch64":
             arch = ["arm64", "aarch64", "armv8"]
         elif arch == "x86_64":
-            arch = "64"
+            arch = ["x86_64","amd64","x64"]
     else:
         arch = ""
         logging.warning("Not supported OS %s, vars will not working." % OS)
