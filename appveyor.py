@@ -116,13 +116,18 @@ class GithubApi(FatherApi):
         self.account_name = account_name
         self.project_name = project_name
 
-    def getReleases(self):
+    def getReleases(self) -> list[dict]:
         self.releasesurl = Url.join(
             self.apiurl, self.account_name, self.project_name, "releases")
         releases = self.getJson(self.releasesurl)
         if "message" in releases:
             raise ValueError(releases["message"])
         return releases
+
+    def getLastestRelease(self) -> dict:
+        url = Url.join(self.apiurl, self.account_name,
+                       self.project_name, "releases", "latest")
+        return self.getJson(url)
 
     def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z", index=0):
         try:
@@ -141,20 +146,23 @@ class GithubApi(FatherApi):
             raise
 
     def getVersion(self, no_pull=False):
+
         releases = self.getReleases()
         releases_names = [release["name"] for release in releases]
         releases_names_set = set(releases_names)
         release_names_are_the_same = len(
             releases_names) > len(releases_names_set)
-        for release in releases:
-            if release["prerelease"] and no_pull:
-                continue
-            if release["name"] != None and release["name"] != "" and not release_names_are_the_same:
-                self.version = release["name"]
-            else:
-                self.version = release["tag_name"]
-            self.release = release
-            return self.version  # I really should make this yield version, and re-pass the version to getDlUrl() from outer-level instead of just save it in the object
+        
+        if no_pull:
+            self.release=self.getLastestRelease()
+        else:
+            self.release=releases[0]
+
+        if self.release.get("name", None) not in (None, "") and not release_names_are_the_same:
+            self.version = self.release["name"]
+        else:
+            self.version = self.release["tag_name"]
+        return self.version
 
 
 if __name__ == "__main__":
