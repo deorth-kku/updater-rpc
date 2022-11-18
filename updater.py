@@ -84,9 +84,9 @@ class Updater:
     OS = [OS, OS.capitalize()]
     if OS[0] == "windows":
         if platform.architecture()[0] == "64bit":
-            arch = ["x86_64", "amd64", "x64", "windows-64"]
+            arch = ["x86_64", "amd64", "x64", "windows-64", "win64"]
         else:
-            arch = ["win32", "86", "windows-32","win64"]
+            arch = ["win32", "86", "windows-32"]
         OS = "win"
     elif OS[0] == "linux":
         # dirty workaround for nihui's *-ncnn-vulkan projects
@@ -97,9 +97,9 @@ class Updater:
         if arch == "aarch64":
             arch = ["arm64", "aarch64", "armv8"]
         elif arch == "x86_64":
-            arch = ["x86_64", "amd64", "x64", "linux-64","linux64"]
+            arch = ["x86_64", "amd64", "x64", "linux-64", "linux64"]
         elif arch in ("i386", "i686"):
-            arch = [arch, "linux-32","x86"]
+            arch = [arch, "linux-32", "x86"]
     else:
         arch = ""
         logging.warning("Not supported OS %s, vars will not working." % OS)
@@ -304,18 +304,16 @@ class Updater:
         for key in self.config_vars:
             self.conf.var_replace(key, self.config_vars[key])
 
-        
-
         # compatibility code, will remove in the future
-        for key in ("keyword", "update_keyword", "exclude_keyword","filetype"):
-            if type(self.conf.get("download",dict()).get(key)) == str:
+        for key in ("keyword", "update_keyword", "exclude_keyword", "filetype"):
+            if type(self.conf.get("download", dict()).get(key)) == str:
                 self.conf["download"][key] = [self.conf["download"][key]]
 
         self.conf.set_defaults(self.CONF)
-    
+
         # set default filetype
-        if self.conf["download"]["filetype"]==[]:
-            self.conf["download"]["filetype"]=["7z"]
+        if self.conf["download"]["filetype"] == []:
+            self.conf["download"]["filetype"] = ["7z"]
 
         if "image_name" not in self.conf["process"]:
             self.conf["process"].update({"image_name": self.name})
