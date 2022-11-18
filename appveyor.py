@@ -4,6 +4,9 @@ from requests.adapters import HTTPAdapter
 import re
 import os
 from utils import Url
+from datetime import datetime,timedelta
+
+
 
 
 class FatherApi:
@@ -81,6 +84,7 @@ class AppveyorApi(FatherApi):
             self.buildurl = Url.join(
                 self.apiurl, "projects", self.account_name, self.project_name, "build", self.version)
             self.buildjson = self.getJson(self.buildurl)
+
             if no_pull and 'pullRequestId' in self.buildjson.get('build', dict()):
                 continue
             jobs = self.buildjson["build"]["jobs"]
@@ -97,7 +101,14 @@ class AppveyorApi(FatherApi):
                 self.apiurl, "buildjobs", self.jobid, "artifacts")
             self.artifactsjson = self.getJson(self.artifactsurl)
             if len(self.artifactsjson) == 0:
-                continue
+                # check build time in case all artifact were purged after 1 month
+                date_str=self.buildjson["build"]["updated"].split(".")[0]
+                dt=datetime.strptime(date_str,"%Y-%m-%dT%H:%M:%S")
+                dt.timestamp()
+                if datetime.now()>dt+timedelta(days=+30):
+                    raise ValueError("builds are too old, artifacts are expired")
+                else:
+                    continue
             return self.version
 
     def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z", index=0):
