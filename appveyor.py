@@ -8,7 +8,10 @@ from utils import Url
 
 class FatherApi:
     @staticmethod
-    def filename_check(filename, keywords, no_keywords, filetype):
+    def filename_check(filename:str, keywords:list[str], no_keywords:list[str], filetype:list[str]):
+        if type(filetype)==str:
+            filetype=[filetype]
+
         for keyword in keywords:
             type_flag = type(keyword)
             if type_flag == str:
@@ -27,9 +30,12 @@ class FatherApi:
         for no_keyword in no_keywords:
             if no_keyword in filename:
                 return False
-        if not filename.endswith(filetype):
-            return False
-        return True
+        
+        ft_flag=False
+        for ft in filetype:
+            if filename.endswith(ft):
+                ft_flag=True
+        return ft_flag
 
     def setRequestsArgs(self, proxy, times, tmout):
         self.requests_obj = requests.Session()
@@ -129,7 +135,7 @@ class GithubApi(FatherApi):
                        self.project_name, "releases", "latest")
         return self.getJson(url)
 
-    def getDlUrl(self, keyword=[], no_keyword=[], filetype="7z", index=0):
+    def getDlUrl(self, keyword:list[str]=[], no_keyword:list[str]=[], filetype:list[str]=["7z"], index=0):
         try:
             if len(self.release["assets"]) != 0:
                 match_urls = []

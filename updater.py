@@ -39,7 +39,7 @@ class Updater:
             "keyword": [],
             "update_keyword": [],
             "exclude_keyword": [],
-            "filetype": "7z",
+            "filetype": [],
             "add_version_to_filename": False,
             "regexes": [],
             "index": 0,
@@ -74,7 +74,7 @@ class Updater:
             "from_page": False,
             "index": 0
         },
-        "jsonver": "1.0.0"
+        "jsonver": "1.0.1"
     }
     platform_info = ProcessCtrl.platform_info
     OS = copy(ProcessCtrl.OS)
@@ -86,7 +86,7 @@ class Updater:
         if platform.architecture()[0] == "64bit":
             arch = ["x86_64", "amd64", "x64", "windows-64"]
         else:
-            arch = ["win32", "86", "windows-32"]
+            arch = ["win32", "86", "windows-32","win64"]
         OS = "win"
     elif OS[0] == "linux":
         # dirty workaround for nihui's *-ncnn-vulkan projects
@@ -97,7 +97,7 @@ class Updater:
         if arch == "aarch64":
             arch = ["arm64", "aarch64", "armv8"]
         elif arch == "x86_64":
-            arch = ["x86_64", "amd64", "x64", "linux-64"]
+            arch = ["x86_64", "amd64", "x64", "linux-64","linux64"]
         elif arch in ("i386", "i686"):
             arch = [arch, "linux-32","x86"]
     else:
@@ -304,12 +304,18 @@ class Updater:
         for key in self.config_vars:
             self.conf.var_replace(key, self.config_vars[key])
 
-        self.conf.set_defaults(self.CONF)
+        
 
         # compatibility code, will remove in the future
-        for key in ("keyword", "update_keyword", "exclude_keyword"):
-            if type(self.conf["download"][key]) == str:
+        for key in ("keyword", "update_keyword", "exclude_keyword","filetype"):
+            if type(self.conf.get("download",dict()).get(key)) == str:
                 self.conf["download"][key] = [self.conf["download"][key]]
+
+        self.conf.set_defaults(self.CONF)
+    
+        # set default filetype
+        if self.conf["download"]["filetype"]==[]:
+            self.conf["download"]["filetype"]=["7z"]
 
         if "image_name" not in self.conf["process"]:
             self.conf["process"].update({"image_name": self.name})
