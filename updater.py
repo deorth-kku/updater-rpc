@@ -74,7 +74,7 @@ class Updater:
             "from_page": False,
             "index": 0
         },
-        "jsonver": "1.0.1"
+        "jsonver": "1.0.2"
     }
     platform_info = ProcessCtrl.platform_info
     OS = copy(ProcessCtrl.OS)
@@ -333,7 +333,8 @@ class Updater:
         elif self.conf["basic"]["api_type"] == "apijson":
             self.api = ApiJson(self.conf["basic"]["api_url"])
         elif self.conf["basic"]["api_type"] in ("simplespider", "staticlink"):
-            self.api = SimpleSpider(self.conf["basic"]["page_url"])
+            self.api = SimpleSpider(
+                self.conf["basic"]["page_url"], self.conf["basic"].get("headers"))
             self.simple = True
         else:
             raise ValueError("No such api %s" % self.conf["basic"]["api_type"])
@@ -434,8 +435,19 @@ class Updater:
                 temp_version = temp_version.replace(disallow, " ")
             self.filename = temp_name[0]+"_"+temp_version+temp_name[-1]
 
-        self.aria2.wget(self.dlurl, self.dldir, self.filename,
-                        proxy=self.proxy, retry=self.retry)
+        aria2_opts = {
+            "proxy": self.proxy,
+            "retry": self.retry
+        }
+        headers = self.conf["basic"].get("headers")
+        if headers:
+            header_list = []
+            for key in headers:
+                value = headers[key]
+                header_list.append(f"{key}: {value}")
+            aria2_opts.update({"header": header_list})
+
+        self.aria2.wget(self.dlurl, self.dldir, self.filename, **aria2_opts)
 
     def extract(self):
         if self.conf["decompress"]["skip"]:

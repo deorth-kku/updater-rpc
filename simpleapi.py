@@ -6,7 +6,7 @@ from appveyor import FatherApi
 
 
 class SimpleSpider(FatherApi):
-    headers = {
+    default_headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
 
     def page_regex_url(self, pageurl, regex, index, pagetext=None, try_redirect=False):
@@ -26,10 +26,14 @@ class SimpleSpider(FatherApi):
                 outurl = req.headers['Location']
         return outurl
 
-    def __init__(self, pageurl):
+    def __init__(self, pageurl: str, headers: dict = None):
         self.pageurl = pageurl
         self.__page = None
         self.dlurl = None
+        if headers == None:
+            self.headers = self.default_headers
+        else:
+            self.headers = headers
 
     @property
     def page(self):
