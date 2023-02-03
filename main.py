@@ -129,7 +129,7 @@ class Main:
                     "\"%s\" not found in config.json, skipping" % name)
 
         for pro in run_projects:
-            pro:dict
+            pro: dict
             if pro.get("hold", False) and not force:
                 logging.info(
                     "%s has been set to hold, skipping update" % pro["name"])
@@ -140,7 +140,7 @@ class Main:
             try:
                 obj = Updater(pro["name"], pro["path"],
                               pro_proxy, self.config["requests"]["retry"], pro.get("override", {}))
-                new_version = obj.run(force, pro.get("currentVersion",""))
+                new_version = obj.run(force, pro.get("currentVersion", ""))
             except Exception as e:
                 logging.error(
                     "update for \"%s\" failed, cause: %s" % (pro["name"], e))
@@ -158,6 +158,7 @@ class Main:
                 for line in pro.get("post-cmds", tuple()):
                     line = line.replace("%PATH", '"%s"' % pro["path"])
                     line = line.replace("%NAME", pro["name"])
+                    line = line.replace("%DL_FILENAME", obj.fullfilename)
                     os.system(line)
 
     def __del__(self):
