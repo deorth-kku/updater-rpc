@@ -48,6 +48,7 @@ These project names must already included in your project list.
 * pypi packaging
 * update this readme. tons of new feature is not documented
 * add sourceforge search path
+* fix amd driver decompress
 ### online config downloading (which require to store configs json elsewhere)
 * ~~metadata.json: contain version(date) of the project-config.json, use project-name as key?~~
 * ~~project-config.json: needs a config_json_ver (and check it before runs update)~~
