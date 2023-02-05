@@ -64,7 +64,8 @@ class Updater:
             "exclude_file_type_when_update": [],
             "single_dir": True,
             "keep_download_file": True,
-            "use_builtin_zipfile": False
+            "use_builtin_zipfile": False,
+            "use_system_package_manager": False
         },
         "version":
         {
@@ -74,7 +75,7 @@ class Updater:
             "from_page": False,
             "index": 0
         },
-        "jsonver": "1.0.2"
+        "jsonver": "1.0.3"
     }
     platform_info = ProcessCtrl.platform_info
     OS = copy(ProcessCtrl.OS)
@@ -451,12 +452,37 @@ class Updater:
 
     def extract(self):
         if self.conf["decompress"]["skip"]:
+            logging.info("skipping decompress for %s" % self.name)
             return
+
         try:
             self.fullfilename = os.path.join(
                 self.local_dir, self.name, self.filename)
         except AttributeError:
             self.fullfilename = os.path.join(self.dldir, self.filename)
+
+        if self.conf["decompress"]["use_system_package_manager"]:
+            if ProcessCtrl.OS != "linux":
+                logging.warning(
+                    "\"use_system_package_manager\" option only works on linux, skipping decompress for %s" % self.name)
+
+            else:
+                bin = shutil.which("dpkg")
+                if bin != None:
+                    os.environ["DEBIAN_FRONTEND"] = "noninteractive"
+                    cmd = f"{bin} -i --force-confdef \"{self.fullfilename}\""
+                else:
+                    bin = shutil.which("rpm")
+                    if bin != None:
+                        cmd = f"{bin} -ivh \"{self.fullfilename}\""
+                    else:
+                        logging.warning(
+                            "unable to find system package manager, skipping decompress for %s" % self.name)
+                        return
+                logging.debug("running cmd: %s" % cmd)
+                os.system(cmd) #os.system cannot be logged to log file, should use subprocess.popen with pipe
+            return
+
         times = 5
         sucuss = False
         while times > 0 and not sucuss:
