@@ -65,7 +65,8 @@ class Updater:
             "single_dir": True,
             "keep_download_file": True,
             "use_builtin_zipfile": False,
-            "use_system_package_manager": False
+            "use_system_package_manager": False,
+            "clean_install": False
         },
         "version":
         {
@@ -75,7 +76,7 @@ class Updater:
             "from_page": False,
             "index": 0
         },
-        "jsonver": "1.0.3"
+        "jsonver": "1.0.4"
     }
     platform_info = ProcessCtrl.platform_info
     OS = copy(ProcessCtrl.OS)
@@ -451,9 +452,15 @@ class Updater:
         self.aria2.wget(self.dlurl, self.dldir, self.filename, **aria2_opts)
 
     def extract(self):
+
         if self.conf["decompress"]["skip"]:
             logging.info("skipping decompress for %s" % self.name)
             return
+
+        if self.conf["decompress"]["clean_install"]:
+            logging.warning(
+                f"running clean install for {self.name}, removing {self.path}")
+            shutil.rmtree(self.path)
 
         try:
             self.fullfilename = os.path.join(
@@ -480,7 +487,8 @@ class Updater:
                             "unable to find system package manager, skipping decompress for %s" % self.name)
                         return
                 logging.debug("running cmd: %s" % cmd)
-                os.system(cmd) #os.system cannot be logged to log file, should use subprocess.popen with pipe
+                # os.system cannot be logged to log file, should use subprocess.popen with pipe
+                os.system(cmd)
             return
 
         times = 5
