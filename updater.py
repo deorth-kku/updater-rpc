@@ -457,7 +457,7 @@ class Updater:
             logging.info("skipping decompress for %s" % self.name)
             return
 
-        if self.conf["decompress"]["clean_install"]:
+        if self.conf["decompress"]["clean_install"] and os.path.exists(self.path):
             logging.warning(
                 f"running clean install for {self.name}, removing {self.path}")
             shutil.rmtree(self.path)
