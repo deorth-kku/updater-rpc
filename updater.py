@@ -575,7 +575,7 @@ class Updater:
                 versionfile.write(self.version)
             versionfile.close()
 
-    def run(self, force=False, currentVersion="", popup=False):
+    def run(self, force=False, currentVersion="", popup=True):
         if self.checkIfUpdateIsNeed(currentVersion) or force:
             logging.info("starting update %s" % self.name)
 
@@ -596,9 +596,10 @@ class Updater:
                 else:
                     os.system(self.conf["process"]["start_cmd"])
 
-            else:
+            elif popup:
                 if self.proc.checkProc():
-                    msg = "waiting for program %s to stop so we can update it" % self.name
+                    msg = "waiting for process %s to stop so we can update %s" % (
+                        self.conf["process"]["image_name"], self.name)
                     logging.warning(msg)
                     ProcessCtrl.popup_msg(msg)
                     self.proc.waitProc()
