@@ -365,7 +365,7 @@ class Updater:
             except TypeError:
                 raise ValueError("Can't get download url!")
         else:
-            self.filename = self.conf["download"]["filename_override"]
+            self.filename:str = self.conf["download"]["filename_override"]
 
     def checkIfUpdateIsNeed(self, currentVersion):
         self.exepath = os.path.join(
@@ -431,12 +431,14 @@ class Updater:
                 os.makedirs(self.dldir)
 
         if self.conf["download"]["add_version_to_filename"]:
-            temp_name = os.path.splitext(self.filename)
+            for ft in self.conf["download"]["filetype"]:
+                if self.filename.endswith(ft):
+                    break
+            temp_name = self.filename[0:-len(ft)].rstrip(".")
             temp_version = str(self.version)
             for disallow in (r"<", r">", r"/", "\\", r"|", r":", r"*", r"?"):
                 temp_version = temp_version.replace(disallow, " ")
-            self.filename = temp_name[0]+"_"+temp_version+temp_name[-1]
-
+            self.filename = temp_name+"_"+temp_version+"."+ft
         aria2_opts = {
             "proxy": self.proxy,
             "retry": self.retry
