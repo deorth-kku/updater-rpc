@@ -89,7 +89,7 @@ class Updater:
             arch = ["x86_64", "amd64", "x64", "windows-64", "win64"]
         else:
             arch = ["win32", "86", "windows-32"]
-        OS = "win"
+        OS.append("win")
     elif OS[0] == "linux":
         # dirty workaround for nihui's *-ncnn-vulkan projects
         OS.append("ubuntu")
