@@ -1,0 +1,6 @@
+click>=8.0.3
+pefile>=2021.9.3
+psutil>=5.8.0
+requests>=2.26.0
+xmltodict>=0.12.0
+libarchive-c>=4.0
