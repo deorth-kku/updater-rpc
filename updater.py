@@ -114,7 +114,7 @@ class Updater:
     count = 0
 
     @classmethod
-    def setAria2Rpc(cls, ip="127.0.0.1", port="6800", passwd=""):
+    def setAria2Rpc(cls, ip="127.0.0.1", port="6800", passwd=None):
         log = "log/aria2.log"
         try:
             os.makedirs("log")

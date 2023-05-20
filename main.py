@@ -15,7 +15,7 @@ class Main:
         "aria2": {
             "ip": "127.0.0.1",
             "rpc-listen-port": "6800",
-            "rpc-secret": ""
+            "rpc-secret": None
         },
         "binarys": {
             "aria2c": "aria2c",
