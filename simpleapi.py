@@ -42,11 +42,16 @@ class SimpleSpider(FatherApi):
             self.__page = req.text
         return self.__page
 
-    def getDlUrl(self, regexes, indexs=[], try_redirect=True, dlurl=''):
+    def getDlUrl(self, regexes, indexs=[], try_redirect=True, dlurl='',data=None):
         if self.dlurl:
             return self.dlurl
         if dlurl != "":
-            self.dlurl = dlurl
+            if len(data)!=0:
+                req = self.requests_obj.post(dlurl,data=data,allow_redirects=False)
+                if req.status_code in (302, 303):
+                    self.dlurl = req.headers['Location']
+            else:
+                self.dlurl = dlurl
         else:
             lvlen = len(regexes)
             if indexs == []:

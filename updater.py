@@ -46,7 +46,8 @@ class Updater:
             "indexes": [],
             "try_redirect": True,
             "filename_override": "",
-            "url": ""
+            "url": "",
+            "data":{}
         },
         "process":
         {
@@ -349,7 +350,7 @@ class Updater:
                 self.dlurl = self.api.getDlUrl(self.conf["download"]["path"])
             elif self.simple:
                 self.dlurl = self.api.getDlUrl(regexes=self.conf["download"]["regexes"], indexs=self.conf["download"]
-                                               ["indexes"], try_redirect=self.conf["download"]["try_redirect"], dlurl=self.conf["download"]["url"])
+                                               ["indexes"], try_redirect=self.conf["download"]["try_redirect"], dlurl=self.conf["download"]["url"],data=self.conf["download"]["data"])
             elif self.install or self.conf["download"]["update_keyword"] == []:
                 self.dlurl = self.api.getDlUrl(self.conf["download"]["keyword"], self.conf["download"]["exclude_keyword"] +
                                                self.conf["download"]["update_keyword"], self.conf["download"]["filetype"], self.conf["download"]["index"])
