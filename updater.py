@@ -554,7 +554,7 @@ class Updater:
             extracted_file = os.path.join(extract_path, selected_files[0])
             if os.path.exists(main_program_file):
                 os.remove(main_program_file)
-            os.rename(extracted_file, main_program_file)
+                os.rename(extracted_file, main_program_file)
 
         if not self.conf["decompress"]["keep_download_file"]:
             os.remove(self.fullfilename)
