@@ -14,10 +14,10 @@ class SimpleSpider(FatherApi):
             req = self.requests_obj.get(url=pageurl, headers=self.headers)
             pagetext = req.text
         outurl = re.findall(regex, pagetext)[index]
-        outurl = unescape(outurl)
+        outurl:str = unescape(outurl)
         if outurl.startswith("/"):
             site = Url.sitename(pageurl)
-            outurl = Url.join(site, outurl)
+            outurl = Url.join(site, outurl.lstrip("/"))
         elif not outurl.startswith("http"):
             outurl = Url.join(pageurl, outurl)
         if try_redirect:
